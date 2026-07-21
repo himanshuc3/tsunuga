@@ -14,7 +14,7 @@ import {
 } from '../domain/scheduler'
 import type { AppState, PendingCard } from '../domain/types'
 import { ALARM_NAME } from '../domain/types'
-import { loadState, saveState, updateState } from '../storage'
+import { loadState, saveState, updateState } from '../common/storage'
 
 let lastShownTabId: number | null = null
 

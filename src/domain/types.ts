@@ -20,7 +20,6 @@ export type VocabItem = {
 
 export type Lesson = {
   id: string
-  order: number
   title: string
   concepts: Concept[]
   hiragana: HiraganaItem[]

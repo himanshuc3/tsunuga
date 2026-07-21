@@ -1,49 +1,16 @@
 import { createRoot, type Root } from 'react-dom/client'
 import type { ExtensionMessage } from '../domain/messages'
 import type { PendingCard } from '../domain/types'
+import browser from 'webextension-polyfill'
 import { Card } from './Card'
 import cssText from './Card.css?inline'
 
 const HOST_ID = 'tsunagu-extension-host'
 
-let root: Root | null = null
-let shadow: ShadowRoot | null = null
-let currentCardId: string | null = null
 
-function ensureMount(): HTMLElement {
-  let host = document.getElementById(HOST_ID)
-  if (!host) {
-    host = document.createElement('div')
-    host.id = HOST_ID
-    host.style.all = 'initial'
-    document.documentElement.appendChild(host)
-    shadow = host.attachShadow({ mode: 'open' })
-    const style = document.createElement('style')
-    style.textContent = cssText
-    shadow.appendChild(style)
-    const mount = document.createElement('div')
-    mount.className = 'tsunagu-root'
-    shadow.appendChild(mount)
-    root = createRoot(mount)
-  } else if (!shadow) {
-    shadow = host.shadowRoot
-  }
-  return host
-}
-
-function destroyMount(): void {
-  const host = document.getElementById(HOST_ID)
-  if (root) {
-    root.unmount()
-    root = null
-  }
-  host?.remove()
-  shadow = null
-  currentCardId = null
-}
 
 function sendAnswer(cardId: string, choice: string, correct: boolean): void {
-  chrome.runtime.sendMessage({
+  browser.runtime.sendMessage({
     type: 'ANSWER',
     cardId,
     choice,
@@ -52,34 +19,95 @@ function sendAnswer(cardId: string, choice: string, correct: boolean): void {
 }
 
 function sendDismiss(cardId: string): void {
-  chrome.runtime.sendMessage({ type: 'DISMISS', cardId })
+  browser.runtime.sendMessage({ type: 'DISMISS', cardId })
 }
 
-function showCard(card: PendingCard): void {
-  ensureMount()
-  currentCardId = card.id
-  root?.render(
-    <Card
-      card={card}
-      onAnswer={(choice, correct) => sendAnswer(card.id, choice, correct)}
-      onAck={() => sendAnswer(card.id, '', true)}
-      onDismiss={() => sendDismiss(card.id)}
-    />,
-  )
-}
 
-function hideCard(): void {
-  destroyMount()
-}
 
-chrome.runtime.onMessage.addListener((message: ExtensionMessage) => {
-  if (message.type === 'SHOW_CARD') {
-    if (currentCardId === message.card.id && document.getElementById(HOST_ID)) {
-      return
+
+class Controller{
+  private static _instance: Controller
+  private _root: null | Root = null
+  private _shadow: ShadowRoot | null = null
+  private _currentCardId: string | null = null
+
+  static getInstance(){
+    if(!Controller._instance){
+      Controller._instance = new Controller()
     }
-    showCard(message.card)
+    return Controller._instance
   }
-  if (message.type === 'HIDE_CARD') {
-    hideCard()
+  constructor(){
+    this._attachMessagingLayer()
   }
-})
+
+  private _attachMessagingLayer(){
+    browser.runtime.onMessage.addListener((message: ExtensionMessage) => {
+      switch(message.type){
+        case 'SHOW_CARD':{
+          if (currentCardId === message.card.id && document.getElementById(HOST_ID)) {
+            return
+          }
+          this.showCard(message.card)
+        }
+        case 'HIDE_CARD':{
+          this.hideCard()
+        }
+      }
+    })
+  }
+
+  public hideCard():void{
+    this._destroyMount()
+  }
+
+  private _destroyMount(): void {
+    const host = document.getElementById(HOST_ID)
+    if (this._root) {
+      this._root.unmount()
+      this._root = null
+    }
+    host?.remove()
+    this._shadow = null
+    this._currentCardId = null
+  }
+
+  public showCard(card: PendingCard): void {
+    this._ensureMount()
+    currentCardId = card.id
+    root?.render(
+      <Card
+        card={card}
+        onAnswer={(choice, correct) => sendAnswer(card.id, choice, correct)}
+        onAck={() => sendAnswer(card.id, '', true)}
+        onDismiss={() => sendDismiss(card.id)}
+      />,
+    )
+  }
+
+  private _ensureMount(): HTMLElement {
+    let host = document.getElementById(HOST_ID)
+    if (!host) {
+      host = document.createElement('div')
+      host.id = HOST_ID
+      host.style.all = 'initial'
+      document.documentElement.appendChild(host)
+      this._shadow = host.attachShadow({ mode: 'open' })
+      const style = document.createElement('style')
+      style.textContent = cssText
+      this._shadow.appendChild(style)
+      const mount = document.createElement('div')
+      mount.className = 'tsunagu-root'
+      this._shadow.appendChild(mount)
+      this._root = createRoot(mount)
+    } else if (!shadow) {
+      this._shadow = host.shadowRoot
+    }
+    return host
+  }
+  
+
+}
+
+Controller.getInstance()
+

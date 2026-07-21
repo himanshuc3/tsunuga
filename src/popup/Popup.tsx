@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { getSortedLessons } from '../content/lessons'
+import { lessons } from '../content/lessons'
 import {
   countMasteredInLesson,
   isLessonUnlocked,
@@ -81,7 +81,6 @@ export const Popup = () => {
     )
   }
 
-  const lessons = getSortedLessons()
   const current = lessons.find((l) => l.id === state.currentLessonId)
   const progress = current
     ? countMasteredInLesson(state, current)

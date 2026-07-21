@@ -3,7 +3,6 @@ import type { Lesson } from '../../domain/types'
 export const lessons: Lesson[] = [
   {
     id: 'lesson-01-vowels',
-    order: 1,
     title: 'Hiragana: Vowels',
     concepts: [
       {
@@ -13,11 +12,11 @@ export const lessons: Lesson[] = [
       },
     ],
     hiragana: [
-      // { char: 'あ', romaji: 'a' },
-      // { char: 'い', romaji: 'i' },
-      // { char: 'う', romaji: 'u' },
-      // { char: 'え', romaji: 'e' },
-      // { char: 'お', romaji: 'o' },
+      { char: 'あ', romaji: 'a' },
+      { char: 'え', romaji: 'e' },
+      { char: 'い', romaji: 'i' },
+      { char: 'お', romaji: 'o' },
+      { char: 'う', romaji: 'u' },
     ],
     vocab: [
       { id: 'v-ai', jp: 'あい', reading: 'watashi', en: 'I' },
@@ -31,7 +30,6 @@ export const lessons: Lesson[] = [
   },
   {
     id: 'lesson-02-k-row',
-    order: 2,
     title: 'Hiragana: K-row',
     unlockAfter: 'lesson-01-vowels',
     concepts: [
@@ -52,7 +50,6 @@ export const lessons: Lesson[] = [
   },
   {
     id: 'lesson-03-s-row',
-    order: 3,
     title: 'Hiragana: S-row',
     unlockAfter: 'lesson-02-k-row',
     concepts: [
@@ -73,7 +70,6 @@ export const lessons: Lesson[] = [
   },
   {
     id: 'lesson-04-t-row',
-    order: 4,
     title: 'Hiragana: T-row',
     unlockAfter: 'lesson-03-s-row',
     concepts: [
@@ -94,7 +90,6 @@ export const lessons: Lesson[] = [
   },
   {
     id: 'lesson-05-n-row',
-    order: 5,
     title: 'Hiragana: N-row',
     unlockAfter: 'lesson-04-t-row',
     concepts: [
@@ -115,7 +110,6 @@ export const lessons: Lesson[] = [
   },
   {
     id: 'lesson-06-greetings',
-    order: 6,
     title: 'Vocab: Greetings',
     unlockAfter: 'lesson-05-n-row',
     concepts: [
@@ -138,7 +132,6 @@ export const lessons: Lesson[] = [
   },
   {
     id: 'lesson-07-h-row',
-    order: 7,
     title: 'Hiragana: H-row',
     unlockAfter: 'lesson-06-greetings',
     concepts: [
@@ -187,17 +180,12 @@ export function getLessonById(id: string): Lesson | undefined {
   return lessons.find((l) => l.id === id)
 }
 
-export function getSortedLessons(): Lesson[] {
-  return [...lessons].sort((a, b) => a.order - b.order)
-}
-
 export function getFirstLesson(): Lesson {
-  return getSortedLessons()[0]
+  return lessons[0]
 }
 
 export function getNextLesson(currentId: string): Lesson | undefined {
-  const sorted = getSortedLessons()
-  const idx = sorted.findIndex((l) => l.id === currentId)
-  if (idx < 0 || idx >= sorted.length - 1) return undefined
-  return sorted[idx + 1]
+  const idx = lessons.findIndex((l) => l.id === currentId)
+  if (idx < 0 || idx >= lessons.length - 1) return undefined
+  return lessons[idx + 1]
 }

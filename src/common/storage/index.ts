@@ -1,6 +1,7 @@
-import { getFirstLesson } from '../content/lessons'
-import type { AppState, PendingCard, Settings } from '../domain/types'
-import { DEFAULT_SETTINGS } from '../domain/types'
+import { getFirstLesson } from '../../content/lessons'
+import type { AppState, PendingCard, Settings } from '../../domain/types'
+import { DEFAULT_SETTINGS } from '../../domain/types'
+import browser from 'webextension-polyfill'
 
 const STORAGE_KEYS = {
   currentLessonId: 'currentLessonId',
@@ -36,7 +37,7 @@ function mergeSettings(raw: unknown): Settings {
 
 export async function loadState(): Promise<AppState> {
   const defaults = createDefaultState()
-  const result = await chrome.storage.local.get([
+  const result = await browser.storage.local.get([
     STORAGE_KEYS.currentLessonId,
     STORAGE_KEYS.completedLessonIds,
     STORAGE_KEYS.itemProgress,
@@ -62,7 +63,7 @@ export async function loadState(): Promise<AppState> {
 }
 
 export async function saveState(state: AppState): Promise<void> {
-  await chrome.storage.local.set({
+  await browser.storage.local.set({
     [STORAGE_KEYS.currentLessonId]: state.currentLessonId,
     [STORAGE_KEYS.completedLessonIds]: state.completedLessonIds,
     [STORAGE_KEYS.itemProgress]: state.itemProgress,

@@ -1,0 +1,14 @@
+## Tsunuga MVP
+
+### MVP
+
+- Create lesson#1,#2,#3
+- Complete the design
+- Excluded timespans
+- Progress Overview board
+- Tests for Vocab
+
+### MVP#2
+
+- Create more lessons
+- AI generated sentence typing test based on existing literature

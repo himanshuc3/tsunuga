@@ -1,4 +1,4 @@
-import { getLessonById, getSortedLessons, lessons } from '../content/lessons'
+import { getLessonById, lessons } from '../content/lessons'
 import {
   getOrCreateProgress,
   isItemMastered,
@@ -252,7 +252,7 @@ export function sampleNextCard(state: AppState): PendingCard | null {
   }
 
   // Light review from completed lessons
-  for (const lesson of getSortedLessons()) {
+  for (const lesson of lessons) {
     if (!state.completedLessonIds.includes(lesson.id) && lesson.id !== current.id) {
       continue
     }
