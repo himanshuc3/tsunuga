@@ -9,19 +9,6 @@ const HOST_ID = 'tsunagu-extension-host'
 
 
 
-function sendAnswer(cardId: string, choice: string, correct: boolean): void {
-  browser.runtime.sendMessage({
-    type: 'ANSWER',
-    cardId,
-    choice,
-    correct,
-  })
-}
-
-function sendDismiss(cardId: string): void {
-  browser.runtime.sendMessage({ type: 'DISMISS', cardId })
-}
-
 
 
 
@@ -43,19 +30,36 @@ class Controller{
 
   private _attachMessagingLayer(){
     browser.runtime.onMessage.addListener((message: ExtensionMessage) => {
-      switch(message.type){
-        case 'SHOW_CARD':{
-          if (currentCardId === message.card.id && document.getElementById(HOST_ID)) {
+      switch (message.type) {
+        case 'SHOW_CARD': {
+          if (this._currentCardId === message.card.id && document.getElementById(HOST_ID)) {
             return
           }
           this.showCard(message.card)
+          break
         }
-        case 'HIDE_CARD':{
+        case 'HIDE_CARD': {
           this.hideCard()
+          break
         }
       }
     })
   }
+
+  public sendAnswer(cardId: string, choice: string, correct: boolean): void {
+    browser.runtime.sendMessage({
+      type: 'ANSWER',
+      cardId,
+      choice,
+      correct,
+    })
+  }
+  
+  public sendDismiss(cardId: string): void {
+    browser.runtime.sendMessage({ type: 'DISMISS', cardId })
+  }
+  
+  
 
   public hideCard():void{
     this._destroyMount()
@@ -74,13 +78,13 @@ class Controller{
 
   public showCard(card: PendingCard): void {
     this._ensureMount()
-    currentCardId = card.id
-    root?.render(
+    this._currentCardId = card.id
+    this._root?.render(
       <Card
         card={card}
-        onAnswer={(choice, correct) => sendAnswer(card.id, choice, correct)}
-        onAck={() => sendAnswer(card.id, '', true)}
-        onDismiss={() => sendDismiss(card.id)}
+        onAnswer={(choice, correct) => this.sendAnswer(card.id, choice, correct)}
+        onAck={() => this.sendAnswer(card.id, '', true)}
+        onDismiss={() => this.sendDismiss(card.id)}
       />,
     )
   }
@@ -100,7 +104,7 @@ class Controller{
       mount.className = 'tsunagu-root'
       this._shadow.appendChild(mount)
       this._root = createRoot(mount)
-    } else if (!shadow) {
+    } else if (!this._shadow) {
       this._shadow = host.shadowRoot
     }
     return host

@@ -17,6 +17,7 @@ import { ALARM_NAME } from '../domain/types'
 import { loadState, saveState, updateState } from '../common/storage'
 
 let lastShownTabId: number | null = null
+let lastActiveTabId: number | null = null
 
 export type ShowResult =
   | { status: 'shown'; tabId: number }
@@ -30,7 +31,7 @@ function isInjectableUrl(url: string | undefined): boolean {
   return url.startsWith('http://') || url.startsWith('https://')
 }
 
-/** Resolve the tab behind the popup (last focused normal window). */
+/** Resolve the active tab in the last focused normal window (behind the side panel). */
 async function getActiveInjectableTab(): Promise<chrome.tabs.Tab | null> {
   const [focused] = await chrome.tabs.query({
     active: true,
@@ -244,7 +245,34 @@ async function handleDismiss(cardId: string): Promise<void> {
   await ensureAlarm(next)
 }
 
+async function configureSidePanel(): Promise<void> {
+  await chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true })
+}
+
+/** Must call sidePanel.open synchronously in the command callback (no await before it). */
+function openSidePanelFromGesture(): void {
+  if (lastActiveTabId != null) {
+    void chrome.sidePanel.open({ tabId: lastActiveTabId })
+    return
+  }
+
+  chrome.tabs.query({ active: true, lastFocusedWindow: true }, ([tab]) => {
+    if (tab?.id != null) {
+      void chrome.sidePanel.open({ tabId: tab.id })
+    } else if (tab?.windowId != null) {
+      void chrome.sidePanel.open({ windowId: tab.windowId })
+    }
+  })
+}
+
+chrome.commands.onCommand.addListener((command: string) => {
+  if (command === 'open-side-panel') {
+    openSidePanelFromGesture()
+  }
+})
+
 chrome.runtime.onInstalled.addListener(async () => {
+  await configureSidePanel()
   const existing = await loadState()
   await saveState(existing)
   await setBadge(Boolean(existing.pendingCard))
@@ -255,6 +283,7 @@ chrome.runtime.onInstalled.addListener(async () => {
 })
 
 chrome.runtime.onStartup.addListener(async () => {
+  await configureSidePanel()
   const state = await loadState()
   await setBadge(Boolean(state.pendingCard))
   if (state.pendingCard) {
@@ -269,7 +298,8 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
   await createAndShowCard()
 })
 
-chrome.tabs.onActivated.addListener(async () => {
+chrome.tabs.onActivated.addListener(async ({ tabId }) => {
+  lastActiveTabId = tabId
   await followPendingToActiveTab()
 })
 
@@ -349,6 +379,9 @@ chrome.runtime.onMessage.addListener((message: ExtensionMessage, _sender, sendRe
 })
 
 void (async () => {
+  await configureSidePanel()
+  const [activeTab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true })
+  if (activeTab?.id != null) lastActiveTabId = activeTab.id
   const state = await loadState()
   await setBadge(Boolean(state.pendingCard))
   if (state.pendingCard) {

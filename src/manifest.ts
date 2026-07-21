@@ -18,8 +18,8 @@ export default defineManifest({
     128: 'img/logo-128.png',
   },
   action: {
-    default_popup: 'popup.html',
     default_icon: 'img/logo-48.png',
+    default_title: 'Open tsunagu side panel',
   },
   options_page: 'options.html',
   background: {
@@ -34,6 +34,17 @@ export default defineManifest({
   ],
   side_panel: {
     default_path: 'sidepanel.html',
+  },
+  commands: {
+    _execute_action: {
+      suggested_key: {
+        default: 'Alt+Shift+T',
+        mac: 'Alt+Shift+T',
+      },
+    },
+    'open-side-panel': {
+      description: 'Open tsunagu side panel',
+    },
   },
   web_accessible_resources: [
     {

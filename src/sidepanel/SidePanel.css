@@ -1,27 +1,192 @@
-@media (prefers-color-scheme: light) {
-  a:hover {
-    color: #61dafb;
-  }
+:root {
+  color-scheme: light;
+  --bg: #f7f4ef;
+  --ink: #1c1f26;
+  --muted: #5c6472;
+  --line: rgba(28, 31, 38, 0.12);
+  --accent: #2f6fed;
+  --warm: #c47b2c;
+  --ok: #2f7d4a;
 }
 
-main {
-  text-align: center;
-  padding: 1em;
-  margin: 0 auto;
+* {
+  box-sizing: border-box;
 }
 
-h3 {
-  color: #61dafb;
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Hiragino Sans', 'Noto Sans JP', 'Segoe UI', sans-serif;
+}
+
+.sidepanel {
+  padding: 16px 16px 20px;
+  max-width: 480px;
+}
+
+.sidepanel-header h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.tagline {
+  margin: 4px 0 16px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.panel {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+}
+
+.panel h2 {
+  margin: 0 0 6px;
+  font-size: 11px;
   text-transform: uppercase;
-  font-size: 1.5rem;
-  font-weight: 200;
-  line-height: 1.2rem;
-  margin: 2rem auto;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  font-weight: 700;
 }
 
-a {
-  font-size: 0.5rem;
-  margin: 0.5rem;
-  color: #cccccc;
-  text-decoration: none;
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.label {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+
+.badge.live {
+  background: rgba(47, 125, 74, 0.12);
+  color: var(--ok);
+}
+
+.badge.paused {
+  background: rgba(196, 123, 44, 0.14);
+  color: var(--warm);
+}
+
+.pending-note {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: var(--warm);
+}
+
+.status-msg {
+  margin: 8px 0 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--ink);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+button {
+  appearance: none;
+  border: 0;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  background: var(--accent);
+  color: #fff;
+}
+
+button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+button.secondary {
+  background: #fff;
+  color: var(--ink);
+  border: 1px solid var(--line);
+}
+
+.lesson-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.muted {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.lesson-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.lesson-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 13px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.lesson-list li:last-child {
+  border-bottom: 0;
+}
+
+.lesson-list li.locked {
+  opacity: 0.45;
+}
+
+.lesson-list li.active .lesson-name {
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.lesson-list li.done .lesson-name {
+  color: var(--ok);
+}
+
+.lesson-meta {
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.sidepanel-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 4px;
+}
+
+button.linkish {
+  background: transparent;
+  color: var(--accent);
+  padding: 4px 0;
 }

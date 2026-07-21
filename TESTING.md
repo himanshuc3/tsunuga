@@ -9,10 +9,10 @@
 
 ## Scheduling and quiet hours
 
-- [ ] With default intervals, a card eventually appears (or use popup **Show card now**)
+- [ ] With default intervals, a card eventually appears (or use side panel **Show card now**)
 - [ ] Options: set min/max to `1` / `1`, save — next card after dismiss arrives ~1 minute later
 - [ ] Add quiet hours covering “now”, save — scheduled alarms skip the window; **Show card now** still works (bypasses quiet hours for manual practice)
-- [ ] Pause from popup — no new cards; resume restores scheduling
+- [ ] Pause from side panel — no new cards; resume restores scheduling
 
 ## Follow active tab
 
@@ -30,9 +30,9 @@
 
 ## Lesson gating
 
-- [ ] Popup path shows lesson 1 open; later lessons locked
+- [ ] Side panel path shows lesson 1 open; later lessons locked
 - [ ] Master items in current lesson (2 correct tests each + concepts) — next lesson unlocks
-- [ ] Progress counts update in popup (`mastered/total`)
+- [ ] Progress counts update in side panel (`mastered/total`)
 
 ## Restricted pages
 

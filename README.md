@@ -7,7 +7,7 @@ Chrome extension that teaches Japanese through sequential mini-lessons. Cards ap
 - 8 locked lessons: hiragana rows + greetings/nouns vocab
 - Color-coded cards: intro (blue), concept (slate), test (amber)
 - Quiet hours and random interval sampling (`chrome.alarms`)
-- Progress and pause in the popup; intervals/quiet hours in Options
+- Progress and pause in the side panel; intervals/quiet hours in Options
 
 ## Setup
 
@@ -16,7 +16,7 @@ Chrome extension that teaches Japanese through sequential mini-lessons. Cards ap
 3. `npm run dev` or `npm run build`
 4. Chrome → Extensions → Developer mode → Load unpacked → select `build/`
 
-Open a normal `http(s)` page, then use the popup **Show card now** to try a lesson immediately.
+Open a normal `http(s)` page, click the extension icon to open the side panel, then use **Show card now** to try a lesson immediately.
 
 See [TESTING.md](TESTING.md) for a manual QA checklist.
 
