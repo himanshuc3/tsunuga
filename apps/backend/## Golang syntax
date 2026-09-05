@@ -1,0 +1,12 @@
+## Golang syntax (to be used by AI for notes creation)
+
+1. Initiate a go module using `go mod init [module-name]` 
+2. HTTP structure in go: HTTP Request -> Router -> Middleware -> handler() -> Service (internal/external) -> Repository -> PGSQL
+3. Different types of types :) int, string, float64, bool and they are 
+declared in the most unique way: var fuckityfuck string (var fuckityfuck: string *TS*)
+4. Usually don't use precision based integers because it isn't as efficient as go 
+adjusting to the platform architecture.
+5. Types: We always get 0 values with var (helpful since we can't give undefined to an integer's initialization like in JS) 
+6. Empty string: 2 words with first word being a pointer (nil) & second word being empty (value).
+7. Struct typing: Parallels from typescript again but not necessarily the same
+since Typescript has duck typing
