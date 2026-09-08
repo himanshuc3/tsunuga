@@ -5,6 +5,8 @@ import (
 	"time"
 )
 
+// 1. Typing is usually the heavy boilerplate code that consumes
+// more time than devising the logic.
 type ObservabilityConfig struct {
 	ServiceName  string             `koanf:"service_name" validate:"required"`
 	Environment  string             `koanf:"environment" validate:"required"`
