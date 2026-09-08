@@ -10,9 +10,10 @@ import (
 	"github.com/himanshuc3/tsunuga-be/internal/config"
 	"github.com/himanshuc3/tsunuga-be/internal/database"
 	"github.com/himanshuc3/tsunuga-be/internal/lib/utils/job"
-	zerolog "github.com/jackc/pgx-zerolog"
+	loggerPkg "github.com/himanshuc3/tsunuga-be/internal/logger"
 	"github.com/newrelic/go-agent/v3/integrations/nrredis-v9"
 	"github.com/redis/go-redis/v9"
+	"github.com/rs/zerolog"
 )
 
 type Server struct {

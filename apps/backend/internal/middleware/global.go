@@ -7,7 +7,6 @@ import (
 	"github.com/himanshuc3/tsunuga-be/internal/errs"
 	"github.com/himanshuc3/tsunuga-be/internal/server"
 	"github.com/himanshuc3/tsunuga-be/internal/sqlerr"
-	"github.com/labstack/echo/middleware"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/rs/zerolog"

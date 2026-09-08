@@ -3,7 +3,7 @@ package job
 import (
 	"github.com/hibiken/asynq"
 	"github.com/himanshuc3/tsunuga-be/internal/config"
-	zerolog "github.com/jackc/pgx-zerolog"
+	zerolog "github.com/rs/zerolog"
 )
 
 // Purpose: Used for spining up external jobs

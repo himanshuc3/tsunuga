@@ -18,18 +18,6 @@ import (
 	"github.com/himanshuc3/tsunuga-be/internal/service"
 )
 
-// import (
-// 	"context"
-// 	"log"
-// 	"net/http"
-// 	"os"
-
-// 	"github.com/himanshuc3/tsunuga-be/internal/api"
-// 	"github.com/himanshuc3/tsunuga-be/internal/api/handlers"
-// 	"github.com/himanshuc3/tsunuga-be/internal/catalog"
-// 	"github.com/himanshuc3/tsunuga-be/internal/store"
-// )
-
 /** Memory Access Patterns
 // Program designing is important since memory
 // access optimization according to Cache (L1/L2/L3) -> main memory

@@ -8,7 +8,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/himanshuc3/tsunuga/internal/errs"
+	"github.com/himanshuc3/tsunuga-be/internal/errs"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"

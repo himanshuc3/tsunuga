@@ -6,9 +6,9 @@ import (
 	"html/template"
 
 	"github.com/himanshuc3/tsunuga-be/internal/config"
-	zerolog "github.com/jackc/pgx-zerolog"
 	"github.com/pkg/errors"
 	"github.com/resend/resend-go/v2"
+	zerolog "github.com/rs/zerolog"
 )
 
 // Processing sending of an email

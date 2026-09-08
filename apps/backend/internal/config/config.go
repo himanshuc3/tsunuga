@@ -41,7 +41,7 @@ type ServerConfig struct {
 
 type DatabaseConfig struct {
 	Host            string `koanf:"host" validate:"required"`
-	Port            string `koanf:"port" validate:"required"`
+	Port            int    `koanf:"port" validate:"required"`
 	User            string `koanf:"user" validate:"required"`
 	Password        string `koanf:"password"`
 	Name            string `koanf:"name" validate:"required"`

@@ -8,7 +8,7 @@ import (
 	"github.com/hibiken/asynq"
 	"github.com/himanshuc3/tsunuga-be/internal/config"
 	"github.com/himanshuc3/tsunuga-be/internal/lib/email"
-	zerolog "github.com/jackc/pgx-zerolog"
+	zerolog "github.com/rs/zerolog"
 )
 
 // We rarely create package level variables though
