@@ -1,6 +1,7 @@
 package config
 
 import (
+	"encoding/json"
 	"os"
 
 	"strings"
@@ -88,7 +89,12 @@ func LoadConfig() (*Config, error) {
 
 	err = validate.Struct(mainConfig)
 	if err != nil {
-		logger.Fatal().Err(err).Msg("config validation failed")
+		formattedConfig, marshalErr := json.MarshalIndent(mainConfig, "", "  ")
+		if marshalErr != nil {
+			logger.Fatal().Err(marshalErr).Msg("could not format config for logging")
+		}
+
+		logger.Fatal().Err(err).Msgf("config validation failed:\n%s", formattedConfig)
 	}
 
 	if mainConfig.Observability == nil {
