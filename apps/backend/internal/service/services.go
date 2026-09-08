@@ -2,6 +2,7 @@ package service
 
 import (
 	"github.com/himanshuc3/tsunuga-be/internal/lib/utils/job"
+	"github.com/himanshuc3/tsunuga-be/internal/repository"
 	"github.com/himanshuc3/tsunuga-be/internal/server"
 )
 
