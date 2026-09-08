@@ -43,6 +43,9 @@ import (
 //	 isValid bool
 //	 date int16
 //	}
+
+const DefaultContextTimeout = 30
+
 func main() {
 	cfg, err := config.LoadConfig()
 	if err != nil {

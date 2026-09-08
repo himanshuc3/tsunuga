@@ -22,7 +22,7 @@ type CustomValidationError struct {
 
 type CustomValidationErrors []CustomValidationError
 
-func (c CustomValidationError) Error() string {
+func (c CustomValidationErrors) Error() string {
 	return "Validation failed"
 }
 

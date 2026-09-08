@@ -1,14 +1,14 @@
 package email
 
 func (c *Client) SendWelcomeEmail(to, firstName string) error {
-	data := map[string]string {
-		"UserFirstName": firstName
+	data := map[string]string{
+		"UserFirstName": firstName,
 	}
 
 	return c.SendEmail(
 		to,
 		"Welcome to Tsunuga",
-		TempalteWelcome,
+		TemplateWelcome,
 		data,
 	)
 }

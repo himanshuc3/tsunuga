@@ -31,7 +31,7 @@ func (global *GlobalMiddlewares) CORS() echo.MiddlewareFunc {
 // Logs data for each request hitting our BE
 func (global *GlobalMiddlewares) RequestLogger() echo.MiddlewareFunc {
 	return middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
-		logURI:     true,
+		LogURI:     true,
 		LogStatus:  true,
 		LogError:   true,
 		LogLatency: true,
