@@ -1,3 +1,5 @@
+-- Write your migrate up statements here
+
 CREATE OR REPLACE FUNCTION camel(input_row anyelement)
     RETURNS jsonb
     LANGUAGE plpgsql
@@ -29,3 +31,6 @@ BEGIN
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
+
+
+---- create above / drop below ----

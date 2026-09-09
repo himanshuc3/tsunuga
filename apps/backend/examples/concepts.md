@@ -243,3 +243,9 @@
   - DNS
 - Hardware level:
   - L1, L2, L3 cache, Main memory
+- Cache eviction policies since limited capacity in main memory: LRY, LFU, TTL
+- Uses of redis:
+  - Query caching - for read heavy querying
+  - Session - in case of cookie based tokens ig
+  - external API caching
+  - Rate limiting system - "X-forwarded-for" header used from nginx to extract ip and implement ip based rate limiting
