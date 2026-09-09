@@ -35,7 +35,7 @@ CREATE TABLE lessons (
     title TEXT NOT NULL,
     -- Order in which lessons are evaludated
     position INTEGER NOT NULL,
-    active BOOLEAN NOT NULL DEFAULT TRUE,
+    active BOOLEAN NOT NULL DEFAULT TRUE
 );
 
 CREATE TABLE lesson_items (
@@ -56,7 +56,7 @@ CREATE TABLE lesson_items (
     meta TEXT NOT NULL DEFAULT '',
     active BOOLEAN NOT NULL DEFAULT TRUE,
 
-    UNIQUE (lesson_id, sort_order)
+    UNIQUE (lesson_id, position)
 );
 
 CREATE INDEX lesson_items_order_idx 
@@ -82,7 +82,7 @@ CREATE TABLE user_settings(
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
-    settings JSONB NOT NULL DEFAULT '{}',
+    settings JSONB NOT NULL DEFAULT '{}'
 );
 
 
