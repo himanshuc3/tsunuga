@@ -22,12 +22,14 @@ func (r *LessonRepository) CreateLesson(ctx context.Context, payload *lesson.Cre
 	stmt := `
 		INSERT INTO	
 			lessons (
+
 				title,
 				position,
 				active
 			)
 		VALUES
 			(
+				
 				@title,
 				@position,
 				@active

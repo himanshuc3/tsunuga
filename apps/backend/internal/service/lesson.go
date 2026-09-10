@@ -1,6 +1,8 @@
 package service
 
 import (
+	"strconv"
+
 	"github.com/himanshuc3/tsunuga-be/internal/middleware"
 	"github.com/himanshuc3/tsunuga-be/internal/model/lesson"
 	"github.com/himanshuc3/tsunuga-be/internal/repository"
@@ -33,7 +35,7 @@ func (s *LessonService) CreateLesson(ctx echo.Context, payload *lesson.CreateLes
 		Str("event", "lesson_created").
 		Str("lesson_id", lessonItem.ID.String()).
 		Str("title", lessonItem.Title).
-		Str("position", string(lessonItem.Position)).
+		Str("position", strconv.Itoa(lessonItem.Position)).
 		Msg("Lesson created successfully")
 
 	return lessonItem, nil
