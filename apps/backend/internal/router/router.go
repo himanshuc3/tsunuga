@@ -5,6 +5,7 @@ import (
 
 	"github.com/himanshuc3/tsunuga-be/internal/handler"
 	"github.com/himanshuc3/tsunuga-be/internal/middleware"
+	v1 "github.com/himanshuc3/tsunuga-be/internal/router/v1"
 	"github.com/himanshuc3/tsunuga-be/internal/server"
 	"github.com/himanshuc3/tsunuga-be/internal/service"
 	"github.com/labstack/echo/v4"
@@ -13,13 +14,15 @@ import (
 )
 
 func NewRouter(s *server.Server, h *handler.Handlers, services *service.Services) *echo.Echo {
+	// 1. Initiate middleware layer
 	middlewares := middleware.NewMiddlewares(s)
 
+	// 2. Initiate echo framework for routing
 	router := echo.New()
 
 	router.HTTPErrorHandler = middlewares.Global.GlobalErrorHandler
 
-	// global middlewares
+	// Register middlewares run for every route of our application
 	router.Use(
 		echoMiddleware.RateLimiterWithConfig(echoMiddleware.RateLimiterConfig{
 			Store: echoMiddleware.NewRateLimiterMemoryStore(rate.Limit(20)),
@@ -54,7 +57,9 @@ func NewRouter(s *server.Server, h *handler.Handlers, services *service.Services
 	registerSystemRoutes(router, h)
 
 	// register versioned routes
-	router.Group("/api/v1")
+	v1Router := router.Group("/api/v1")
+
+	v1.RegisterV1Routes(v1Router, h, middlewares)
 
 	return router
 }

@@ -65,6 +65,22 @@ type AuthConfig struct {
 	SecretKey string `koanf:"secret_key" validate:"required"`
 }
 
+/*
+*****************************
+*****************************
+* Libraries used:
+* zerolog: an alternative to standard library, useful
+* for producing json logs which can be consumed by external
+* platforms
+* newrelic: Used as the platform for log ingestion, zerolog sends
+* it to newrelic based on env(production)
+* koanf: Used for injection of env configuration into our app
+* pgx: Used as a driver for conecting and communicating to postgresql DB
+*
+
+*****************************
+*****************************
+ */
 func LoadConfig() (*Config, error) {
 	logger := zerolog.New(zerolog.ConsoleWriter{Out: os.Stderr}).With().Timestamp().Logger()
 

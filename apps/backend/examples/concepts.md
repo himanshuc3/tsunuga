@@ -234,7 +234,7 @@
   - Creating multiple read replica instances is a common operation for handling large number of parallel requests.
   - Replication lag is introduced into replicas from write dbs.
 
-## Caching
+### Caching
 
 - Caching at edge locations because tara-rum-pum tara-rum-pum
 - network, hardware and software caches
@@ -249,3 +249,36 @@
   - Session - in case of cookie based tokens ig
   - external API caching
   - Rate limiting system - "X-forwarded-for" header used from nginx to extract ip and implement ip based rate limiting
+
+### Background tasks
+
+- Anything outside the req/res lifecycle.
+- Examples:
+  - Image processing
+  - Sending emails
+  - Pussy notifications
+  - Cron jobs
+- Exponential backoff followed for retries
+- Many to Many Producer-Consumer model (aka pub-sub).
+- Some popular message-brokers:
+  - RabbitMQ
+  - Kafka
+  - Redis
+- Visibility timeout - The time in which the task is in progress aka being consumed by the consumer. If in this period consumer doesn't respond, retry mechanism kicks in.
+- Types of tasks:
+  - One-off tasks
+  - Recuring tasks
+  - Chained tasks
+  - Batch tasks
+- Design considerations when working with Background tasks:
+  - Idempotency
+  - Error handling
+  - Monitoring
+  - Scaling
+  - Ordering
+  - Rate limiting
+- Best practices:
+  - keep tasks small and focused (single responsibility)
+  - Avoid long running tasks
+  - Use proper error handling and logging
+  - Monitory queue length and worker health

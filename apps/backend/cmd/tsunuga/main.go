@@ -46,6 +46,7 @@ import (
 
 const DefaultContextTimeout = 30
 
+// TODO: Figure out the unnecessarily complicated logging setup
 func main() {
 	cfg, err := config.LoadConfig()
 	if err != nil {
@@ -95,6 +96,7 @@ func main() {
 
 	// Wait for interrupt signal to gracefully shutdown the server
 	<-ctx.Done()
+
 	ctx, cancel := context.WithTimeout(context.Background(), DefaultContextTimeout*time.Second)
 
 	if err = srv.Shutdown(ctx); err != nil {
