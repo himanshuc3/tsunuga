@@ -282,3 +282,18 @@
   - Avoid long running tasks
   - Use proper error handling and logging
   - Monitory queue length and worker health
+
+### Full text search using Elastisearch
+
+- Concept of inverse indexes for lower latency of search, typo tolerance and type-ahead queries.
+- Elasticsearch uses apache lucene. BM25 is the algorithm used as internals for creating inverse indexes (parameters like term frequency, document frequency, document length, field boosting help tweak the search).
+- Another alternative is KalDB which apparently handles better on scale.
+
+### Error handling and fault tolerance system (LoL)
+
+- Types of errors:
+  - Logical errors (not an error, but something that might make you berozgaar)
+  - Database errors (same philosophy as above)
+    - Question: Does database pooling take each request from server and open a separate connection to the DB?
+    - Constraint violation
+    - Query errors
