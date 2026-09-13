@@ -371,4 +371,7 @@ NOTE: For me the most critical layer, because it makes deliver life easy and sho
 
 - Think like an attacker: Where did the developer make an assumption (most applications are only happy path tested).
 - Injection attacks:
-  -
+  - Backend Application speaks multiple languages (i.e. interacts in different ways like SQL with DB, html/css/js with browser, shell with OS), where vulnerabilities are present
+  - SQL injection attacks
+  - Parameterized queries (prevention) - separate query from user data
+  - Command injection
