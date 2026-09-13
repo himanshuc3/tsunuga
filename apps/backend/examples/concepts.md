@@ -297,3 +297,48 @@
     - Question: Does database pooling take each request from server and open a separate connection to the DB?
     - Constraint violation
     - Query errors
+  - External service errors
+    - Network
+    - Connection timeouts
+    - DNS failures
+    - Network parittions
+    - Handling rate limiting using exponential backoff
+    - service outage
+  - Input validation errors
+    - format, range, required field validations
+  - Configuration errors
+  - Create ping services for verifying health:
+    - /health, /status
+  - Monitoring & observability:
+    - Track error rates, performance metrics etc.
+  - Tools like grafana and loki are just simple log aggregation platforms
+  - Handling errors gracefully
+    - Immediate error response
+    - Containment and graceful degradation in case of non-recoverable errors
+    - Error recovery strategies
+    - Error propagation control
+    - Global error handling - final safety net
+  - Security implications:
+    - Error messages shouldn't leak info that acts as a vector of attack
+    - OWASP cheatsheet
+
+### Configuration management
+
+- Settings for the application which controls the behavior based on the environment.
+- Some settings change more frequently compared to others: runtime and build time config
+- Applications settings:
+  - log level, port, connection pool size, timeout values
+- Database config:
+  - host, port, username, password, name
+- External services:
+  - email, logging & monitoring, auth
+- Feature flags:
+  - Can be used synonymously with experiments
+- Infrasture config, security, performance tuning
+
+- Storage of config:
+  - .env
+  - Fetching from AWS vault
+  - JSON, yaml
+  - Key value stores: redis, consul, etcd
+  - Cloud: hashicorp vault, AWS parameter store etc.
