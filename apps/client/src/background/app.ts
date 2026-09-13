@@ -19,7 +19,7 @@ class BackgroundApp {
 
   public start(): void {
     this.registerListeners()
-    void this._controller.initializeActiveTab()
+    // void this._controller.initializeActiveTab()
     void this._controller.initialize(true)
   }
 

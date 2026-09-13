@@ -1,4 +1,4 @@
-import type { PendingCard, Settings } from './types'
+import type { PendingCard, Settings } from '../../domain/types'
 
 export type ShowCardMessage = {
   type: 'SHOW_CARD'
@@ -54,29 +54,8 @@ export type BackgroundEvent = AnswerMessage | DismissMessage
 export type BackgroundRequest =
   GetStateMessage | SetPausedMessage | UpdateSettingsMessage | ForceCardMessage
 
-export function isBackgroundEvent(message: unknown): message is BackgroundEvent {
-  return (
-    typeof message === 'object' &&
-    message !== null &&
-    'type' in message &&
-    (message.type === 'ANSWER' || message.type === 'DISMISS')
-  )
-}
-
-export function isBackgroundRequest(message: unknown): message is BackgroundRequest {
-  return (
-    typeof message === 'object' &&
-    message !== null &&
-    'type' in message &&
-    (message.type === 'GET_STATE' ||
-      message.type === 'SET_PAUSED' ||
-      message.type === 'UPDATE_SETTINGS' ||
-      message.type === 'FORCE_CARD')
-  )
-}
-
 export type StateResponse = {
   type: 'STATE'
   ok: true
-  state: import('./types').AppState
+  state: import('../../domain/types').AppState
 }

@@ -1,10 +1,8 @@
-import {
-  isBackgroundEvent,
-  isBackgroundRequest,
-  type BackgroundEvent,
-  type BackgroundRequest,
-  type ExtensionMessage,
-} from '../domain/messages'
+import type {
+  BackgroundEvent,
+  BackgroundRequest,
+  ExtensionMessage,
+} from '../common/messaging/messages'
 import { computeNextFireAt, delayMinutesFromNow } from '../domain/scheduler'
 import type { AppState, PendingCard } from '../domain/types'
 import { ALARM_NAME } from '../domain/types'
@@ -14,6 +12,7 @@ import { getActiveInjectableTab, isInjectableUrl } from './utils'
 import { CardFeature, type AnswerInput } from './features/card'
 import { SettingsFeature } from './features/settings'
 import { backgroundDeps, type BackgroundDeps } from './deps'
+import { hideOnTab, sendToTab, setBadge } from './helpers'
 
 export type ShowResult =
   | { status: 'shown'; tabId: number }
@@ -34,6 +33,8 @@ type RequestHandlerMap = {
   ) => Promise<unknown>
 }
 
+// NOTE[Refactor]: Add global functionalities to object
+// for easier access to helper modules
 export class BackgroundController {
   private lastShownTabId: number | null = null
   private readonly cards: CardFeature
@@ -56,6 +57,7 @@ export class BackgroundController {
     }
   }
 
+  // initialize on startup/install/background app start
   async initialize(onStartup = false): Promise<void> {
     const state = await this.deps.loadState()
     if (!onStartup) await this.deps.saveState(state)
@@ -68,10 +70,11 @@ export class BackgroundController {
     }
   }
 
-  async initializeActiveTab(): Promise<void> {
-    // this.lastActiveTabId = (await getLastActiveTabId()) ?? null
-  }
-
+  /**
+   * Native event handlers emitted by
+   * cross browser module. Ensure a convention of
+   * handle[Feature] for consuming these events.
+   */
   async handleCommand(command: string): Promise<void> {
     if (command === 'open-side-panel') openSidePanelFromGesture()
   }
@@ -107,21 +110,24 @@ export class BackgroundController {
     }
   }
 
-  async getState(): Promise<{ type: 'STATE'; ok: true; state: AppState }> {
-    return { type: 'STATE', ok: true, state: await this.deps.loadState() }
-  }
-
   handleMessage(message: unknown): Promise<unknown> | undefined {
-    if (isBackgroundEvent(message)) {
-      void this.dispatch(this.eventHandlers, message)
+    if (!this.hasMessageType(message)) return undefined
+
+    const extensionMessage = message as ExtensionMessage
+    if (Object.hasOwn(this.eventHandlers, extensionMessage.type)) {
+      void this.dispatch(this.eventHandlers, extensionMessage as BackgroundEvent)
       return undefined
     }
 
-    if (isBackgroundRequest(message)) {
-      return this.dispatch(this.requestHandlers, message)
+    if (Object.hasOwn(this.requestHandlers, extensionMessage.type)) {
+      return this.dispatch(this.requestHandlers, extensionMessage as BackgroundRequest)
     }
 
     return undefined
+  }
+
+  private hasMessageType(message: unknown): message is { type: string } {
+    return typeof message === 'object' && message !== null && 'type' in message
   }
 
   private dispatch<Message extends { type: string }, Result>(
@@ -134,18 +140,6 @@ export class BackgroundController {
       message: Message,
     ) => Promise<Result>
     return handler(message)
-  }
-
-  private async createPausedResponse(paused: boolean): Promise<unknown> {
-    return { ok: true, state: await this.setPaused(paused) }
-  }
-
-  private async createSettingsResponse(settings: Partial<AppState['settings']>): Promise<unknown> {
-    return { ok: true, state: await this.updateSettings(settings) }
-  }
-
-  private async forceCardResponse(): Promise<unknown> {
-    return { ok: true, ...(await this.forceCard()) }
   }
 
   private async createAndShowCard(options?: {
@@ -173,6 +167,25 @@ export class BackgroundController {
     return { result, state: await this.deps.loadState() }
   }
 
+  /**
+   * On message handlers based on message types
+   */
+  private async createPausedResponse(paused: boolean): Promise<unknown> {
+    return { ok: true, state: await this.setPaused(paused) }
+  }
+
+  private async createSettingsResponse(settings: Partial<AppState['settings']>): Promise<unknown> {
+    return { ok: true, state: await this.updateSettings(settings) }
+  }
+
+  private async forceCardResponse(): Promise<unknown> {
+    return { ok: true, ...(await this.forceCard()) }
+  }
+
+  async getState(): Promise<{ type: 'STATE'; ok: true; state: AppState }> {
+    return { type: 'STATE', ok: true, state: await this.deps.loadState() }
+  }
+
   private async answerCard(input: AnswerInput): Promise<void> {
     const state = await this.cards.answerCard(input)
     if (state) await this.finishCard(state)
@@ -182,6 +195,9 @@ export class BackgroundController {
     const state = await this.cards.dismissCard(cardId)
     if (state) await this.finishCard(state)
   }
+  /**
+   * End of On message handlers based on message types
+   */
 
   private async setPaused(paused: boolean): Promise<AppState> {
     const state = await this.settings.setPaused(paused)
@@ -217,8 +233,8 @@ export class BackgroundController {
   }
 
   private async finishCard(state: AppState): Promise<void> {
-    await this.setBadge(false)
-    await this.hideOnTab(this.lastShownTabId)
+    await setBadge(false)
+    await hideOnTab(this.lastShownTabId)
     this.lastShownTabId = null
     await this.ensureAlarm(state)
   }
@@ -228,7 +244,7 @@ export class BackgroundController {
     if (!tab?.id) return { status: 'pending_no_tab' }
 
     if (this.lastShownTabId != null && this.lastShownTabId !== tab.id) {
-      await this.hideOnTab(this.lastShownTabId)
+      await hideOnTab(this.lastShownTabId)
     }
 
     const shown = await this.sendShowWithInject(tab.id, card)
@@ -239,7 +255,7 @@ export class BackgroundController {
   }
 
   private async sendShowWithInject(tabId: number, card: PendingCard): Promise<boolean> {
-    if (await this.sendToTab(tabId, { type: 'SHOW_CARD', card })) return true
+    if (await sendToTab(tabId, { type: 'SHOW_CARD', card })) return true
 
     const files = browser.runtime.getManifest().content_scripts?.[0]?.js
     if (!files?.length) return false
@@ -247,29 +263,9 @@ export class BackgroundController {
     try {
       await browser.scripting.executeScript({ target: { tabId }, files })
       await new Promise((resolve) => setTimeout(resolve, 50))
-      return this.sendToTab(tabId, { type: 'SHOW_CARD', card })
+      return sendToTab(tabId, { type: 'SHOW_CARD', card })
     } catch {
       return false
     }
-  }
-
-  // Message communication to active tab
-  private async sendToTab(tabId: number, message: ExtensionMessage): Promise<boolean> {
-    try {
-      await browser.tabs.sendMessage(tabId, message)
-      return true
-    } catch {
-      return false
-    }
-  }
-
-  private async hideOnTab(tabId: number | null): Promise<void> {
-    if (tabId != null) await this.sendToTab(tabId, { type: 'HIDE_CARD' })
-  }
-
-  // Communication with popup
-  private async setBadge(pending: boolean): Promise<void> {
-    await browser.action.setBadgeBackgroundColor({ color: '#C47B2C' })
-    await browser.action.setBadgeText({ text: pending ? '!' : '' })
   }
 }

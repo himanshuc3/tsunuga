@@ -1,5 +1,5 @@
 import { createRoot, type Root } from 'react-dom/client'
-import type { ExtensionMessage } from '../domain/messages'
+import type { ExtensionMessage } from '../common/messaging/messages'
 import type { PendingCard } from '../domain/types'
 import browser from 'webextension-polyfill'
 import { Card } from './Card'
@@ -7,24 +7,23 @@ import cssText from './Card.css?inline'
 
 const HOST_ID = 'tsunagu-extension-host'
 
-
-class Controller{
+class Controller {
   private static _instance: Controller
   private _root: null | Root = null
   private _shadow: ShadowRoot | null = null
   private _currentCardId: string | null = null
 
-  static getInstance(){
-    if(!Controller._instance){
+  static getInstance() {
+    if (!Controller._instance) {
       Controller._instance = new Controller()
     }
     return Controller._instance
   }
-  constructor(){
+  constructor() {
     this._attachMessagingLayer()
   }
 
-  private _attachMessagingLayer(){
+  private _attachMessagingLayer() {
     browser.runtime.onMessage.addListener((message: ExtensionMessage) => {
       switch (message.type) {
         case 'SHOW_CARD': {
@@ -50,14 +49,12 @@ class Controller{
       correct,
     })
   }
-  
+
   public sendDismiss(cardId: string): void {
     browser.runtime.sendMessage({ type: 'DISMISS', cardId })
   }
-  
-  
 
-  public hideCard():void{
+  public hideCard(): void {
     this._destroyMount()
   }
 
@@ -105,9 +102,6 @@ class Controller{
     }
     return host
   }
-  
-
 }
 
 Controller.getInstance()
-
