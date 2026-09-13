@@ -62,7 +62,7 @@ export class BackgroundController {
     const state = await this.deps.loadState()
     if (!onStartup) await this.deps.saveState(state)
 
-    await this.setBadge(Boolean(state.pendingCard))
+    await setBadge(Boolean(state.pendingCard))
     if (state.pendingCard) {
       await this.showPendingOnActiveTab(state.pendingCard)
     } else {
@@ -154,7 +154,7 @@ export class BackgroundController {
       return { status: 'no_card' }
     }
 
-    await this.setBadge(true)
+    await setBadge(true)
     if (result.status === 'created') await browser.alarms.clear(ALARM_NAME)
     return this.showPendingOnActiveTab(result.card)
   }
