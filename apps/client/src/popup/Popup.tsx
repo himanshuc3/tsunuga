@@ -35,7 +35,8 @@ import browser from 'webextension-polyfill'
 import type { AppState } from '../domain/types'
 import './Popup.css'
 import { openSidePanel } from '../common/helpers'
-import { lessons } from '../content/lessons'
+import { getNextLesson, lessons } from '../content/lessons'
+import { getOrCreateProgress, progressKey } from '../domain/progress'
 
 const { Content } = Layout
 const { Text, Title } = Typography
@@ -124,6 +125,15 @@ export const Popup = () => {
   const activeLesson = lessons.find(
     (lesson) => lesson.id === (state.pendingCard?.lessonId ?? state.currentLessonId),
   )
+  const currentLesson = lessons.find((lesson) => lesson.id === state.currentLessonId)
+  const upcomingLesson = currentLesson ? getNextLesson(currentLesson.id) : undefined
+  const completedConcepts =
+    activeLesson?.concepts.filter((concept) => {
+      const key = progressKey(activeLesson.id, 'concept', concept.id)
+      return getOrCreateProgress(state, key).conceptShown
+    }).length ?? 0
+  const conceptCount = activeLesson?.concepts.length ?? 0
+  const completionPercent = conceptCount ? Math.round((completedConcepts / conceptCount) * 100) : 0
 
   return (
     <ConfigProvider
@@ -177,29 +187,50 @@ export const Popup = () => {
         <Content className="popup-content">
           <Flex className="lesson-summary">
             <Space align="start">
-              <Avatar className="lesson-icon" icon={<BookOutlined />} />
+              {/* <Avatar className="lesson-icon" icon={<BookOutlined />} /> */}
               <div className="lesson-summary-copy">
-                <Text className="lesson-summary-eyebrow">Current lesson</Text>
-                <Text strong>{activeLesson?.title ?? 'Your next lesson'}</Text>
+                <Flex>
+                  <Title level={4}>{activeLesson?.title ?? 'Your next lesson'}</Title>
+                </Flex>
                 <Space className="lesson-counts" size={6} wrap>
-                  <Tag>{activeLesson?.vocab.length ?? 0} vocab</Tag>
-                  <Tag>{activeLesson?.concepts.length ?? 0} concepts</Tag>
-                  <Tag>{activeLesson?.hiragana.length ?? 0} hiragana</Tag>
+                  <Tag className="lesson-count">
+                    <strong>{activeLesson?.vocab.length ?? 0}</strong>
+                    <span>vocab</span>
+                  </Tag>
+                  <Tag className="lesson-count">
+                    <strong>{activeLesson?.concepts.length ?? 0}</strong>
+                    <span>concepts</span>
+                  </Tag>
                 </Space>
               </div>
             </Space>
+            {upcomingLesson && (
+              <Tag
+                className="upcoming-lesson"
+                color="green"
+                aria-label={`Up next: ${upcomingLesson.title}`}
+                tabIndex={0}
+              >
+                <ThunderboltOutlined />
+                <span>Up next: {upcomingLesson.title}</span>
+              </Tag>
+            )}
+            <div
+              className="lesson-progress"
+              role="progressbar"
+              aria-label="Current block completion"
+              aria-valuemin={0}
+              aria-valuemax={conceptCount}
+              aria-valuenow={completedConcepts}
+            >
+              <span className="lesson-progress-label">
+                Current block: {completedConcepts}/{conceptCount} concepts completed
+              </span>
+              <span className="lesson-progress-fill" style={{ width: `${completionPercent}%` }} />
+            </div>
           </Flex>
 
           <section className="quick-actions" aria-label="Quick actions">
-            <Button
-              className="quick-action"
-              type="text"
-              icon={<ArrowUpOutlined />}
-              onClick={openLearningPanel}
-              disabled={busy}
-            >
-              Open
-            </Button>
             <Button
               className="quick-action"
               type="text"
@@ -212,119 +243,25 @@ export const Popup = () => {
             <Button
               className="quick-action"
               type="text"
-              icon={<ArrowDownOutlined />}
-              onClick={openOptions}
-            >
-              Settings
-            </Button>
-            <Button
-              className="quick-action"
-              type="text"
-              icon={state.settings.paused ? <PlayCircleOutlined /> : <PauseCircleOutlined />}
-              onClick={togglePause}
+              icon={<ArrowUpOutlined />}
+              onClick={openLearningPanel}
               disabled={busy}
             >
-              {state.settings.paused ? 'Resume' : 'Pause'}
+              Open
             </Button>
           </section>
 
-          <Card className="earn-banner" bordered={false}>
-            <Avatar className="banner-icon" icon={<ThunderboltOutlined />} />
-            <div>
-              <Text strong>Make learning automatic</Text>
-              <Text type="secondary">
-                Keep tsunagu active while you browse to discover new cards.
-              </Text>
-            </div>
-            <Tag color={state.settings.paused ? 'default' : 'green'}>
-              {state.settings.paused ? 'Paused' : 'Live'}
-            </Tag>
-          </Card>
-
-          {statusMsg && (
+          {/* {statusMsg && (
             <Alert className="status-alert" message={statusMsg} type="info" showIcon closable />
-          )}
-
-          <Tabs
-            className="popup-tabs"
-            defaultActiveKey="lessons"
-            items={[
-              {
-                key: 'lessons',
-                label: 'Lessons',
-                children: state.pendingCard ? (
-                  <Card className="pending-card" bordered={false}>
-                    <Space align="start">
-                      <Avatar className="lesson-icon" icon={<BookOutlined />} />
-                      <div>
-                        <Text strong>
-                          {state.pendingCard.kind === 'concept'
-                            ? state.pendingCard.title
-                            : 'A lesson is ready'}
-                        </Text>
-                        <Text type="secondary">
-                          Open the side panel to continue your Japanese practice.
-                        </Text>
-                      </div>
-                    </Space>
-                  </Card>
-                ) : (
-                  <Empty
-                    className="empty-state"
-                    image={<BookOutlined />}
-                    description={<Text>Your next lesson will appear here</Text>}
-                  />
-                ),
-              },
-              {
-                key: 'review',
-                label: 'Review',
-                children: (
-                  <Empty
-                    className="empty-state"
-                    image={<EyeOutlined />}
-                    description="Review history is empty"
-                  />
-                ),
-              },
-              {
-                key: 'reference',
-                label: 'Reference',
-                children: (
-                  <Empty
-                    className="empty-state"
-                    image={<ThunderboltOutlined />}
-                    description="Your reference cards will appear here"
-                  />
-                ),
-              },
-              {
-                key: 'activity',
-                label: 'Activity',
-                children: (
-                  <Empty
-                    className="empty-state"
-                    image={<EyeInvisibleOutlined />}
-                    description="No activity yet"
-                  />
-                ),
-              },
-            ]}
-          />
+          )} */}
         </Content>
 
-        <footer className="popup-footer">
-          <Button
-            type="primary"
-            block
-            size="large"
-            icon={<SendOutlined />}
-            onClick={openSidePanel}
-            disabled={busy}
-          >
-            Open learning panel
-          </Button>
-        </footer>
+        <span className="creator-pill">
+          Created by{' '}
+          <a href="https://github.com/himanshu" target="_blank" rel="noreferrer">
+            Himanshu
+          </a>
+        </span>
       </Layout>
     </ConfigProvider>
   )
