@@ -342,3 +342,33 @@
   - JSON, yaml
   - Key value stores: redis, consul, etcd
   - Cloud: hashicorp vault, AWS parameter store etc.
+
+### Logging, monitoring and observability
+
+- Real time data about system: Logs, metrics, traces
+- Logging, mostly errors, metrics: mostly quanitifying numbers
+- Tools like grafana, prometheus helps in visually debugging these errors.
+- Logging has:
+  - levels: debug (mostly dev only), info (add states like success), warn, error, fatal
+  - structured vs unstructured logs
+- Monitoring:
+  - Adding instrumentation to analyze and monitor metrics
+  - Opentelemetry is used as a preferred tool
+
+NOTE: For me the most critical layer, because it makes deliver life easy and shows public statistics to technically challenged product managagers.
+
+### Graceful shutdown
+
+- The backend server has to have good manners so we don't do abrupt shutdown:
+  - Process lifecycle management
+  - Communication between two processes happens using signals
+  - SIGTERM: Terminate, OS asking the process to shut down. The process has a window to complete stuff like complete inflight request processing and clean up resources.
+  - SIGINT: Interrupt like ctrl + c -> user initiated shutdown (PM2 used on cloud platforms)
+  - SIGKILL: No cleanups possible, our application doesn't detect it and therefore no cleanups
+  - Soft kill cleanup (called connection draining): Stop accepting new connections/requests, timeout for completing existing requests, cleanup in the reverse order of setup
+
+### Security
+
+- Think like an attacker: Where did the developer make an assumption (most applications are only happy path tested).
+- Injection attacks:
+  -

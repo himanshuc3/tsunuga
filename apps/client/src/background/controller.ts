@@ -48,6 +48,7 @@ export class BackgroundController {
     this.eventHandlers = {
       ANSWER: (message) => this.answerCard(message),
       DISMISS: (message) => this.dismissCard(message.cardId),
+      OPEN_SIDEPANEL: (message) => this._openSidePanel(message),
     }
     this.requestHandlers = {
       GET_STATE: () => this.getState(),
@@ -172,6 +173,13 @@ export class BackgroundController {
    */
   private async createPausedResponse(paused: boolean): Promise<unknown> {
     return { ok: true, state: await this.setPaused(paused) }
+  }
+
+  private async _openSidePanel(): Promise<void> {
+    const result = await browser.tabs.query({ active: true, lastFocusedWindow: true })
+    const windowId = result[0].windowId
+    // Chrome nativeAPI
+    chrome.sidePanel.open({ windowId: windowId })
   }
 
   private async createSettingsResponse(settings: Partial<AppState['settings']>): Promise<unknown> {

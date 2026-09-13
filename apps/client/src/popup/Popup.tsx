@@ -24,17 +24,20 @@ import {
   PlayCircleOutlined,
   ReloadOutlined,
   SendOutlined,
+  PauseOutlined,
   SettingOutlined,
   ThunderboltOutlined,
 } from '@ant-design/icons'
+import browser from 'webextension-polyfill'
 import type { AppState } from '../domain/types'
 import './Popup.css'
+import { openSidePanel } from '../common/helpers'
 
 const { Content } = Layout
 const { Text, Title } = Typography
 
 async function fetchState(): Promise<AppState> {
-  const res = await chrome.runtime.sendMessage({ type: 'GET_STATE' })
+  const res = await browser.runtime.sendMessage({ type: 'GET_STATE' })
   return res.state as AppState
 }
 
@@ -73,7 +76,7 @@ export const Popup = () => {
     if (!state) return
     setBusy(true)
     setStatusMsg(null)
-    const res = await chrome.runtime.sendMessage({
+    const res = await browser.runtime.sendMessage({
       type: 'SET_PAUSED',
       paused: !state.settings.paused,
     })
@@ -85,7 +88,7 @@ export const Popup = () => {
     setBusy(true)
     setStatusMsg(null)
     try {
-      const res = await chrome.runtime.sendMessage({ type: 'FORCE_CARD' })
+      const res = await browser.runtime.sendMessage({ type: 'FORCE_CARD' })
       if (res?.state) setState(res.state as AppState)
       else await refresh()
       setStatusMsg(forceResultMessage(res?.result))
@@ -95,16 +98,13 @@ export const Popup = () => {
     setBusy(false)
   }
 
-  const openSidePanel = () => {
-    chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
-      if (tab?.windowId == null) return
-      void chrome.sidePanel.open({ windowId: tab.windowId })
-      window.close()
-    })
+  const openLearningPanel = () => {
+    openSidePanel()
+    window.close()
   }
 
   const openOptions = () => {
-    chrome.runtime.openOptionsPage()
+    browser.runtime.openOptionsPage()
   }
 
   if (!state) {
@@ -139,12 +139,22 @@ export const Popup = () => {
         <header className="popup-header">
           <Space size={10}>
             <Avatar className="brand-avatar">つ</Avatar>
-            <Title level={4}>tsunagu</Title>
+            <Title level={5}>tsunagu</Title>
             <Badge status={state.settings.paused ? 'default' : 'success'} />
           </Space>
           <Space size={4}>
-            <Button aria-label="Open settings" type="text" icon={<SettingOutlined />} onClick={openOptions} />
-            <Button aria-label="Refresh state" type="text" icon={<ReloadOutlined />} onClick={() => void refresh()} />
+            <Button
+              aria-label="Pause extension"
+              type="text"
+              icon={state.settings.paused ? <PlayCircleOutlined /> : <PauseOutlined />}
+              onClick={() => void refresh()}
+            />
+            <Button
+              aria-label="Open settings"
+              type="text"
+              icon={<SettingOutlined />}
+              onClick={openOptions}
+            />
           </Space>
         </header>
 
@@ -160,16 +170,39 @@ export const Popup = () => {
           </section>
 
           <section className="quick-actions" aria-label="Quick actions">
-            <Button className="quick-action" type="text" icon={<ArrowUpOutlined />} onClick={openSidePanel} disabled={busy}>
+            <Button
+              className="quick-action"
+              type="text"
+              icon={<ArrowUpOutlined />}
+              onClick={openLearningPanel}
+              disabled={busy}
+            >
               Open
             </Button>
-            <Button className="quick-action" type="text" icon={<SendOutlined />} onClick={forceCard} disabled={busy}>
+            <Button
+              className="quick-action"
+              type="text"
+              icon={<SendOutlined />}
+              onClick={forceCard}
+              disabled={busy}
+            >
               Show card
             </Button>
-            <Button className="quick-action" type="text" icon={<ArrowDownOutlined />} onClick={openOptions}>
+            <Button
+              className="quick-action"
+              type="text"
+              icon={<ArrowDownOutlined />}
+              onClick={openOptions}
+            >
               Settings
             </Button>
-            <Button className="quick-action" type="text" icon={state.settings.paused ? <PlayCircleOutlined /> : <PauseCircleOutlined />} onClick={togglePause} disabled={busy}>
+            <Button
+              className="quick-action"
+              type="text"
+              icon={state.settings.paused ? <PlayCircleOutlined /> : <PauseCircleOutlined />}
+              onClick={togglePause}
+              disabled={busy}
+            >
               {state.settings.paused ? 'Resume' : 'Pause'}
             </Button>
           </section>
@@ -178,12 +211,18 @@ export const Popup = () => {
             <Avatar className="banner-icon" icon={<ThunderboltOutlined />} />
             <div>
               <Text strong>Make learning automatic</Text>
-              <Text type="secondary">Keep tsunagu active while you browse to discover new cards.</Text>
+              <Text type="secondary">
+                Keep tsunagu active while you browse to discover new cards.
+              </Text>
             </div>
-            <Tag color={state.settings.paused ? 'default' : 'green'}>{state.settings.paused ? 'Paused' : 'Live'}</Tag>
+            <Tag color={state.settings.paused ? 'default' : 'green'}>
+              {state.settings.paused ? 'Paused' : 'Live'}
+            </Tag>
           </Card>
 
-          {statusMsg && <Alert className="status-alert" message={statusMsg} type="info" showIcon closable />}
+          {statusMsg && (
+            <Alert className="status-alert" message={statusMsg} type="info" showIcon closable />
+          )}
 
           <Tabs
             className="popup-tabs"
@@ -197,24 +236,71 @@ export const Popup = () => {
                     <Space align="start">
                       <Avatar className="lesson-icon" icon={<BookOutlined />} />
                       <div>
-                        <Text strong>{state.pendingCard.kind === 'concept' ? state.pendingCard.title : 'A lesson is ready'}</Text>
-                        <Text type="secondary">Open the side panel to continue your Japanese practice.</Text>
+                        <Text strong>
+                          {state.pendingCard.kind === 'concept'
+                            ? state.pendingCard.title
+                            : 'A lesson is ready'}
+                        </Text>
+                        <Text type="secondary">
+                          Open the side panel to continue your Japanese practice.
+                        </Text>
                       </div>
                     </Space>
                   </Card>
                 ) : (
-                  <Empty className="empty-state" image={<BookOutlined />} description={<Text>Your next lesson will appear here</Text>} />
+                  <Empty
+                    className="empty-state"
+                    image={<BookOutlined />}
+                    description={<Text>Your next lesson will appear here</Text>}
+                  />
                 ),
               },
-              { key: 'review', label: 'Review', children: <Empty className="empty-state" image={<EyeOutlined />} description="Review history is empty" /> },
-              { key: 'reference', label: 'Reference', children: <Empty className="empty-state" image={<ThunderboltOutlined />} description="Your reference cards will appear here" /> },
-              { key: 'activity', label: 'Activity', children: <Empty className="empty-state" image={<EyeInvisibleOutlined />} description="No activity yet" /> },
+              {
+                key: 'review',
+                label: 'Review',
+                children: (
+                  <Empty
+                    className="empty-state"
+                    image={<EyeOutlined />}
+                    description="Review history is empty"
+                  />
+                ),
+              },
+              {
+                key: 'reference',
+                label: 'Reference',
+                children: (
+                  <Empty
+                    className="empty-state"
+                    image={<ThunderboltOutlined />}
+                    description="Your reference cards will appear here"
+                  />
+                ),
+              },
+              {
+                key: 'activity',
+                label: 'Activity',
+                children: (
+                  <Empty
+                    className="empty-state"
+                    image={<EyeInvisibleOutlined />}
+                    description="No activity yet"
+                  />
+                ),
+              },
             ]}
           />
         </Content>
 
         <footer className="popup-footer">
-          <Button type="primary" block size="large" icon={<SendOutlined />} onClick={openSidePanel} disabled={busy}>
+          <Button
+            type="primary"
+            block
+            size="large"
+            icon={<SendOutlined />}
+            onClick={openSidePanel}
+            disabled={busy}
+          >
             Open learning panel
           </Button>
         </footer>

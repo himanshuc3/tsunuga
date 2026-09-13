@@ -21,6 +21,10 @@ export type DismissMessage = {
   cardId: string
 }
 
+export type OpenSidePanel = {
+  type: 'OPEN_SIDEPANEL'
+}
+
 export type GetStateMessage = {
   type: 'GET_STATE'
 }
@@ -48,6 +52,7 @@ export type ExtensionMessage =
   | SetPausedMessage
   | UpdateSettingsMessage
   | ForceCardMessage
+  | OpenSidePanel
 
 export type BackgroundEvent = AnswerMessage | DismissMessage
 
