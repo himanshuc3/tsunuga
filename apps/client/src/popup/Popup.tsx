@@ -1,6 +1,37 @@
 import { useCallback, useEffect, useState } from 'react'
+import {
+  Alert,
+  Avatar,
+  Badge,
+  Button,
+  Card,
+  ConfigProvider,
+  Empty,
+  Layout,
+  Space,
+  Spin,
+  Tabs,
+  Tag,
+  Typography,
+} from 'antd'
+import {
+  ArrowDownOutlined,
+  ArrowUpOutlined,
+  BookOutlined,
+  EyeInvisibleOutlined,
+  EyeOutlined,
+  PauseCircleOutlined,
+  PlayCircleOutlined,
+  ReloadOutlined,
+  SendOutlined,
+  SettingOutlined,
+  ThunderboltOutlined,
+} from '@ant-design/icons'
 import type { AppState } from '../domain/types'
 import './Popup.css'
+
+const { Content } = Layout
+const { Text, Title } = Typography
 
 async function fetchState(): Promise<AppState> {
   const res = await chrome.runtime.sendMessage({ type: 'GET_STATE' })
@@ -78,51 +109,117 @@ export const Popup = () => {
 
   if (!state) {
     return (
-      <main className="popup">
-        <p className="tagline">Loading…</p>
-      </main>
+      <ConfigProvider theme={{ token: { colorPrimary: '#b7f36b' } }}>
+        <Layout className="popup loading-popup">
+          <Spin size="large" />
+        </Layout>
+      </ConfigProvider>
     )
   }
 
   return (
-    <main className="popup">
-      <header className="popup-header">
-        <h1>tsunagu</h1>
-        <p className="tagline">Japanese mini-lessons while you browse</p>
-      </header>
+    <ConfigProvider
+      theme={{
+        algorithm: undefined,
+        token: {
+          colorPrimary: '#b7f36b',
+          colorText: '#f7f7f8',
+          colorTextSecondary: '#9a99a5',
+          colorBgContainer: '#202024',
+          borderRadius: 12,
+          fontFamily: "'Avenir Next', 'Segoe UI', sans-serif",
+        },
+        components: {
+          Button: { primaryColor: '#0f1012', colorPrimaryHover: '#c9ff85' },
+          Tabs: { itemColor: '#777681', itemSelectedColor: '#f7f7f8', inkBarColor: '#b7f36b' },
+        },
+      }}
+    >
+      <Layout className="popup">
+        <header className="popup-header">
+          <Space size={10}>
+            <Avatar className="brand-avatar">つ</Avatar>
+            <Title level={4}>tsunagu</Title>
+            <Badge status={state.settings.paused ? 'default' : 'success'} />
+          </Space>
+          <Space size={4}>
+            <Button aria-label="Open settings" type="text" icon={<SettingOutlined />} onClick={openOptions} />
+            <Button aria-label="Refresh state" type="text" icon={<ReloadOutlined />} onClick={() => void refresh()} />
+          </Space>
+        </header>
 
-      <section className="panel">
-        <div className="row">
-          <span className="label">Status</span>
-          <span className={state.settings.paused ? 'badge paused' : 'badge live'}>
-            {state.settings.paused ? 'Paused' : 'Active'}
-          </span>
-        </div>
-        {state.pendingCard && (
-          <p className="pending-note">A card is waiting on your active tab.</p>
-        )}
-        {statusMsg && <p className="status-msg">{statusMsg}</p>}
-        <div className="actions">
-          <button type="button" onClick={openSidePanel} disabled={busy}>
-            Open side panel
-          </button>
-          <div className="row-actions-wrap">
-            <button type="button" className="secondary row-actions" onClick={togglePause} disabled={busy}>
+        <Content className="popup-content">
+          <section className="progress-summary">
+            <Text className="progress-number">{state.pendingCard ? '1' : '0'}</Text>
+            <Text className="progress-label">Cards ready to learn</Text>
+            <Space className="summary-meta" size={8}>
+              <Text>Today's progress</Text>
+              <Text strong>+0 cards</Text>
+              <BookOutlined />
+            </Space>
+          </section>
+
+          <section className="quick-actions" aria-label="Quick actions">
+            <Button className="quick-action" type="text" icon={<ArrowUpOutlined />} onClick={openSidePanel} disabled={busy}>
+              Open
+            </Button>
+            <Button className="quick-action" type="text" icon={<SendOutlined />} onClick={forceCard} disabled={busy}>
+              Show card
+            </Button>
+            <Button className="quick-action" type="text" icon={<ArrowDownOutlined />} onClick={openOptions}>
+              Settings
+            </Button>
+            <Button className="quick-action" type="text" icon={state.settings.paused ? <PlayCircleOutlined /> : <PauseCircleOutlined />} onClick={togglePause} disabled={busy}>
               {state.settings.paused ? 'Resume' : 'Pause'}
-            </button>
-            <button type="button" className="secondary row-actions" onClick={forceCard} disabled={busy}>
-              Show card now
-            </button>
-          </div>
-        </div>
-      </section>
+            </Button>
+          </section>
 
-      <footer className="popup-footer">
-        <button type="button" className="linkish" onClick={openOptions}>
-          Settings
-        </button>
-      </footer>
-    </main>
+          <Card className="earn-banner" bordered={false}>
+            <Avatar className="banner-icon" icon={<ThunderboltOutlined />} />
+            <div>
+              <Text strong>Make learning automatic</Text>
+              <Text type="secondary">Keep tsunagu active while you browse to discover new cards.</Text>
+            </div>
+            <Tag color={state.settings.paused ? 'default' : 'green'}>{state.settings.paused ? 'Paused' : 'Live'}</Tag>
+          </Card>
+
+          {statusMsg && <Alert className="status-alert" message={statusMsg} type="info" showIcon closable />}
+
+          <Tabs
+            className="popup-tabs"
+            defaultActiveKey="lessons"
+            items={[
+              {
+                key: 'lessons',
+                label: 'Lessons',
+                children: state.pendingCard ? (
+                  <Card className="pending-card" bordered={false}>
+                    <Space align="start">
+                      <Avatar className="lesson-icon" icon={<BookOutlined />} />
+                      <div>
+                        <Text strong>{state.pendingCard.kind === 'concept' ? state.pendingCard.title : 'A lesson is ready'}</Text>
+                        <Text type="secondary">Open the side panel to continue your Japanese practice.</Text>
+                      </div>
+                    </Space>
+                  </Card>
+                ) : (
+                  <Empty className="empty-state" image={<BookOutlined />} description={<Text>Your next lesson will appear here</Text>} />
+                ),
+              },
+              { key: 'review', label: 'Review', children: <Empty className="empty-state" image={<EyeOutlined />} description="Review history is empty" /> },
+              { key: 'reference', label: 'Reference', children: <Empty className="empty-state" image={<ThunderboltOutlined />} description="Your reference cards will appear here" /> },
+              { key: 'activity', label: 'Activity', children: <Empty className="empty-state" image={<EyeInvisibleOutlined />} description="No activity yet" /> },
+            ]}
+          />
+        </Content>
+
+        <footer className="popup-footer">
+          <Button type="primary" block size="large" icon={<SendOutlined />} onClick={openSidePanel} disabled={busy}>
+            Open learning panel
+          </Button>
+        </footer>
+      </Layout>
+    </ConfigProvider>
   )
 }
 
