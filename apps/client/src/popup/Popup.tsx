@@ -35,6 +35,7 @@ import browser from 'webextension-polyfill'
 import type { AppState } from '../domain/types'
 import './Popup.css'
 import { openSidePanel } from '../common/helpers'
+import { lessons } from '../content/lessons'
 
 const { Content } = Layout
 const { Text, Title } = Typography
@@ -120,6 +121,10 @@ export const Popup = () => {
     )
   }
 
+  const activeLesson = lessons.find(
+    (lesson) => lesson.id === (state.pendingCard?.lessonId ?? state.currentLessonId),
+  )
+
   return (
     <ConfigProvider
       theme={{
@@ -170,15 +175,20 @@ export const Popup = () => {
         </header>
 
         <Content className="popup-content">
-          <section className="progress-summary">
-            <Text className="progress-number">{state.pendingCard ? '1' : '0'}</Text>
-            <Text className="progress-label">Cards ready to learn</Text>
-            <Space className="summary-meta" size={8}>
-              <Text>Today's progress</Text>
-              <Text strong>+0 cards</Text>
-              <BookOutlined />
+          <Flex className="lesson-summary">
+            <Space align="start">
+              <Avatar className="lesson-icon" icon={<BookOutlined />} />
+              <div className="lesson-summary-copy">
+                <Text className="lesson-summary-eyebrow">Current lesson</Text>
+                <Text strong>{activeLesson?.title ?? 'Your next lesson'}</Text>
+                <Space className="lesson-counts" size={6} wrap>
+                  <Tag>{activeLesson?.vocab.length ?? 0} vocab</Tag>
+                  <Tag>{activeLesson?.concepts.length ?? 0} concepts</Tag>
+                  <Tag>{activeLesson?.hiragana.length ?? 0} hiragana</Tag>
+                </Space>
+              </div>
             </Space>
-          </section>
+          </Flex>
 
           <section className="quick-actions" aria-label="Quick actions">
             <Button

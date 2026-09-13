@@ -40,6 +40,7 @@ body {
   align-items: center;
   justify-content: space-between;
   height: 90px;
+  background: rgb(32, 32, 36);
   border-bottom: 1px solid var(--popup-line);
 }
 
@@ -64,13 +65,19 @@ body {
   color: var(--popup-muted);
   font-size: 17px;
 }
+
+.lesson-summary {
+  background: rgb(32, 32, 36);
+  padding: 15px;
+}
+
 .brand-avatar {
   color: #10120c;
   background: var(--popup-accent);
   font-weight: 800;
 }
 .popup-content {
-  padding: 22px 18px 0;
+  /* padding: 22px 18px 0; */
 }
 .progress-summary {
   padding: 0 2px 20px;
