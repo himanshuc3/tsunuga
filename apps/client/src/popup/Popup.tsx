@@ -12,6 +12,7 @@ import {
   Spin,
   Tabs,
   Tag,
+  Flex,
   Typography,
 } from 'antd'
 import {
@@ -27,6 +28,8 @@ import {
   PauseOutlined,
   SettingOutlined,
   ThunderboltOutlined,
+  LoginOutlined,
+  UserOutlined,
 } from '@ant-design/icons'
 import browser from 'webextension-polyfill'
 import type { AppState } from '../domain/types'
@@ -137,12 +140,14 @@ export const Popup = () => {
     >
       <Layout className="popup">
         <header className="popup-header">
-          <Space size={10}>
-            <Avatar className="brand-avatar">つ</Avatar>
+          <Space className="popup-left">
+            <Avatar className="brand-avatar" size="small">
+              つ
+            </Avatar>
             <Title level={5}>tsunagu</Title>
-            <Badge status={state.settings.paused ? 'default' : 'success'} />
+            {/* <Badge status={state.settings.paused ? 'default' : 'success'} /> */}
           </Space>
-          <Space size={4}>
+          <Flex className="popup-right">
             <Button
               aria-label="Pause extension"
               type="text"
@@ -155,7 +160,13 @@ export const Popup = () => {
               icon={<SettingOutlined />}
               onClick={openOptions}
             />
-          </Space>
+            <Button
+              aria-label="Open settings"
+              type="text"
+              icon={<UserOutlined />}
+              onClick={openOptions}
+            />
+          </Flex>
         </header>
 
         <Content className="popup-content">

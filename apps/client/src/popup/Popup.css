@@ -39,9 +39,21 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-height: 64px;
-  padding: 12px 20px;
+  height: 90px;
   border-bottom: 1px solid var(--popup-line);
+}
+
+.popup-left {
+  padding-left: 10px;
+}
+.popup-right .ant-btn {
+  width: 40px;
+  height: 100%;
+  /* background-color: red !important; */
+}
+.popup-right .ant-btn:hover,
+.popup-right .ant-btn:focus-visible {
+  /* background-color: red !important; */
 }
 
 .popup-header .ant-typography {
