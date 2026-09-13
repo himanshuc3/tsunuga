@@ -69,6 +69,9 @@ body {
   color: var(--popup-muted);
   font-size: 17px;
 }
+.popup-header .settings-save-button {
+  color: var(--popup-accent);
+}
 
 .lesson-summary {
   position: relative;
@@ -178,6 +181,89 @@ body {
 }
 .popup-content {
   /* padding: 22px 18px 0; */
+}
+.settings-content {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px 14px 28px;
+}
+.settings-section {
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--popup-line);
+}
+.settings-section .ant-typography {
+  margin: 0 0 10px;
+  color: #f7f7f8;
+  font-size: 15px;
+}
+.settings-range-label {
+  display: flex;
+  justify-content: space-between;
+  color: var(--popup-muted);
+  font-size: 11px;
+}
+.settings-range {
+  margin: 8px 6px 0;
+}
+.settings-range .ant-slider-track,
+.settings-range .ant-slider-handle::after {
+  background: var(--popup-accent);
+}
+.settings-range .ant-slider-handle {
+  border-color: var(--popup-accent);
+}
+.settings-range .ant-slider-rail,
+.quiet-hour-row input {
+  background: #2b2b31;
+}
+.quiet-hour-row input {
+  min-width: 0;
+  height: 30px;
+  padding: 4px 7px;
+  border: 1px solid var(--popup-line);
+  border-radius: 6px;
+  color: #f7f7f8;
+  font: inherit;
+}
+.quiet-hour-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 8px;
+  color: var(--popup-muted);
+  font-size: 11px;
+}
+.quiet-hour-row input {
+  width: 82px;
+}
+.quiet-hour-row .ant-btn {
+  height: 28px;
+  padding: 0 3px;
+  color: #e88d8d;
+  font-size: 11px;
+}
+.settings-secondary-action {
+  height: 30px;
+  border-color: var(--popup-line);
+  color: #d6d5dc;
+  background: #292a2f;
+  font-size: 11px;
+}
+.settings-saved-toast {
+  position: fixed;
+  z-index: 30;
+  right: 50%;
+  bottom: 38px;
+  transform: translateX(50%);
+  padding: 7px 12px;
+  border: 1px solid rgba(183, 243, 107, 0.35);
+  border-radius: 999px;
+  color: #10120c;
+  background: var(--popup-accent);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.28);
+  font-size: 11px;
+  font-weight: 700;
 }
 .progress-summary {
   padding: 0 2px 20px;
