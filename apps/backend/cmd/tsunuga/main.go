@@ -48,29 +48,34 @@ const DefaultContextTimeout = 30
 
 // TODO: Figure out the unnecessarily complicated logging setup
 func main() {
+	// 1. Read env config
 	cfg, err := config.LoadConfig()
 	if err != nil {
 		panic("failed to load config: " + err.Error())
 	}
 
-	// Initialize New Relic logger service
+	// 2. Initialize New Relic logger service
 	loggerService := logger.NewLoggerService(cfg.Observability)
 	defer loggerService.Shutdown()
 
+	// 3. Actual logging, which integrates newrelic loggerService defined above
 	log := logger.NewLoggerWithService(cfg.Observability, loggerService)
 
+	// 4. Auto-migrate DB in production instead of manually running scripts
 	if cfg.Primary.Env != "local" {
 		if err := database.Migrate(context.Background(), &log, cfg); err != nil {
 			log.Fatal().Err(err).Msg("failed to migrate database")
 		}
 	}
 
-	// Initialize server
+	// 5. Initialize http server
+	// Creates all the connections to external services
 	srv, err := server.New(cfg, &log, loggerService)
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to initialize server")
 	}
 
+	// 6. All dependencies fed into the server
 	// Initialize repositories, services, and handlers
 	repos := repository.NewRepositories(srv)
 	services, serviceErr := service.NewServices(srv, repos)
