@@ -21,15 +21,40 @@ tasks:
     silent: true
     internal: true
 
+  infra:
+    desc: Start Infrastructure (external deps) required for local dev
+    cmds:
+      - docker compose up -d
+
   dev:
-    desc: Run server with hot reload
+    desc: Start infrastructure and Go server with hot reload
+    deps:
+      - infra
     cmds:
       - air
+
+  infra:down:
+    desc: Stop dev infra
+    cmds:
+      - docker compose down
+
+  infra:logs:
+    desc: Show infra logs
+    cmds:
+      - docker compose logs -f
+
+  test:
+    cmds:
+      - go test ./..
 
   run:
     desc: run the tsununga server
     cmds:
       - go run ./cmd/tsunuga
+
+  build:
+    cmds:
+      - go build -o bin/tsunuga ./cmd/tsunuga
 
   migrations:new:
     desc: create a new database migration
