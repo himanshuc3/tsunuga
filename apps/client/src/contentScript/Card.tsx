@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { Button, Card as AntCard, ConfigProvider, Flex, Space, Tag, Typography } from 'antd'
+import { CloseOutlined } from '@ant-design/icons'
 import type { PendingCard } from '../domain/types'
 
 type Props = {
@@ -14,10 +16,15 @@ const KIND_LABEL: Record<PendingCard['kind'], string> = {
   test: 'Test',
 }
 
+const KIND_COLOR: Record<PendingCard['kind'], string> = {
+  intro: '#b7f36b',
+  concept: '#9a99a5',
+  test: '#f0a35b',
+}
+
 export function Card({ card, onAnswer, onAck, onDismiss }: Props) {
   const [feedback, setFeedback] = useState<'correct' | 'incorrect' | null>(null)
   const [picked, setPicked] = useState<string | null>(null)
-  console.log('wtf', card)
   const handleChoice = (choice: string) => {
     if (card.kind !== 'test' || feedback) return
     const correct = choice === card.answer
@@ -32,102 +39,133 @@ export function Card({ card, onAnswer, onAck, onDismiss }: Props) {
   }
 
   return (
-    <div
-      className="tsunagu-card"
-      data-kind={card.kind}
-      data-feedback={feedback ?? undefined}
-      role="dialog"
-      aria-label="Tsunagu lesson card"
+    <ConfigProvider
+      theme={{
+        token: {
+          colorPrimary: KIND_COLOR[card.kind],
+          colorText: '#f7f7f8',
+          colorTextSecondary: '#9a99a5',
+          colorBgContainer: '#202024',
+          colorBorder: '#323238',
+          borderRadius: 10,
+          fontFamily: "'Avenir Next', 'Segoe UI', sans-serif",
+        },
+      }}
     >
-      <div className="tsunagu-header">
-        <span className="tsunagu-kind">{KIND_LABEL[card.kind]}</span>
-        {card.kind === 'intro' ? (
-          <p className="tsunagu-script">{card.romaji}</p>
-        ) : (
-          <span className="tsunagu-header-spacer" aria-hidden="true" />
-        )}
-        <button type="button" className="tsunagu-close" aria-label="Dismiss" onClick={onDismiss}>
-          ×
-        </button>
-      </div>
-
-      <div className="tsunagu-body">
-        {card.kind === 'intro' && (
-          <>
-            <div className="tsunagu-pair">
-              <div className="tsunagu-half">
-                <span className="tsunagu-half-label">Romaji</span>
-                <p className="tsunagu-half-text">{card.romaji}</p>
-              </div>
-              <div className="tsunagu-half">
-                <span className="tsunagu-half-label">English</span>
-                <p className="tsunagu-half-text">{card.en}</p>
-              </div>
-            </div>
-            {card.meta && <p className="tsunagu-meta">{card.meta}</p>}
-            <div className="tsunagu-actions">
-              <button type="button" className="tsunagu-btn primary" onClick={onAck}>
-                Got it
-              </button>
-            </div>
-          </>
-        )}
-
-        {card.kind === 'concept' && (
-          <>
-            <h2 className="tsunagu-title">{card.title}</h2>
-            <p className="tsunagu-detail">{card.body}</p>
-            {card.meta && <p className="tsunagu-meta">{card.meta}</p>}
-            <div className="tsunagu-actions">
-              <button type="button" className="tsunagu-btn primary" onClick={onAck}>
-                Continue
-              </button>
-            </div>
-          </>
-        )}
-
-        {card.kind === 'test' && (
-          <>
-            <div className="tsunagu-pair">
-              <div className="tsunagu-half">
-                <span className="tsunagu-half-label">Romaji</span>
-                <p className="tsunagu-half-text">{card.romaji}</p>
-              </div>
-              <div className="tsunagu-half">
-                <span className="tsunagu-half-label">English</span>
-                <p className="tsunagu-half-text">{card.en}</p>
-              </div>
-            </div>
-            <p className="tsunagu-prompt small">{card.prompt}</p>
-            {card.meta && <p className="tsunagu-meta">{card.meta}</p>}
-            <div className="tsunagu-choices">
-              {card.choices.map((choice) => {
-                let state: 'correct' | 'wrong' | undefined
-                if (feedback) {
-                  if (choice === card.answer) state = 'correct'
-                  else if (choice === picked) state = 'wrong'
-                }
-                return (
-                  <button
-                    key={choice}
-                    type="button"
-                    className="tsunagu-choice"
-                    data-state={state}
-                    disabled={Boolean(feedback)}
-                    onClick={() => handleChoice(choice)}
-                  >
-                    {choice}
-                  </button>
-                )
-              })}
-            </div>
-            {feedback === 'correct' && <p className="tsunagu-feedback ok">Correct</p>}
-            {feedback === 'incorrect' && (
-              <p className="tsunagu-feedback bad">Answer: {card.answer}</p>
+      <AntCard
+        className="tsunagu-card"
+        data-kind={card.kind}
+        data-feedback={feedback ?? undefined}
+        role="dialog"
+        aria-label="Tsunagu lesson card"
+        bordered
+        title={
+          <Flex className="tsunagu-header" align="center" justify="space-between">
+            <Tag color={KIND_COLOR[card.kind]} className="tsunagu-kind">
+              {KIND_LABEL[card.kind]}
+            </Tag>
+            {card.kind === 'intro' ? (
+              <Typography.Text className="tsunagu-script">{card.romaji}</Typography.Text>
+            ) : (
+              <Typography.Text className="tsunagu-header-spacer" aria-hidden="true" />
             )}
-          </>
-        )}
-      </div>
-    </div>
+            <Button
+              className="tsunagu-close"
+              type="text"
+              icon={<CloseOutlined />}
+              aria-label="Dismiss"
+              onClick={onDismiss}
+            />
+          </Flex>
+        }
+      >
+        <Space className="tsunagu-body" direction="vertical" size={12}>
+          {card.kind === 'intro' && (
+            <>
+              <Flex className="tsunagu-pair" gap={12}>
+                <Flex className="tsunagu-half" vertical align="center" justify="center" gap={4}>
+                  <Typography.Text className="tsunagu-half-label">Romaji</Typography.Text>
+                  <Typography.Text className="tsunagu-half-text">{card.romaji}</Typography.Text>
+                </Flex>
+                <Flex className="tsunagu-half" vertical align="center" justify="center" gap={4}>
+                  <Typography.Text className="tsunagu-half-label">English</Typography.Text>
+                  <Typography.Text className="tsunagu-half-text">{card.en}</Typography.Text>
+                </Flex>
+              </Flex>
+              {card.meta && <Typography.Text className="tsunagu-meta">{card.meta}</Typography.Text>}
+              <Flex className="tsunagu-actions">
+                <Button type="primary" onClick={onAck}>
+                  Got it
+                </Button>
+              </Flex>
+            </>
+          )}
+
+          {card.kind === 'concept' && (
+            <>
+              <Typography.Title level={2} className="tsunagu-title">
+                {card.title}
+              </Typography.Title>
+              <Typography.Paragraph className="tsunagu-detail">{card.body}</Typography.Paragraph>
+              {card.meta && <Typography.Text className="tsunagu-meta">{card.meta}</Typography.Text>}
+              <Flex className="tsunagu-actions">
+                <Button type="primary" onClick={onAck}>
+                  Continue
+                </Button>
+              </Flex>
+            </>
+          )}
+
+          {card.kind === 'test' && (
+            <>
+              <Flex className="tsunagu-pair" gap={12}>
+                <Flex className="tsunagu-half" vertical align="center" justify="center" gap={4}>
+                  <Typography.Text className="tsunagu-half-label">Romaji</Typography.Text>
+                  <Typography.Text className="tsunagu-half-text">{card.romaji}</Typography.Text>
+                </Flex>
+                <Flex className="tsunagu-half" vertical align="center" justify="center" gap={4}>
+                  <Typography.Text className="tsunagu-half-label">English</Typography.Text>
+                  <Typography.Text className="tsunagu-half-text">{card.en}</Typography.Text>
+                </Flex>
+              </Flex>
+              <Typography.Paragraph className="tsunagu-prompt small">
+                {card.prompt}
+              </Typography.Paragraph>
+              {card.meta && <Typography.Text className="tsunagu-meta">{card.meta}</Typography.Text>}
+              <Space className="tsunagu-choices" direction="vertical" size={8}>
+                {card.choices.map((choice) => {
+                  let state: 'correct' | 'wrong' | undefined
+                  if (feedback) {
+                    if (choice === card.answer) state = 'correct'
+                    else if (choice === picked) state = 'wrong'
+                  }
+                  return (
+                    <Button
+                      key={choice}
+                      className="tsunagu-choice"
+                      type="default"
+                      block
+                      data-state={state}
+                      disabled={Boolean(feedback)}
+                      onClick={() => handleChoice(choice)}
+                    >
+                      {choice}
+                    </Button>
+                  )
+                })}
+              </Space>
+              {feedback === 'correct' && (
+                <Typography.Text className="tsunagu-feedback ok">Correct</Typography.Text>
+              )}
+              {feedback === 'incorrect' && (
+                <Typography.Text className="tsunagu-feedback bad">
+                  Answer: {card.answer}
+                </Typography.Text>
+              )}
+            </>
+          )}
+        </Space>
+      </AntCard>
+    </ConfigProvider>
   )
 }
