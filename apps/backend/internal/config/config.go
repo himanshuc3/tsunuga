@@ -13,6 +13,25 @@ import (
 	"github.com/rs/zerolog"
 )
 
+/**************************************
+***************************************
+* Basic flow: .env file -> godotenv -> OS environment variables
+				-> koanf + env provider (specifically to only read env config)
+				-> Go config struct -> validator
+				-> valid config (without throwing errors)
+   NOTE: zerolog is only a fancy logger package
+***************************************
+***************************************/
+
+/**************************************
+***************************************
+* Global config for managing application based on
+* environment it is deployed in. General observation
+* is that a lot of boilerplate is generally required for
+* consuming/serialization/deserialization of any outside
+* data via any medium (env files, http payloads etc.)
+***************************************
+***************************************/
 type Config struct {
 	Primary       Primary              `koanf:"primary" validate:"required"`
 	Server        ServerConfig         `koanf:"server" validate:"required"`
@@ -23,15 +42,24 @@ type Config struct {
 	Observability *ObservabilityConfig `koanf:"observability"`
 }
 
+/**************************************
+***************************************
+* Use of koanf: Give me configuration from different
+* sources, normalize it, merge it, and let me turn
+* it into a Go struct. It supports sources such as environment variables,
+* files, command-line flags, Vault, S3, etc.
+***************************************
+***************************************/
 type Primary struct {
 	Env string `koanf:"env" validate:"required"`
 }
 
-/*
-*
-Global config for managing application
-based on environment it is deployed in
-*/
+/**************************************
+***************************************
+* Use of validator: Generic library for validating
+* anything using struct tags
+***************************************
+***************************************/
 type ServerConfig struct {
 	Port               string   `koanf:"port" validate:"required"`
 	ReadTimeout        int      `koanf:"read_timeout" validate:"required"`
@@ -74,7 +102,6 @@ type AuthConfig struct {
 * platforms
 * newrelic: Used as the platform for log ingestion, zerolog sends
 * it to newrelic based on env(production)
-* koanf: Used for injection of env configuration into our app
 * pgx: Used as a driver for conecting and communicating to postgresql DB
 *
 
@@ -82,6 +109,7 @@ type AuthConfig struct {
 *****************************
  */
 func LoadConfig() (*Config, error) {
+
 	logger := zerolog.New(zerolog.ConsoleWriter{Out: os.Stderr}).With().Timestamp().Logger()
 
 	k := koanf.New(".")
@@ -113,6 +141,8 @@ func LoadConfig() (*Config, error) {
 		logger.Fatal().Err(err).Msgf("config validation failed:\n%s", formattedConfig)
 	}
 
+	// Observability config is unique since it isn't a required
+	// field. Not required specifically in development and therefore mocked
 	if mainConfig.Observability == nil {
 		mainConfig.Observability = DefaultObservabilityConfig()
 	}
@@ -123,6 +153,7 @@ func LoadConfig() (*Config, error) {
 	if err := mainConfig.Observability.Validate(); err != nil {
 		logger.Fatal().Err(err).Msg("invalid observability config")
 	}
+	// Ending observability config
 
 	return mainConfig, nil
 }

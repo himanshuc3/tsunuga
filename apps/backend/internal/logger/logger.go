@@ -10,10 +10,23 @@ import (
 
 	"github.com/himanshuc3/tsunuga-be/internal/config"
 
+	"github.com/newrelic/go-agent/v3/integrations/logcontext-v2/zerologWriter"
 	"github.com/newrelic/go-agent/v3/newrelic"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/pkgerrors"
 )
+
+/*
+*****************************
+*****************************
+* pkgerrors from zerolog is used for recording
+* stack traces and adding them in logging
+* database pgx logger present
+*
+
+*****************************
+*****************************
+ */
 
 // Logging indirectly includes monitoring
 // & observability (instrumentation)
@@ -70,6 +83,7 @@ func (ls *LoggerService) GetApplication() *newrelic.Application {
 // Newrelic logger service is different from application level logging
 // which isn't persisted for debuggin (i assume)
 // NewLoggerWithService creates a logger with full config and logger service
+// zerlog integration,observability config gives rules for logging
 func NewLoggerWithService(cfg *config.ObservabilityConfig, loggerService *LoggerService) zerolog.Logger {
 	var logLevel zerolog.Level
 	level := cfg.GetLogLevel()
@@ -88,15 +102,23 @@ func NewLoggerWithService(cfg *config.ObservabilityConfig, loggerService *Logger
 	}
 
 	// Donm't set global level - let each logger have it's own level
-	zerolog.TimeFieldFormat = "2006-01-02 15:33:33"
+	zerolog.TimeFieldFormat = "2006-01-02 15:04:05"
 	zerolog.ErrorStackMarshaler = pkgerrors.MarshalStack
 
 	var writer io.Writer
-
 	var baseWriter io.Writer
+
 	if cfg.IsProduction() && cfg.Logging.Format == "json" {
+		// In production, write to stdout
 		baseWriter = os.Stdout
-		writer = baseWriter
+
+		// Wrap with New Relic zerologWriter for log forwarding in production
+		if loggerService != nil && loggerService.nrApp != nil {
+			nrWriter := zerologWriter.New(baseWriter, loggerService.nrApp)
+			writer = nrWriter
+		} else {
+			writer = baseWriter
+		}
 	} else {
 		// Development mode - user console writer
 		consoleWriter := zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: "2006-01-02 15:05:05"}
@@ -139,8 +161,11 @@ func NewLoggerWithConfig(cfg *config.ObservabilityConfig) zerolog.Logger {
 	return NewLoggerWithService(cfg, nil)
 }
 
-// Adds New Relic transaction context to logger
-// Transaction - the debug trace of the code
+// Adds New Relic transaction context (observability) to logger
+// Transaction - the debug trace of the code/unit of work like
+// http request -> GET /users -> transaction
+// Trace ID: remains constant across a transaction
+// Span ID: individual ids for atomic actions inside a transaction
 func WithTraceContext(logger zerolog.Logger, txn *newrelic.Transaction) zerolog.Logger {
 	if txn == nil {
 		return logger
@@ -150,10 +175,11 @@ func WithTraceContext(logger zerolog.Logger, txn *newrelic.Transaction) zerolog.
 
 	return logger.With().
 		Str("trace.id", metadata.TraceID).
-		Str("space.id", metadata.SpanID).
+		Str("span.id", metadata.SpanID).
 		Logger()
 }
 
+// Parameterized queries?
 func FormatSQLWithArgs(sql string, args []any) string {
 	result := sql
 	for i, arg := range args {

@@ -16,9 +16,9 @@ type ObservabilityConfig struct {
 }
 
 type LoggingConfig struct {
-	Level              string        `koanf:"level" validate:"required"`
+	Level              string        `koanf:"level" validate:"required,oneof=debug info warn error"`
 	Format             string        `koanf:"format" validate:"required"`
-	SlowQueryThreshold time.Duration `koanf:"slow_query_threshold"`
+	SlowQueryThreshold time.Duration `koanf:"slow_query_threshold,gte=0"`
 }
 
 type NewRelicConfig struct {
@@ -59,6 +59,16 @@ func DefaultObservabilityConfig() *ObservabilityConfig {
 	}
 }
 
+/*
+*************************************
+***************************************
+* Using custom validation here since the config
+* key isn't a required field (mocked in dev server)
+* and therefore, we validate after creating a mock object
+* instead of automatic validation on file load
+***************************************
+**************************************
+ */
 func (c *ObservabilityConfig) Validate() error {
 	if c.ServiceName == "" {
 		return fmt.Errorf("service_name is required")
@@ -68,12 +78,11 @@ func (c *ObservabilityConfig) Validate() error {
 	validLevels := map[string]bool{
 		"debug": true, "info": true, "warn": true, "error": true,
 	}
-
 	if !validLevels[c.Logging.Level] {
 		return fmt.Errorf("invalid logging level: %s (must be one of: debug, info, warn, error)", c.Logging.Level)
 	}
 
-	// validate slow query threshold
+	// Validate slow query threshold
 	if c.Logging.SlowQueryThreshold < 0 {
 		return fmt.Errorf("logging slow_query_threshold must be non-negative")
 	}
