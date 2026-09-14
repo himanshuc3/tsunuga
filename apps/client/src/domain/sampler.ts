@@ -1,10 +1,5 @@
 import { getLessonById, lessons } from '../content/lessons'
-import {
-  getOrCreateProgress,
-  isItemMastered,
-  lessonItemKeys,
-  progressKey,
-} from './progress'
+import { getOrCreateProgress, isItemMastered, progressKey } from './progress'
 import type {
   AppState,
   ConceptCard,
@@ -37,24 +32,10 @@ function distractors(correct: string, pool: string[], count = 3): string[] {
   return shuffle([correct, ...others])
 }
 
-function buildHiraganaIntro(lessonId: string, char: string, romaji: string): IntroCard {
-  return {
-    id: uid(),
-    kind: 'intro',
-    lessonId,
-    itemType: 'hiragana',
-    itemKey: char,
-    jp: char,
-    en: romaji,
-    reading: romaji,
-  }
-}
-
 function buildVocabIntro(
   lessonId: string,
   id: string,
-  jp: string,
-  reading: string,
+  romaji: string,
   en: string,
   meta?: string,
 ): IntroCard {
@@ -64,9 +45,8 @@ function buildVocabIntro(
     lessonId,
     itemType: 'vocab',
     itemKey: id,
-    jp,
+    romaji,
     en,
-    reading,
     meta,
   }
 }
@@ -76,6 +56,7 @@ function buildConcept(
   conceptId: string,
   title: string,
   body: string,
+  meta?: string,
 ): ConceptCard {
   return {
     id: uid(),
@@ -84,55 +65,21 @@ function buildConcept(
     conceptId,
     title,
     body,
-  }
-}
-
-function buildHiraganaTest(
-  lessonId: string,
-  char: string,
-  romaji: string,
-  allRomaji: string[],
-  allChars: string[],
-): TestCard {
-  const toRomaji = Math.random() < 0.5
-  const direction: TestDirection = toRomaji ? 'kana-to-romaji' : 'romaji-to-kana'
-  if (toRomaji) {
-    return {
-      id: uid(),
-      kind: 'test',
-      lessonId,
-      itemType: 'hiragana',
-      itemKey: char,
-      direction,
-      prompt: `What is the romaji for ${char}?`,
-      answer: romaji,
-      choices: distractors(romaji, allRomaji),
-    }
-  }
-  return {
-    id: uid(),
-    kind: 'test',
-    lessonId,
-    itemType: 'hiragana',
-    itemKey: char,
-    direction,
-    prompt: `Which character is “${romaji}”?`,
-    answer: char,
-    choices: distractors(char, allChars),
+    meta,
   }
 }
 
 function buildVocabTest(
   lessonId: string,
   id: string,
-  jp: string,
+  romaji: string,
   en: string,
   allEn: string[],
-  allJp: string[],
+  allRomaji: string[],
   meta?: string,
 ): TestCard {
   const toEn = Math.random() < 0.5
-  const direction: TestDirection = toEn ? 'jp-to-en' : 'en-to-jp'
+  const direction: TestDirection = toEn ? 'romaji-to-en' : 'en-to-romaji'
   if (toEn) {
     return {
       id: uid(),
@@ -141,7 +88,9 @@ function buildVocabTest(
       itemType: 'vocab',
       itemKey: id,
       direction,
-      prompt: `What does ${jp} mean?`,
+      romaji,
+      en,
+      prompt: `What does ${romaji} mean?`,
       answer: en,
       choices: distractors(en, allEn),
       meta,
@@ -154,9 +103,11 @@ function buildVocabTest(
     itemType: 'vocab',
     itemKey: id,
     direction,
-    prompt: `Which word means “${en}”?`,
-    answer: jp,
-    choices: distractors(jp, allJp),
+    romaji,
+    en,
+    prompt: `What is the romaji for “${en}”?`,
+    answer: romaji,
+    choices: distractors(romaji, allRomaji),
     meta,
   }
 }
@@ -175,62 +126,29 @@ export function sampleNextCard(state: AppState): PendingCard | null {
     if (!p.conceptShown) {
       candidates.push({
         priority: 0,
-        build: () => buildConcept(current.id, c.id, c.title, c.body),
+        build: () => buildConcept(current.id, c.id, c.title, c.body, c.meta),
       })
     }
   }
 
-  // Unintroduced hiragana / vocab
-  for (const h of current.hiragana) {
-    const key = progressKey(current.id, 'hiragana', h.char)
-    const p = getOrCreateProgress(state, key)
-    if (p.introducedAt == null) {
-      candidates.push({
-        priority: 1,
-        build: () => buildHiraganaIntro(current.id, h.char, h.romaji),
-      })
-    }
-  }
+  // Unintroduced vocabulary
   for (const v of current.vocab) {
     const key = progressKey(current.id, 'vocab', v.id)
     const p = getOrCreateProgress(state, key)
     if (p.introducedAt == null) {
       candidates.push({
         priority: 1,
-        build: () =>
-          buildVocabIntro(current.id, v.id, v.jp, v.reading, v.en, v.meta),
+        build: () => buildVocabIntro(current.id, v.id, v.romaji, v.en, v.meta),
       })
     }
   }
 
-  const allRomaji = current.hiragana.map((h) => h.romaji)
-  const allChars = current.hiragana.map((h) => h.char)
-  // Widen distractor pools from all lessons when needed
-  const globalRomaji = lessons.flatMap((l) => l.hiragana.map((h) => h.romaji))
-  const globalChars = lessons.flatMap((l) => l.hiragana.map((h) => h.char))
   const currentEn = current.vocab.map((v) => v.en)
-  const currentJp = current.vocab.map((v) => v.jp)
+  const currentRomaji = current.vocab.map((v) => v.romaji)
   const globalEn = lessons.flatMap((l) => l.vocab.map((v) => v.en))
-  const globalJp = lessons.flatMap((l) => l.vocab.map((v) => v.jp))
+  const globalRomaji = lessons.flatMap((l) => l.vocab.map((v) => v.romaji))
 
   // Weak (introduced but not mastered) tests — current lesson
-  for (const h of current.hiragana) {
-    const key = progressKey(current.id, 'hiragana', h.char)
-    const p = getOrCreateProgress(state, key)
-    if (p.introducedAt != null && !isItemMastered(p)) {
-      candidates.push({
-        priority: 2,
-        build: () =>
-          buildHiraganaTest(
-            current.id,
-            h.char,
-            h.romaji,
-            allRomaji.length >= 4 ? allRomaji : globalRomaji,
-            allChars.length >= 4 ? allChars : globalChars,
-          ),
-      })
-    }
-  }
   for (const v of current.vocab) {
     const key = progressKey(current.id, 'vocab', v.id)
     const p = getOrCreateProgress(state, key)
@@ -241,10 +159,10 @@ export function sampleNextCard(state: AppState): PendingCard | null {
           buildVocabTest(
             current.id,
             v.id,
-            v.jp,
+            v.romaji,
             v.en,
             currentEn.length >= 4 ? currentEn : globalEn,
-            currentJp.length >= 4 ? currentJp : globalJp,
+            currentRomaji.length >= 4 ? currentRomaji : globalRomaji,
             v.meta,
           ),
       })
@@ -258,23 +176,6 @@ export function sampleNextCard(state: AppState): PendingCard | null {
     }
     if (lesson.id === current.id) continue
 
-    for (const h of lesson.hiragana) {
-      const key = progressKey(lesson.id, 'hiragana', h.char)
-      const p = getOrCreateProgress(state, key)
-      if (p.introducedAt != null) {
-        candidates.push({
-          priority: 3,
-          build: () =>
-            buildHiraganaTest(
-              lesson.id,
-              h.char,
-              h.romaji,
-              globalRomaji,
-              globalChars,
-            ),
-        })
-      }
-    }
     for (const v of lesson.vocab) {
       const key = progressKey(lesson.id, 'vocab', v.id)
       const p = getOrCreateProgress(state, key)
@@ -282,38 +183,13 @@ export function sampleNextCard(state: AppState): PendingCard | null {
         candidates.push({
           priority: 3,
           build: () =>
-            buildVocabTest(
-              lesson.id,
-              v.id,
-              v.jp,
-              v.en,
-              globalEn,
-              globalJp,
-              v.meta,
-            ),
+            buildVocabTest(lesson.id, v.id, v.romaji, v.en, globalEn, globalRomaji, v.meta),
         })
       }
     }
   }
 
   // Also allow testing already-mastered current items occasionally (priority 3)
-  for (const h of current.hiragana) {
-    const key = progressKey(current.id, 'hiragana', h.char)
-    const p = getOrCreateProgress(state, key)
-    if (isItemMastered(p)) {
-      candidates.push({
-        priority: 3,
-        build: () =>
-          buildHiraganaTest(
-            current.id,
-            h.char,
-            h.romaji,
-            allRomaji.length >= 4 ? allRomaji : globalRomaji,
-            allChars.length >= 4 ? allChars : globalChars,
-          ),
-      })
-    }
-  }
   for (const v of current.vocab) {
     const key = progressKey(current.id, 'vocab', v.id)
     const p = getOrCreateProgress(state, key)
@@ -324,10 +200,10 @@ export function sampleNextCard(state: AppState): PendingCard | null {
           buildVocabTest(
             current.id,
             v.id,
-            v.jp,
+            v.romaji,
             v.en,
             currentEn.length >= 4 ? currentEn : globalEn,
-            currentJp.length >= 4 ? currentJp : globalJp,
+            currentRomaji.length >= 4 ? currentRomaji : globalRomaji,
             v.meta,
           ),
       })
@@ -338,12 +214,7 @@ export function sampleNextCard(state: AppState): PendingCard | null {
     // Fallback: re-show a concept from current lesson
     const c = current.concepts[0]
     if (c) {
-      return buildConcept(current.id, c.id, c.title, c.body)
-    }
-    const keys = lessonItemKeys(current)
-    if (keys.hiragana[0]) {
-      const h = current.hiragana[0]
-      return buildHiraganaIntro(current.id, h.char, h.romaji)
+      return buildConcept(current.id, c.id, c.title, c.body, c.meta)
     }
     return null
   }

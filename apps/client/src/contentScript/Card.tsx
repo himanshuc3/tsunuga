@@ -17,15 +17,18 @@ const KIND_LABEL: Record<PendingCard['kind'], string> = {
 export function Card({ card, onAnswer, onAck, onDismiss }: Props) {
   const [feedback, setFeedback] = useState<'correct' | 'incorrect' | null>(null)
   const [picked, setPicked] = useState<string | null>(null)
-
+  console.log('wtf', card)
   const handleChoice = (choice: string) => {
     if (card.kind !== 'test' || feedback) return
     const correct = choice === card.answer
     setPicked(choice)
     setFeedback(correct ? 'correct' : 'incorrect')
-    window.setTimeout(() => {
-      onAnswer(choice, correct)
-    }, correct ? 650 : 1100)
+    window.setTimeout(
+      () => {
+        onAnswer(choice, correct)
+      },
+      correct ? 650 : 1100,
+    )
   }
 
   return (
@@ -39,16 +42,11 @@ export function Card({ card, onAnswer, onAck, onDismiss }: Props) {
       <div className="tsunagu-header">
         <span className="tsunagu-kind">{KIND_LABEL[card.kind]}</span>
         {card.kind === 'intro' ? (
-          <p className="tsunagu-script">{card.jp}</p>
+          <p className="tsunagu-script">{card.romaji}</p>
         ) : (
           <span className="tsunagu-header-spacer" aria-hidden="true" />
         )}
-        <button
-          type="button"
-          className="tsunagu-close"
-          aria-label="Dismiss"
-          onClick={onDismiss}
-        >
+        <button type="button" className="tsunagu-close" aria-label="Dismiss" onClick={onDismiss}>
           ×
         </button>
       </div>
@@ -58,9 +56,11 @@ export function Card({ card, onAnswer, onAck, onDismiss }: Props) {
           <>
             <div className="tsunagu-pair">
               <div className="tsunagu-half">
-                <p className="tsunagu-half-text">{card.reading ?? card.jp}</p>
+                <span className="tsunagu-half-label">Romaji</span>
+                <p className="tsunagu-half-text">{card.romaji}</p>
               </div>
               <div className="tsunagu-half">
+                <span className="tsunagu-half-label">English</span>
                 <p className="tsunagu-half-text">{card.en}</p>
               </div>
             </div>
@@ -77,6 +77,7 @@ export function Card({ card, onAnswer, onAck, onDismiss }: Props) {
           <>
             <h2 className="tsunagu-title">{card.title}</h2>
             <p className="tsunagu-detail">{card.body}</p>
+            {card.meta && <p className="tsunagu-meta">{card.meta}</p>}
             <div className="tsunagu-actions">
               <button type="button" className="tsunagu-btn primary" onClick={onAck}>
                 Continue
@@ -87,6 +88,16 @@ export function Card({ card, onAnswer, onAck, onDismiss }: Props) {
 
         {card.kind === 'test' && (
           <>
+            <div className="tsunagu-pair">
+              <div className="tsunagu-half">
+                <span className="tsunagu-half-label">Romaji</span>
+                <p className="tsunagu-half-text">{card.romaji}</p>
+              </div>
+              <div className="tsunagu-half">
+                <span className="tsunagu-half-label">English</span>
+                <p className="tsunagu-half-text">{card.en}</p>
+              </div>
+            </div>
             <p className="tsunagu-prompt small">{card.prompt}</p>
             {card.meta && <p className="tsunagu-meta">{card.meta}</p>}
             <div className="tsunagu-choices">
@@ -110,9 +121,7 @@ export function Card({ card, onAnswer, onAck, onDismiss }: Props) {
                 )
               })}
             </div>
-            {feedback === 'correct' && (
-              <p className="tsunagu-feedback ok">Correct</p>
-            )}
+            {feedback === 'correct' && <p className="tsunagu-feedback ok">Correct</p>}
             {feedback === 'incorrect' && (
               <p className="tsunagu-feedback bad">Answer: {card.answer}</p>
             )}

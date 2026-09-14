@@ -1,5 +1,5 @@
 import { getFirstLesson } from '../../content/lessons'
-import type { AppState, PendingCard, Settings } from '../../domain/types'
+import type { AppState, ItemProgress, PendingCard, Settings } from '../../domain/types'
 import { DEFAULT_SETTINGS } from '../../domain/types'
 import browser from 'webextension-polyfill'
 
@@ -26,16 +26,47 @@ function mergeSettings(raw: unknown): Settings {
   if (!raw || typeof raw !== 'object') return base
   const s = raw as Partial<Settings>
   return {
-    minIntervalMin:
-      typeof s.minIntervalMin === 'number' ? s.minIntervalMin : base.minIntervalMin,
-    maxIntervalMin:
-      typeof s.maxIntervalMin === 'number' ? s.maxIntervalMin : base.maxIntervalMin,
+    minIntervalMin: typeof s.minIntervalMin === 'number' ? s.minIntervalMin : base.minIntervalMin,
+    maxIntervalMin: typeof s.maxIntervalMin === 'number' ? s.maxIntervalMin : base.maxIntervalMin,
     quietHours: Array.isArray(s.quietHours) ? s.quietHours : base.quietHours,
     paused: typeof s.paused === 'boolean' ? s.paused : base.paused,
   }
 }
 
-// Replace with in-memory state-management? 
+function migratePendingCard(raw: unknown): PendingCard | null {
+  if (!raw || typeof raw !== 'object') return null
+  const card = raw as Record<string, unknown>
+  if (card.kind === 'intro' && typeof card.en === 'string') {
+    return {
+      ...card,
+      romaji:
+        typeof card.romaji === 'string'
+          ? card.romaji
+          : typeof card.reading === 'string'
+            ? card.reading
+            : '',
+    } as PendingCard
+  }
+  if (card.kind === 'test' && typeof card.answer === 'string') {
+    const legacyDirection = card.direction === 'jp-to-en' || card.direction === 'en-to-jp'
+    return {
+      ...card,
+      direction: card.direction === 'en-to-jp' ? 'en-to-romaji' : card.direction,
+      romaji:
+        typeof card.romaji === 'string'
+          ? card.romaji
+          : typeof card.reading === 'string'
+            ? card.reading
+            : legacyDirection && card.direction === 'en-to-jp'
+              ? card.answer
+              : '',
+      en: typeof card.en === 'string' ? card.en : '',
+    } as PendingCard
+  }
+  return card.kind === 'concept' ? (card as PendingCard) : null
+}
+
+// Replace with in-memory state-management?
 // And deep-merging state?
 export async function loadState(): Promise<AppState> {
   const defaults = createDefaultState()
@@ -57,10 +88,10 @@ export async function loadState(): Promise<AppState> {
       : defaults.completedLessonIds,
     itemProgress:
       result.itemProgress && typeof result.itemProgress === 'object'
-        ? result.itemProgress
+        ? (result.itemProgress as Record<string, ItemProgress>)
         : defaults.itemProgress,
     settings: mergeSettings(result.settings),
-    pendingCard: (result.pendingCard as PendingCard | null) ?? null,
+    pendingCard: migratePendingCard(result.pendingCard),
   }
 }
 
@@ -74,9 +105,7 @@ export async function saveState(state: AppState): Promise<void> {
   })
 }
 
-export async function updateState(
-  updater: (prev: AppState) => AppState,
-): Promise<AppState> {
+export async function updateState(updater: (prev: AppState) => AppState): Promise<AppState> {
   const prev = await loadState()
   const next = updater(prev)
   await saveState(next)

@@ -2,17 +2,12 @@ export type Concept = {
   id: string
   title: string
   body: string
-}
-
-export type HiraganaItem = {
-  char: string
-  romaji: string
+  meta?: string
 }
 
 export type VocabItem = {
   id: string
-  jp: string
-  reading: string
+  romaji: string
   en: string
   /** Optional clarifying subtext shown under the word or question. */
   meta?: string
@@ -22,7 +17,6 @@ export type Lesson = {
   id: string
   title: string
   concepts: Concept[]
-  hiragana: HiraganaItem[]
   vocab: VocabItem[]
   unlockAfter?: string
 }
@@ -52,11 +46,10 @@ export type IntroCard = {
   id: string
   kind: 'intro'
   lessonId: string
-  itemType: 'hiragana' | 'vocab'
+  itemType: 'vocab'
   itemKey: string
-  jp: string
+  romaji: string
   en: string
-  reading?: string
   meta?: string
 }
 
@@ -67,17 +60,20 @@ export type ConceptCard = {
   conceptId: string
   title: string
   body: string
+  meta?: string
 }
 
-export type TestDirection = 'jp-to-en' | 'en-to-jp' | 'kana-to-romaji' | 'romaji-to-kana'
+export type TestDirection = 'romaji-to-en' | 'en-to-romaji'
 
 export type TestCard = {
   id: string
   kind: 'test'
   lessonId: string
-  itemType: 'hiragana' | 'vocab'
+  itemType: 'vocab'
   itemKey: string
   direction: TestDirection
+  romaji: string
+  en: string
   prompt: string
   answer: string
   choices: string[]
