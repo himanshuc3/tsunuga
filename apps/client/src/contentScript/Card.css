@@ -23,7 +23,8 @@
 .tsunagu-card.ant-card {
   overflow: hidden;
   color: var(--ts-text);
-  background: var(--ts-bg);
+  /* background: var(--ts-bg); */
+  background: transparent;
   border: 1px solid var(--ts-border);
   border-radius: 12px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
