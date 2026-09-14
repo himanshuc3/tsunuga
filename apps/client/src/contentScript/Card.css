@@ -19,38 +19,40 @@
   width: min(320px, calc(100vw - 32px));
   box-sizing: border-box;
 }
+* {
+  box-sizing: border-box;
+}
 
-.tsunagu-card.ant-card {
+.tsunagu-card {
   overflow: hidden;
   color: var(--ts-text);
-  /* background: var(--ts-bg); */
-  background: transparent;
+  background: var(--ts-bg);
   border: 1px solid var(--ts-border);
-  border-radius: 12px;
+  border-radius: 6px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
   animation: tsunagu-in 180ms ease-out;
 }
 
-.tsunagu-card[data-kind='intro'] {
-  border-top: 4px solid var(--ts-intro);
+/* .tsunagu-card[data-kind='intro'] .tsunagu-header {
+  border: 1px solid var(--ts-intro);
 }
 
-.tsunagu-card[data-kind='concept'] {
-  border-top: 4px solid var(--ts-concept);
+.tsunagu-card[data-kind='concept'] .tsunagu-header {
+  border: 1px solid var(--ts-concept);
 }
 
-.tsunagu-card[data-kind='test'] {
-  border-top: 4px solid var(--ts-test);
+.tsunagu-card[data-kind='test'] .tsunagu-header {
+  border: 1px solid var(--ts-test);
 }
 
-.tsunagu-card[data-feedback='correct'] {
+.tsunagu-card[data-feedback='correct'] .tsunagu-header{
   outline: 2px solid var(--ts-ok);
 }
 
-.tsunagu-card[data-feedback='incorrect'] {
+.tsunagu-card[data-feedback='incorrect'] .tsunagu-header {
   outline: 2px solid var(--ts-bad);
   animation: tsunagu-shake 240ms ease;
-}
+} */
 
 .tsunagu-card .ant-card-head {
   min-height: 0;
@@ -68,15 +70,9 @@
   background: var(--ts-bg);
 }
 
-.tsunagu-header {
-  width: 100%;
-}
-
 .tsunagu-kind {
-  margin: 0;
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
@@ -120,12 +116,8 @@
   text-align: center;
 }
 
-.tsunagu-half-label {
-  color: var(--ts-muted) !important;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+.tsunagu-half.left {
+  border-right: 0;
 }
 
 .tsunagu-half-text {
@@ -173,18 +165,6 @@
 .tsunagu-actions,
 .tsunagu-choices {
   width: 100%;
-}
-
-.tsunagu-actions .ant-btn-primary {
-  color: #10120c;
-  border: 0;
-  background: var(--ts-accent);
-  font-weight: 700;
-}
-
-.tsunagu-actions .ant-btn-primary:hover {
-  color: #10120c;
-  background: #c9ff85;
 }
 
 .tsunagu-choice.ant-btn {
@@ -251,10 +231,8 @@
     transform: translateX(4px);
   }
 }
-  border-top: 4px solid var(--ts-concept);
-}
 
-.tsunagu-card[data-kind='test'] {
+/* .tsunagu-card[data-kind='test'] {
   border-top: 4px solid var(--ts-test);
 }
 
@@ -267,14 +245,16 @@
   background: #202024;
   border-color: #323238;
   animation: tsunagu-shake 240ms ease;
-}
+} */
 
 .tsunagu-header {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  display: flex;
+  flex-direction: row;
   align-items: center;
   gap: 8px;
-  padding: 10px 12px 0;
+  padding: 5px 10px;
+  width: 100%;
+  border-bottom: 1px solid #323238;
 }
 
 .tsunagu-kind {
@@ -295,8 +275,6 @@
   color: var(--ts-text);
 }
 
-.tsunagu-header-spacer {
-
 .tsunagu-card .ant-card-head {
   min-height: 0;
   padding: 0 12px;
@@ -312,6 +290,8 @@
   padding: 12px 14px 14px;
   background: #202024;
 }
+
+.tsunagu-header-spacer {
   display: block;
   width: 0;
   height: 0;
@@ -334,34 +314,38 @@
   border: 0;
   flex: 0 0 auto;
   color: var(--ts-muted);
+}
 .tsunagu-body {
   padding: 8px 14px 14px;
 }
-  width: 100%;
-.tsunagu-pair {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  display: flex;
-  width: 100%;
 
-.tsunagu-half {
+.tsunagu-pair {
+  display: flex;
+  margin: 5px auto;
+}
+
+.tsunagu-half.ant-flex {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
   min-height: 88px;
-  padding: 12px 8px;
+  gap: 2;
+  padding: 0;
   background: var(--ts-panel);
   border: 1px solid var(--ts-border);
-  border-radius: 10px;
+  border-radius: 0;
   text-align: center;
   box-sizing: border-box;
 }
 
-.tsunagu-half-label {
+.label-container.ant-flex {
+  width: 100%;
+  border-bottom: 1px solid #323238 !important;
+}
+.tsunagu-half-label.ant-typography {
   font-size: 10px;
   font-weight: 700;
+  width: 100%;
+  padding: 4px;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--ts-muted);
@@ -412,7 +396,7 @@
   display: flex;
   width: 100%;
   margin-top: 12px;
-
+}
 .tsunagu-title {
   margin: 0 0 6px;
   height: auto;
@@ -422,6 +406,7 @@
   background: #292a2f;
   font-size: 14px;
   margin-top: 12px;
+}
 
 .tsunagu-choice {
   appearance: none;
@@ -442,17 +427,6 @@
   border-color: rgba(28, 31, 38, 0.28);
 }
 
-.tsunagu-actions .ant-btn-primary {
-  color: #10120c;
-  border: 0;
-  background: #b7f36b;
-  font-weight: 700;
-}
-
-.tsunagu-actions .ant-btn-primary:hover {
-  color: #10120c;
-  background: #c9ff85;
-}
 .tsunagu-choice:disabled {
   cursor: default;
   opacity: 0.85;

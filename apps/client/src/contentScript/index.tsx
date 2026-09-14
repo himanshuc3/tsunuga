@@ -4,6 +4,7 @@ import type { PendingCard } from '../domain/types'
 import browser from 'webextension-polyfill'
 import { Card } from './Card'
 import cssText from './Card.css?inline'
+import { StyleProvider } from '@ant-design/cssinjs'
 
 const HOST_ID = 'tsunagu-extension-host'
 
@@ -73,12 +74,14 @@ class Controller {
     this._ensureMount()
     this._currentCardId = card.id
     this._root?.render(
-      <Card
-        card={card}
-        onAnswer={(choice, correct) => this.sendAnswer(card.id, choice, correct)}
-        onAck={() => this.sendAnswer(card.id, '', true)}
-        onDismiss={() => this.sendDismiss(card.id)}
-      />,
+      <StyleProvider container={this._shadow!}>
+        <Card
+          card={card}
+          onAnswer={(choice, correct) => this.sendAnswer(card.id, choice, correct)}
+          onAck={() => this.sendAnswer(card.id, '', true)}
+          onDismiss={() => this.sendDismiss(card.id)}
+        />
+      </StyleProvider>,
     )
   }
 
