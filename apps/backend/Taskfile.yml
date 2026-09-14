@@ -21,8 +21,13 @@ tasks:
     silent: true
     internal: true
 
+  dev:
+    desc: Run server with hot reload
+    cmds:
+      - air
+
   run:
-    desc: run the cmd/tsunuga application
+    desc: run the tsununga server
     cmds:
       - go run ./cmd/tsunuga
 
