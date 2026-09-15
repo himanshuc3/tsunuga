@@ -8,8 +8,11 @@
 3. Supporting the data using DBs
 4. Domain logic to bridge apis to DBs
 
-Technicalities:
+Technical tasks:
 
-- Working boilerplate
-- Explain using LLM
-- Base video for implementing handlers
+- Static lesson data injestion with proper updates
+- Oauth in browser extension
+- Relevant routes for updating:
+  - user progress
+  - user settings
+- Integration from FE

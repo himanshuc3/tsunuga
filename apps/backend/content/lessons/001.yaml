@@ -1,0 +1,48 @@
+id: lesson-01
+title: "Vocab: Introductions"
+position: 100
+
+concepts:
+  - id: c-introductions
+    position: 100
+    title: "Words for people"
+    body: "Use these everyday words to introduce yourself and talk about people around you."
+    meta: "Each word includes its Japanese, romaji, and English forms."
+
+vocab:
+  - id: v-ai
+    position: 100
+    romaji: "ai"
+    en: "love"
+
+  - id: v-ie
+    position: 200
+    romaji: "ie"
+    en: "house"
+
+  - id: v-ue
+    position: 300
+    romaji: "ue"
+    en: "up; above"
+
+  - id: v-ao
+    position: 400
+    romaji: "ao"
+    en: "blue"
+    meta: "a color"
+
+  - id: v-au
+    position: 500
+    romaji: "au"
+    en: "to meet"
+
+  - id: v-iu
+    position: 600
+    romaji: "iu"
+    en: "to say"
+
+  - id: v-oi
+    position: 700
+    romaji: "oi"
+    en: "nephew"
+    meta: "a family member"

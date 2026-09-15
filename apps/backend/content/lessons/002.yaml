@@ -1,0 +1,46 @@
+id: lesson-02-greetings
+title: "Vocab: Greetings"
+position: 200
+
+concepts:
+  - id: c-greetings
+    position: 100
+    title: "Everyday greetings"
+    body: "Use these expressions in common conversations throughout the day."
+    meta: "Focus on the English meaning first, then reinforce the romaji reading."
+
+vocab:
+  - id: v-ohayou
+    position: 100
+    romaji: "ohayou"
+    en: "good morning (casual)"
+
+  - id: v-konnichiwa
+    position: 200
+    romaji: "konnichiwa"
+    en: "hello / good afternoon"
+
+  - id: v-konbanwa
+    position: 300
+    romaji: "konbanwa"
+    en: "good evening"
+
+  - id: v-arigatou
+    position: 400
+    romaji: "arigatou"
+    en: "thank you"
+
+  - id: v-sumimasen
+    position: 500
+    romaji: "sumimasen"
+    en: "excuse me / sorry"
+
+  - id: v-hai
+    position: 600
+    romaji: "hai"
+    en: "yes"
+
+  - id: v-iie
+    position: 700
+    romaji: "iie"
+    en: "no"

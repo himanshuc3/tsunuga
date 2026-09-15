@@ -3,8 +3,11 @@
 # since everything isn't controlled by the language
 version: "3"
 
-vars:
-  TSUNUGA_DB_DSN: '{{.TSUNUGA_DB_DSN | default ""}}'
+dotenv:
+  - .env
+
+# vars:
+#   TSUNUGA_DB_DSN: '{{.TSUNUGA_DB_DSN | default ""}}'
 
 tasks:
   help:
@@ -30,13 +33,14 @@ tasks:
     desc: Start infrastructure and Go server with hot reload
     deps:
       - infra
+      - migrations:up
     cmds:
       - air
 
   infra:down:
     desc: Stop dev infra
     cmds:
-      - docker compose down
+      - docker compose down -v
 
   infra:logs:
     desc: Show infra logs

@@ -11,6 +11,15 @@ import (
 	"github.com/newrelic/go-agent/v3/newrelic"
 )
 
+/*
+*****************************
+*****************************
+* Handlers are responsible for clearning, sanitizing, normalizing
+* and ultimately having the correct I/O (request, response) as per contracts.
+*****************************
+*****************************
+ */
+
 // Handler provides base functionality for all handlers
 type Handler struct {
 	server *server.Server
@@ -96,7 +105,17 @@ func (h FileResponseHandler) AddAttributes(txn *newrelic.Transaction, result int
 	}
 }
 
-// handleRequest is the unified handler function that eliminates code duplication
+/*
+*****************************
+*****************************
+* handleRequest is the unified global handler
+* utility that eliminates code duplication
+* Following is repeated for each single request:
+* Tracing -> logging + validation -> actual handler -> metrics -> response handling
+*****************************
+*****************************
+ */
+
 func handleRequest[Req validation.Validatable](
 	c echo.Context,
 	req Req,

@@ -1,0 +1,51 @@
+id: lesson-03-nouns
+title: "Vocab: Everyday nouns"
+position: 300
+
+concepts:
+  - id: c-nouns
+    position: 100
+    title: "Building blocks"
+    body: "Simple nouns help you form real phrases and understand everyday Japanese."
+    meta: "Read the romaji aloud after checking the English meaning."
+
+vocab:
+  - id: v-mizu
+    position: 100
+    romaji: "mizu"
+    en: "water"
+
+  - id: v-neko
+    position: 200
+    romaji: "neko"
+    en: "cat"
+
+  - id: v-inu
+    position: 300
+    romaji: "inu"
+    en: "dog"
+
+  - id: v-hon
+    position: 400
+    romaji: "hon"
+    en: "book"
+
+  - id: v-hito
+    position: 500
+    romaji: "hito"
+    en: "person"
+
+  - id: v-asa
+    position: 600
+    romaji: "asa"
+    en: "morning"
+
+  - id: v-yoru
+    position: 700
+    romaji: "yoru"
+    en: "night"
+
+  - id: v-sakana
+    position: 800
+    romaji: "sakana"
+    en: "fish"

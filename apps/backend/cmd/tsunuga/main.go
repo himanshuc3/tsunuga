@@ -8,6 +8,7 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/himanshuc3/tsunuga-be/cmd/content"
 	"github.com/himanshuc3/tsunuga-be/internal/config"
 	"github.com/himanshuc3/tsunuga-be/internal/database"
 	"github.com/himanshuc3/tsunuga-be/internal/handler"
@@ -62,10 +63,25 @@ func main() {
 	log := logger.NewLoggerWithService(cfg.Observability, loggerService)
 
 	// 4. Auto-migrate DB in production instead of manually running scripts
+	// Auto-migrations should be independent of server start/restarts, but then
+	// again, the code depends on DB, so we might require DB and code schema
+	// or models to be the same
 	if cfg.Primary.Env != "local" {
 		if err := database.Migrate(context.Background(), &log, cfg); err != nil {
 			log.Fatal().Err(err).Msg("failed to migrate database")
 		}
+	}
+
+	// Sync lessons static content with DB
+	// Needs to be idempotent & use postgres advisory locks
+	// to prevent corruption in case of multiple server instances
+	// but requires version sync for doing that
+	if err := content.Sync(
+		context.Background(),
+		&log,
+		cfg,
+	); err != nil {
+		log.Fatal().Err(err).Msg("failed to sync curriculum (lessons) with DB")
 	}
 
 	// 5. Initialize http server
@@ -112,37 +128,3 @@ func main() {
 
 	log.Info().Msg("server exited properly")
 }
-
-// func main() {
-// 	ctx := context.Background()
-
-// 	databaseURL := os.Getenv("DATABASE_URL")
-// 	if databaseURL == "" {
-// 		// NOTE:
-// 		// Useful for persistent logging, concurrency
-// 		// safe and adds timing implicitly
-// 		log.Fatal("DATABASE_URL is required")
-// 	}
-
-// 	st, err := store.Connect(ctx, databaseURL)
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	defer st.Close()
-
-// 	if err := st.EnsureSchema(ctx); err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	if err := st.SyncCatalog(ctx, catalog.Lessons); err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	log.Printf("synced %d lessons from catalog", len(catalog.Lessons))
-
-// 	h := &handlers.Handler{Store: st}
-// 	mux := api.NewRouter(h)
-
-// 	log.Println("API listening on :3333")
-// 	if err := http.ListenAndServe(":3333", mux); err != nil {
-// 		log.Fatal(err)
-// 	}
-// }

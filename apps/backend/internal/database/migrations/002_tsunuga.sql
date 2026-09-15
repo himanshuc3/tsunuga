@@ -2,7 +2,7 @@
 
 CREATE TABLE users (
     -- Base fields for all tables
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id UUID PRIMARY KEY,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     
@@ -56,7 +56,7 @@ CREATE TABLE lesson_items (
     meta TEXT NOT NULL DEFAULT '',
     active BOOLEAN NOT NULL DEFAULT TRUE,
 
-    UNIQUE (lesson_id, position)
+    UNIQUE (lesson_id, position, kind)
 );
 
 CREATE INDEX lesson_items_order_idx 
@@ -72,7 +72,7 @@ CREATE TABLE user_item_progress (
     concept_shown BOOLEAN NOT NULL DEFAULT FALSE,
     completed_at TIMESTAMPTZ,
 
-    PRIMARY KEY (user_id, item_id)
+    PRIMARY KEY (user_id, item_id)  
 );
 
 CREATE INDEX user_item_progress_user_idx
