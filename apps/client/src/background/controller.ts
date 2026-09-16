@@ -13,6 +13,7 @@ import { CardFeature, type AnswerInput } from './features/card'
 import { SettingsFeature } from './features/settings'
 import { backgroundDeps, type BackgroundDeps } from './deps'
 import { hideOnTab, sendToTab, setBadge } from './helpers'
+import { axiosClient } from './async'
 
 export type ShowResult =
   | { status: 'shown'; tabId: number }
@@ -48,13 +49,14 @@ export class BackgroundController {
     this.eventHandlers = {
       ANSWER: (message) => this.answerCard(message),
       DISMISS: (message) => this.dismissCard(message.cardId),
-      OPEN_SIDEPANEL: (message) => this._openSidePanel(message),
+      OPEN_SIDEPANEL: (message) => this._openSidePanel(),
     }
     this.requestHandlers = {
       GET_STATE: () => this.getState(),
       SET_PAUSED: (message) => this.createPausedResponse(message.paused),
       UPDATE_SETTINGS: (message) => this.createSettingsResponse(message.settings),
       FORCE_CARD: () => this.forceCardResponse(),
+      AUTH_TOKEN: () => this.getAuthToken(),
     }
   }
 
@@ -180,6 +182,37 @@ export class BackgroundController {
     const windowId = result[0].windowId
     // Chrome nativeAPI
     chrome.sidePanel.open({ windowId: windowId })
+  }
+
+  private async getAuthToken(): Promise<string> {
+    try {
+      const identity = (
+        chrome as unknown as {
+          identity: {
+            getAuthToken(options: { interactive: boolean }): Promise<{ token: string }>
+          }
+        }
+      ).identity
+      const result = await identity.getAuthToken({
+        interactive: true,
+      })
+      console.log(result)
+      const response = await axiosClient.get('https://www.googleapis.com/oauth2/v3/userinfo', {
+        headers: {
+          Authorization: `Bearer ${result.token}`,
+        },
+      })
+
+      console.log(response.data)
+      // Call our backend
+      await axiosClient.post('/login', {
+        token: result.token,
+      })
+      return result.token
+    } catch (error) {
+      console.error('Failed to get auth token or fetch contacts:', error)
+      throw error
+    }
   }
 
   private async createSettingsResponse(settings: Partial<AppState['settings']>): Promise<unknown> {

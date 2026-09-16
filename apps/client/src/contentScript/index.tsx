@@ -25,7 +25,7 @@ class Controller {
   }
 
   private _attachMessagingLayer() {
-    browser.runtime.onMessage.addListener((message: ExtensionMessage) => {
+    browser.runtime.onMessage.addListener((message: any) => {
       switch (message.type) {
         case 'SHOW_CARD': {
           if (this._currentCardId === message.card.id && document.getElementById(HOST_ID)) {

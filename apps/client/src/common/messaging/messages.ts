@@ -43,6 +43,10 @@ export type ForceCardMessage = {
   type: 'FORCE_CARD'
 }
 
+export type AuthTokenMessage = {
+  type: 'AUTH_TOKEN'
+}
+
 export type ExtensionMessage =
   | ShowCardMessage
   | HideCardMessage
@@ -52,12 +56,13 @@ export type ExtensionMessage =
   | SetPausedMessage
   | UpdateSettingsMessage
   | ForceCardMessage
+  | AuthTokenMessage
   | OpenSidePanel
 
-export type BackgroundEvent = AnswerMessage | DismissMessage
+export type BackgroundEvent = AnswerMessage | DismissMessage | OpenSidePanel
 
 export type BackgroundRequest =
-  GetStateMessage | SetPausedMessage | UpdateSettingsMessage | ForceCardMessage
+  GetStateMessage | SetPausedMessage | UpdateSettingsMessage | ForceCardMessage | AuthTokenMessage
 
 export type StateResponse = {
   type: 'STATE'

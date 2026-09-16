@@ -26,7 +26,7 @@ import {
 import browser from 'webextension-polyfill'
 import type { AppState, QuietHour, Settings } from '../domain/types'
 import './Popup.css'
-import { openSidePanel } from '../common/helpers'
+import { openSidePanel, sendMessage } from '../common/helpers'
 import { getNextLesson, lessons } from '../content/lessons'
 import { getOrCreateProgress, progressKey } from '../domain/progress'
 
@@ -34,7 +34,7 @@ const { Content } = Layout
 const { Text, Title } = Typography
 
 async function fetchState(): Promise<AppState> {
-  const res = await browser.runtime.sendMessage({ type: 'GET_STATE' })
+  const res: any = await browser.runtime.sendMessage({ type: 'GET_STATE' })
   return res.state as AppState
 }
 
@@ -93,8 +93,9 @@ export const Popup = () => {
     setBusy(true)
     setStatusMsg(null)
     try {
-      const res = await browser.runtime.sendMessage({ type: 'FORCE_CARD' })
-      if (res?.state) setState(res.state as AppState)
+      // TODO[ts]: Remove all references to any
+      const res: any = await sendMessage({ type: 'FORCE_CARD' })
+      if (res?.state) setState(res?.state as AppState)
       else await refresh()
       setStatusMsg(forceResultMessage(res?.result))
     } catch {

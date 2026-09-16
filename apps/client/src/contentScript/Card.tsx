@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Button, Card as AntCard, ConfigProvider, Flex, Space, Tag, Typography } from 'antd'
 import { CloseOutlined } from '@ant-design/icons'
 import type { PendingCard } from '../domain/types'
+import browser from 'webextension-polyfill'
 
 type Props = {
   card: PendingCard
@@ -39,6 +40,15 @@ export function Card({ card, onAnswer, onAck, onDismiss }: Props) {
     )
   }
 
+  async function wrapper() {
+    try {
+      const token = await browser.runtime.sendMessage({ type: 'AUTH_TOKEN' })
+      console.log(token)
+    } catch (error) {
+      console.error('Unable to get auth token', error)
+    }
+  }
+
   function RenderBasedOnType() {
     switch (card.kind) {
       case 'intro':
@@ -70,7 +80,7 @@ export function Card({ card, onAnswer, onAck, onDismiss }: Props) {
               <Button type="primary" onClick={onAck}>
                 Next card
               </Button>
-              <Button type="primary" onClick={onAck}>
+              <Button type="primary" onClick={wrapper}>
                 Got it
               </Button>
             </Flex>

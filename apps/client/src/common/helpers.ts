@@ -6,3 +6,5 @@ export async function openSidePanel(): Promise<void> {
   // Chrome nativeAPI
   chrome.sidePanel.open({ windowId: windowId })
 }
+
+export const sendMessage = browser.runtime.sendMessage

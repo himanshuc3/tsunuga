@@ -70,6 +70,11 @@ class BackgroundApp {
       sendResponse(undefined)
       return true
     })
+
+    // browser.action.onClicked.addListener(function () {
+    //   console.log('new tab')
+    //   browser.tabs.create({ url: 'index.html' })
+    // })
   }
 }
 

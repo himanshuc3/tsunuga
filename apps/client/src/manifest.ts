@@ -10,7 +10,15 @@ export default defineManifest({
     packageData.description ||
     'Learn Japanese through mini-lessons that appear as cards while you browse.',
   version: packageData.version,
+  key: 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAoq9PKd6mkf7O1MZweIWM9JGH/LjaUabi7TpbWBGkpzRG7RcNDJHb5UMq/soCb+1Ts/ftPJ33s7iFEv3LNYZpyN3511SPekeJcLmLBc+f8LjdVuNE8XqfAVhUWdhY4u4onT3S4VJazEY8uoIDgdu9KyNFi/1k1MNAf35UM3xpXDzkLo11q1K9WEtMdJoWUg1dwFpzIGDAre+xbLkZ1wRed/FZ3BxakTIvz1GtCt8mXHjSKw2VSpk4JwsoUJ1mKlHEoFFrZHYrvqPeucD6hOSTd/7SQ+zAsYULnoCGpMKQVq7r0knJvQghEQy2xORps8AaDY+jptp31LzxlC4Sc2g5KQIDAQAB',
   manifest_version: 3,
+  oauth2: {
+    client_id: '724231659822-bc6dl7t8vkk94maq25lh8gsk00pe6478.apps.googleusercontent.com',
+    scopes: [
+      'https://www.googleapis.com/auth/userinfo.email',
+      'https://www.googleapis.com/auth/contacts.readonly',
+    ],
+  },
   icons: {
     16: 'img/logo-16.png',
     32: 'img/logo-32.png',
@@ -53,6 +61,15 @@ export default defineManifest({
       matches: [],
     },
   ],
-  permissions: ['sidePanel', 'storage', 'alarms', 'tabs', 'scripting', 'activeTab'],
+  permissions: [
+    'sidePanel',
+    'storage',
+    'alarms',
+    'tabs',
+    'scripting',
+    'activeTab',
+    'identity',
+    'identity.email',
+  ],
   host_permissions: ['http://*/*', 'https://*/*'],
 })

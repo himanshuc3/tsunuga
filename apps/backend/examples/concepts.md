@@ -375,3 +375,75 @@ NOTE: For me the most critical layer, because it makes deliver life easy and sho
   - SQL injection attacks
   - Parameterized queries (prevention) - separate query from user data
   - Command injection
+    - If server takes an input for filename and executes a cli command -> vulnerability if not sanitized similar to sql
+- Authentication:
+  - Use auth provider since it saves time and possibly saves you the headache of a lot of complexity
+  - Password storage: using hashes which are one way encodings, salting to add some randomness (generated for each user) to prevent rainbow table
+  - Rainbow table as the list of hashes for most common passwords
+  - Don't use SHA256 but bcrypt, scrpyt (slow hashing functions)
+- Sessions:
+  - Stored in redis/DB
+  - Stored in cookies in frontend which are automatically read/sent by the server
+  - httponly -> true to prevent XSS vulnerability, https connection, same-site (to prevent CSRF)
+- JWT Tokens:
+  - Header (algorithm) + payload (permissions/claims + userId + iat) + signature
+  - Revocation is hard: blacklisted token, short expiration with refresh token
+- Rate limiting:
+  - Unless you want DDoS from a teenager who has written a simple script using LLM, very important.
+  - IP based limiting, per account limiting, global rate limiting (seems useful for server but not intuitive or a good user experience)
+- Authorization:
+  - Broken object level authorization (BOLA): At the DB level logical errors, where authentication/authorization is not done on an ID level when making queries to DB. Further, if we relay the correct error (Forbidden resource), we unintentionally leak information.
+  - Indirect object references
+  - Broken access control patterns: serial keys are easily guessable
+  - Authorization attacks are horizontal are vertical
+  - Horizontal: userA gets access to userB
+  - Vertical: Getting more of a single user's unauthorized functionality
+- XSS:
+  - External JS executing in user's browser in a foreign website
+  - For example writing a comment which includes script tags with JS, which if not sanitized, could run in other user's browser and potentially parse and steal keys
+- CSRF:
+  - cookie piggybacking from other websites
+  - Not prevelant any more due to headers like same-site
+- Misconfig:
+  - Storing keys offline if possible
+  - Debugging
+- Good practices:
+  - Centralize logic, default deny, test authorization specifically
+  - Security vulnerabilities happen mostly because of data crossing some boundaries and no two entities can be completely in sync (externally like with contracts or internally).
+
+- Resources:
+  - portswigger
+  - owasp
+
+### Scaling and performance
+
+- Latency is the main metric
+  - Average is not a good baseline for knowing the metrics
+  - Percentiles are preffered: P99 and P95 are preffered.
+- Throughput:
+  - Latency can be directly proportional to throughput
+  - Counterintuitive relationship b/w utilization and latency (it exponentially increases)
+  - Most systems don't work at 100% (maybe 60-70%) and we need to create some buffer
+- Identifying Bottleneck:
+  - Naive solutions: caching, updating postgres, horizontal scaling
+- Profiling gives way to recording metrics
+  - More useful for CPU bound tasks but culprits are mostly I/O bound
+  - Flamegraphs help with visualizing CPU bound metrics
+  - Distributed tracing
+- Database:
+  - N + 1 query problem: A list of profiles (N) are fetched. We fetched list of all profiles using 1 api, but it doesn't have profile image. So, we make N requests for all profiles.
+  - It was mostly present at the server level, not frontend.
+  - Lack of indexes: composite indexes (even order matters), covering
+  - Explain analyze at the start of the query helps us show if it's a sequential or index scan
+  - Cost of connections: connection pooling acts like a precomputation step, so that we don't have to make on-the-fly connections, internal and external pooler (PGBouncer)
+  - Caching strategies: memoizing stuff in redis (local storage for server), cache invalidation (time based or event based), local caching vs distributed caching, caching patterns (cache-aside, write through, write behind), cache hit rate (TTL, cache size, DAP)
+- Vertical scaling:
+  - Code doesn't change, no problem with migrating from single to multi-instance setup
+  - Ceilings to power and SPOF
+  - No geographic distribution
+- Horizontal scaling:
+  - Linear scaling method if computing power remains the same
+  - Redundancy
+  - Geographic distribution
+  - Disadvantages: distribution of requests? (load balancer), Synchronization, how do these servers communicate with each other
+  - Statelessness enables horizontal scaling
