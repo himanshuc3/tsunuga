@@ -13,4 +13,5 @@ func RegisterV1Routes(router *echo.Group, handlers *handler.Handlers, mw *middle
 	// Protected routes, require a valid JWT issued by our login flow
 	protected := router.Group("", mw.Auth.RequireJWTAuth)
 	registerLessonRoutes(protected, handlers.Lesson)
+	registerSettingsRoutes(protected, handlers.Settings)
 }

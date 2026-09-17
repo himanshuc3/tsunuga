@@ -446,4 +446,4 @@ NOTE: For me the most critical layer, because it makes deliver life easy and sho
   - Redundancy
   - Geographic distribution
   - Disadvantages: distribution of requests? (load balancer), Synchronization, how do these servers communicate with each other
-  - Statelessness enables horizontal scaling
+  - Statelessness enables horizontal scaling. How does blockchain keep everything in sync, despite more nodes added constantly to the chain

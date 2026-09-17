@@ -10,6 +10,7 @@ type Handlers struct {
 	OpenAPI        *OpenAPIHandler
 	Lesson         *LessonHandler
 	Authentication *AuthHandler
+	Settings       *SettingsHandler
 }
 
 func NewHandlers(s *server.Server, services *service.Services) *Handlers {
@@ -18,5 +19,6 @@ func NewHandlers(s *server.Server, services *service.Services) *Handlers {
 		OpenAPI:        NewOpenAPIHandler(s),
 		Lesson:         NewLessonHandler(s, services.Lesson),
 		Authentication: NewAuthHandler(s, services.Auth),
+		Settings:       NewSettingsHandler(s, services.Settings),
 	}
 }
