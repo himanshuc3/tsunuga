@@ -6,6 +6,7 @@ type Repositories struct {
 	Lesson   *LessonRepository
 	User     *UserRepository
 	Settings *SettingsRepository
+	Progress *ProgressRepository
 }
 
 func NewRepositories(s *server.Server) *Repositories {
@@ -13,5 +14,6 @@ func NewRepositories(s *server.Server) *Repositories {
 		Lesson:   NewLessonRepository(s),
 		User:     NewUserRepository(s),
 		Settings: NewSettingsRepository(s),
+		Progress: NewProgressRepository(s),
 	}
 }

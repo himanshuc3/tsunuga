@@ -11,6 +11,7 @@ type Handlers struct {
 	Lesson         *LessonHandler
 	Authentication *AuthHandler
 	Settings       *SettingsHandler
+	Progress       *ProgressHandler
 }
 
 func NewHandlers(s *server.Server, services *service.Services) *Handlers {
@@ -20,5 +21,6 @@ func NewHandlers(s *server.Server, services *service.Services) *Handlers {
 		Lesson:         NewLessonHandler(s, services.Lesson),
 		Authentication: NewAuthHandler(s, services.Auth),
 		Settings:       NewSettingsHandler(s, services.Settings),
+		Progress:       NewProgressHandler(s, services.Progress),
 	}
 }
