@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/himanshuc3/tsunuga-be/internal/errs"
+	"github.com/himanshuc3/tsunuga-be/internal/lib/jwt"
 	"github.com/himanshuc3/tsunuga-be/internal/middleware"
 	model "github.com/himanshuc3/tsunuga-be/internal/model/user"
 	"github.com/himanshuc3/tsunuga-be/internal/repository"
@@ -16,7 +17,7 @@ import (
 type AuthService struct {
 	server    *server.Server
 	usersRepo repository.UserRepository
-	// jwt       *JWTService
+	jwt       *jwt.Client
 }
 
 func NewAuthService(s *server.Server, userRepo repository.UserRepository) *AuthService {
@@ -24,11 +25,11 @@ func NewAuthService(s *server.Server, userRepo repository.UserRepository) *AuthS
 	return &AuthService{
 		server:    s,
 		usersRepo: userRepo,
-		// jwt:       nil,
+		jwt:       jwt.NewClient(s.Config),
 	}
 }
 
-func (service *AuthService) LoginWithGoogle(ctx echo.Context, accessToken string) (*model.User, error) {
+func (service *AuthService) LoginWithGoogle(ctx echo.Context, accessToken string) (*model.AuthResponse, error) {
 	profile, err := service.fetchGoogleProfile(ctx, accessToken)
 
 	if err != nil {
@@ -45,8 +46,12 @@ func (service *AuthService) LoginWithGoogle(ctx echo.Context, accessToken string
 		return nil, err
 	}
 
-	return user, nil
-	// return service.jwt.Sign(user.ID)
+	token, err := service.jwt.Sign(user.ID.String())
+	if err != nil {
+		return nil, fmt.Errorf("failed to sign token: %w", err)
+	}
+
+	return &model.AuthResponse{Token: token, User: user}, nil
 }
 
 func (service *AuthService) fetchGoogleProfile(ctx echo.Context, accessToken string) (*model.GoogleProfileResponse, error) {

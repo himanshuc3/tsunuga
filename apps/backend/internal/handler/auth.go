@@ -24,7 +24,7 @@ func NewAuthHandler(s *server.Server, authService *service.AuthService) *AuthHan
 func (h *AuthHandler) AuthenticateUser(c echo.Context) error {
 	return Handle(
 		h.Handler,
-		func(c echo.Context, payload *model.GoogleLoginPayload) (*model.User, error) {
+		func(c echo.Context, payload *model.GoogleLoginPayload) (*model.AuthResponse, error) {
 			return h.authService.LoginWithGoogle(c, payload.AccessToken)
 		},
 		http.StatusOK,

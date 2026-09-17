@@ -3,22 +3,51 @@ package middleware
 import (
 	"encoding/json"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/clerk/clerk-sdk-go/v2"
 	clerkhttp "github.com/clerk/clerk-sdk-go/v2/http"
 	"github.com/himanshuc3/tsunuga-be/internal/errs"
+	"github.com/himanshuc3/tsunuga-be/internal/lib/jwt"
 	"github.com/himanshuc3/tsunuga-be/internal/server"
 	"github.com/labstack/echo/v4"
 )
 
 type AuthMiddleware struct {
 	server *server.Server
+	jwt    *jwt.Client
 }
 
 func NewAuthMiddleware(s *server.Server) *AuthMiddleware {
 	return &AuthMiddleware{
 		server: s,
+		jwt:    jwt.NewClient(s.Config),
+	}
+}
+
+// RequireJWTAuth validates the Authorization: Bearer <token> header issued by our own login flow.
+func (auth *AuthMiddleware) RequireJWTAuth(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		header := c.Request().Header.Get("Authorization")
+		tokenString, ok := strings.CutPrefix(header, "Bearer ")
+		if !ok || tokenString == "" {
+			return errs.NewUnauthorizedError("Unauthorized", false)
+		}
+
+		claims, err := auth.jwt.Verify(tokenString)
+		if err != nil {
+			auth.server.Logger.Error().
+				Err(err).
+				Str("function", "RequireJWTAuth").
+				Str("request_id", GetRequestID(c)).
+				Msg("failed to verify jwt token")
+			return errs.NewUnauthorizedError("Unauthorized", false)
+		}
+
+		c.Set(UserIDKey, claims.UserID)
+
+		return next(c)
 	}
 }
 

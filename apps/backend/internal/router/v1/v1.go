@@ -6,8 +6,11 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func RegisterV1Routes(router *echo.Group, handlers *handler.Handlers, middleware *middleware.Middlewares) {
-	// Register lesson routes
+func RegisterV1Routes(router *echo.Group, handlers *handler.Handlers, mw *middleware.Middlewares) {
+	// Public routes (no auth required)
 	registerAuthRoutes(router, handlers.Authentication)
-	registerLessonRoutes(router, handlers.Lesson)
+
+	// Protected routes, require a valid JWT issued by our login flow
+	protected := router.Group("", mw.Auth.RequireJWTAuth)
+	registerLessonRoutes(protected, handlers.Lesson)
 }

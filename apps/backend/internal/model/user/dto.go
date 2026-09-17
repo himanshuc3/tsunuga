@@ -40,3 +40,8 @@ type UpsertUserResponse struct {
 	Name    string `json:"name"`
 	Picture string `json:"picture"`
 }
+
+type AuthResponse struct {
+	Token string `json:"token"`
+	User  *User  `json:"user"`
+}
