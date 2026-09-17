@@ -8,5 +8,6 @@ import (
 
 func RegisterV1Routes(router *echo.Group, handlers *handler.Handlers, middleware *middleware.Middlewares) {
 	// Register lesson routes
+	registerAuthRoutes(router, handlers.Authentication)
 	registerLessonRoutes(router, handlers.Lesson)
 }

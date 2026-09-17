@@ -13,7 +13,7 @@ type Services struct {
 }
 
 func NewServices(s *server.Server, repos *repository.Repositories) (*Services, error) {
-	authService := NewAuthService(s)
+	authService := NewAuthService(s, *repos.User)
 	lessonService := NewLessonService(s, repos.Lesson)
 
 	return &Services{

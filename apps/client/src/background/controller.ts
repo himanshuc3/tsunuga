@@ -185,6 +185,14 @@ export class BackgroundController {
   }
 
   private async getAuthToken(): Promise<string> {
+    // OAuth 2.0 -> Authorization
+    // OpenIDC -> authentication
+    // Access tokens, identity information, client IDs and API keys
+    // Access token from google can be intercepted from browser
+    // extension and used for getting user profiles
+    // Client ID verifies the application from google
+    // 1. Application -> client ID to google -> identifies a verifiable
+    // app for issuing tokens to -> access resources using oauth token
     try {
       const identity = (
         chrome as unknown as {
@@ -196,6 +204,8 @@ export class BackgroundController {
       const result = await identity.getAuthToken({
         interactive: true,
       })
+      // Call backend and send bearer token, so that BE can fetch user
+      // profile and generate JWT
       console.log(result)
       const response = await axiosClient.get('https://www.googleapis.com/oauth2/v3/userinfo', {
         headers: {

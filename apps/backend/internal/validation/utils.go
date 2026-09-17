@@ -15,6 +15,10 @@ type Validatable interface {
 	Validate() error
 }
 
+type Bindable interface {
+	Bind(c echo.Context) error
+}
+
 type CustomValidationError struct {
 	Field   string
 	Message string
@@ -28,7 +32,13 @@ func (c CustomValidationErrors) Error() string {
 
 func BindAndValidate(c echo.Context, payload Validatable) error {
 	// deserialization by echo
-	if err := c.Bind(payload); err != nil {
+	var err error
+	if bindable, ok := payload.(Bindable); ok {
+		err = bindable.Bind(c)
+	} else {
+		err = c.Bind(payload)
+	}
+	if err != nil {
 		message := strings.Split(strings.Split(err.Error(), ",")[1], "message=")[1]
 		return errs.NewBadRequestError(message, false, nil, nil, nil)
 	}
