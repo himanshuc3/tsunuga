@@ -39,7 +39,12 @@ func BindAndValidate(c echo.Context, payload Validatable) error {
 		err = c.Bind(payload)
 	}
 	if err != nil {
-		message := strings.Split(strings.Split(err.Error(), ",")[1], "message=")[1]
+		message := err.Error()
+		if parts := strings.SplitN(err.Error(), ",", 2); len(parts) == 2 {
+			if idx := strings.Index(parts[1], "message="); idx != -1 {
+				message = parts[1][idx+len("message="):]
+			}
+		}
 		return errs.NewBadRequestError(message, false, nil, nil, nil)
 	}
 

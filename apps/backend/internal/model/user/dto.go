@@ -1,8 +1,6 @@
 package model
 
 import (
-	"strings"
-
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 )
@@ -12,13 +10,7 @@ type GoogleLoginPayload struct {
 }
 
 func (p *GoogleLoginPayload) Bind(c echo.Context) error {
-	const bearerPrefix = "Bearer "
-
-	authorization := c.Request().Header.Get(echo.HeaderAuthorization)
-	if strings.HasPrefix(authorization, bearerPrefix) {
-		p.AccessToken = strings.TrimSpace(strings.TrimPrefix(authorization, bearerPrefix))
-	}
-	return nil
+	return c.Bind(p)
 }
 
 func (p *GoogleLoginPayload) Validate() error {
@@ -27,11 +19,10 @@ func (p *GoogleLoginPayload) Validate() error {
 }
 
 type GoogleProfileResponse struct {
-	Sub           string `json:"sub"`
-	Email         string `json:"email"`
-	EmailVerified string `json:"email_verified"`
-	Name          string `json:"name"`
-	Picture       string `json:"picture"`
+	Sub     string `json:"sub"`
+	Email   string `json:"email"`
+	Name    string `json:"name"`
+	Picture string `json:"picture"`
 }
 
 type UpsertUserPayload struct {

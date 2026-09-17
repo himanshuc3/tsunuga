@@ -33,19 +33,21 @@ func (u *UserRepository) InsertGoogleUser(ctx context.Context, payload *model.Go
 				
 				@email,
 				@display_name,
-				@google_subject
+				@google_subject,
 				@auth_method
 			)
 		ON CONFLICT (google_subject)
-		DO NOTHING
+		DO UPDATE SET
+			email = EXCLUDED.email,
+			display_name = EXCLUDED.display_name
 		RETURNING *
 	`
 
 	rows, err := u.server.DB.Pool.Query(ctx, stmt, pgx.NamedArgs{
-		"email":        payload.Email,
-		"display_name": payload.Name,
-		"sub":          payload.Sub,
-		"auth_method":  "google",
+		"email":          payload.Email,
+		"display_name":   payload.Name,
+		"google_subject": payload.Sub,
+		"auth_method":    "google",
 	})
 
 	if err != nil {
