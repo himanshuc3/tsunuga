@@ -447,4 +447,44 @@ NOTE: For me the most critical layer, because it makes deliver life easy and sho
   - Geographic distribution
   - Disadvantages: distribution of requests? (load balancer), Synchronization, how do these servers communicate with each other
   - Statelessness enables horizontal scaling. How does blockchain keep everything in sync, despite more nodes added constantly to the chain
-  - Load balancer: integral to horizontal scaling for distribution requests to different instances of servers.
+  - Load balancer: integral to horizontal scaling for distribution requests to different instances of servers. Algorithms like Round robin, weighted round robin based on instance resources, least connections (checks active HTTP connections to each instance) etc. Keeps sending extraneous status check requests to each server at some interval.
+- Database scaling:
+  - Read replicas: Geographically distributed replicas, to prevent stale data from write queries due to replication lag, we can temporarily get data from primary instance.
+  - Sharding, horizontally slicing the tables (concurrency)
+  - Distributed databases: planetscale, neon, cockroachDB
+- CDN:
+  - Geographically distributed caching instances like static files to reduce network latency.
+  - Cloud providers used to have features and prevent downtime.
+- Edge computing:
+  - CDN nodes are type of edge nodes
+  - Edge nodes are used for confirming authentication so that main servers isn't bombarbed with unauthenticated requests
+- Asynchronous processing
+  - BullMQ, which uses redis in the background
+  - Background processing with near-instant request/response messaging
+- Microservice vs monolith:
+  - Microservice is about scaling team's performance
+  - Monolight has deployment dependency. Feature flags galore solves these problems for singular modules but it can become complex.
+  - Monolith has problems with scaling, tech stack binding
+  - Microservice has problems with networking, debugging, data consistency etc.
+- Serverless computing:
+  - With servers we need decisions on capacity planning (over or under planning costs money or the service itself - auto-scaling).
+  - Scaling instances:
+    - Boot time
+    - Configure our application to load balancer
+    - limits: min-max in terms of resources or instances
+    - How reactive are we to determining heavy load
+  - Serverless: one layer above cloud ig, decoupling hardware from software.
+  - ON demand model: If a request comes, a function is spun up. Similar to postpaid model ig. Only pay for processing
+  - Cold start time is a bottleneck? A solution might be like a pre-flight request maybe to start before hand.
+- Key takeaways:
+  - Identify the problem we're solving. Measuring, logging and metrics is at the heart of it.
+  - Simple solution instead of over-engineering
+  - Specifity: Scale for the problems you have
+  - How to debug problems: measure, measure and measure
+- Concurrency vs parallelism:
+  - IO vs CPU bound
+  - Most backend applications are I/O bound
+  - Some CPU bound tasks (harder problems): Image processing, encryption
+  - Threads: CPU scheduler picks up tasks and according to different algorithms (like pre-emptive round robin) to schedule next task on that thread, so that tasks do not starve.
+    - A single core can have multiple threads. Once a thread gets an I/O bound task, it is blocked and another thread can run on that core.
+    - Threads can share memory (heap) within a process

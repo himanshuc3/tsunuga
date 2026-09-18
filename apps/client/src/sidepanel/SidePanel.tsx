@@ -1,15 +1,13 @@
 import { useCallback, useEffect, useState } from 'react'
 import { lessons } from '../content/lessons'
-import {
-  countMasteredInLesson,
-  isLessonUnlocked,
-} from '../domain/progress'
+import { countMasteredInLesson, isLessonUnlocked } from '../domain/progress'
 import type { AppState } from '../domain/types'
 import './SidePanel.css'
+import { sendMessage } from '../common/helpers'
 
 async function fetchState(): Promise<AppState> {
-  const res = await chrome.runtime.sendMessage({ type: 'GET_STATE' })
-  return res.state as AppState
+  const res = await sendMessage({ type: 'GET_STATE' })
+  return (res as any).state as AppState
 }
 
 function forceResultMessage(result: { status: string } | undefined): string | null {
@@ -47,7 +45,7 @@ export const SidePanel = () => {
     if (!state) return
     setBusy(true)
     setStatusMsg(null)
-    const res = await chrome.runtime.sendMessage({
+    const res = await sendMessage({
       type: 'SET_PAUSED',
       paused: !state.settings.paused,
     })
@@ -59,7 +57,7 @@ export const SidePanel = () => {
     setBusy(true)
     setStatusMsg(null)
     try {
-      const res = await chrome.runtime.sendMessage({ type: 'FORCE_CARD' })
+      const res = await sendMessage({ type: 'FORCE_CARD' })
       if (res?.state) setState(res.state as AppState)
       else await refresh()
       setStatusMsg(forceResultMessage(res?.result))
@@ -70,7 +68,7 @@ export const SidePanel = () => {
   }
 
   const openOptions = () => {
-    chrome.runtime.openOptionsPage()
+    openOptionsPage()
   }
 
   if (!state) {
@@ -82,9 +80,7 @@ export const SidePanel = () => {
   }
 
   const current = lessons.find((l) => l.id === state.currentLessonId)
-  const progress = current
-    ? countMasteredInLesson(state, current)
-    : { mastered: 0, total: 0 }
+  const progress = current ? countMasteredInLesson(state, current) : { mastered: 0, total: 0 }
 
   return (
     <main className="sidepanel">
@@ -100,9 +96,7 @@ export const SidePanel = () => {
             {state.settings.paused ? 'Paused' : 'Active'}
           </span>
         </div>
-        {state.pendingCard && (
-          <p className="pending-note">A card is waiting on your active tab.</p>
-        )}
+        {state.pendingCard && <p className="pending-note">A card is waiting on your active tab.</p>}
         {statusMsg && <p className="status-msg">{statusMsg}</p>}
         <div className="actions">
           <button type="button" onClick={togglePause} disabled={busy}>
@@ -135,11 +129,7 @@ export const SidePanel = () => {
             return (
               <li
                 key={lesson.id}
-                className={[
-                  done ? 'done' : '',
-                  active ? 'active' : '',
-                  !unlocked ? 'locked' : '',
-                ]
+                className={[done ? 'done' : '', active ? 'active' : '', !unlocked ? 'locked' : '']
                   .filter(Boolean)
                   .join(' ')}
               >
