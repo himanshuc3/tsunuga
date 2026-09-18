@@ -481,10 +481,14 @@ NOTE: For me the most critical layer, because it makes deliver life easy and sho
   - Simple solution instead of over-engineering
   - Specifity: Scale for the problems you have
   - How to debug problems: measure, measure and measure
-- Concurrency vs parallelism:
-  - IO vs CPU bound
-  - Most backend applications are I/O bound
-  - Some CPU bound tasks (harder problems): Image processing, encryption
-  - Threads: CPU scheduler picks up tasks and according to different algorithms (like pre-emptive round robin) to schedule next task on that thread, so that tasks do not starve.
-    - A single core can have multiple threads. Once a thread gets an I/O bound task, it is blocked and another thread can run on that core.
-    - Threads can share memory (heap) within a process
+
+### Concurrency vs parallelism
+
+- IO vs CPU bound
+- Most backend applications are I/O bound
+- Some CPU bound tasks (harder problems): Image processing, encryption
+- Threads: CPU scheduler picks up tasks and according to different algorithms (like pre-emptive round robin) to schedule next task on that thread, so that tasks do not starve.
+  - A single core can have multiple threads. Once a thread gets an I/O bound task, it is blocked and another thread can run on that core.
+  - Threads can share memory (heap) within a process
+  - Overhead: memory, context switch
+- Event loop

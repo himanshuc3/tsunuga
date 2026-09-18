@@ -1,9 +1,14 @@
 import { useCallback, useEffect, useState } from 'react'
+import { Alert, Avatar, Button, ConfigProvider, Flex, Layout, List, Space, Spin, Tag, Typography } from 'antd'
+import { SendOutlined, SettingOutlined } from '@ant-design/icons'
 import { lessons } from '../content/lessons'
 import { countMasteredInLesson, isLessonUnlocked } from '../domain/progress'
 import type { AppState } from '../domain/types'
 import './SidePanel.css'
 import { sendMessage } from '../common/helpers'
+
+const { Content } = Layout
+const { Text, Title } = Typography
 
 async function fetchState(): Promise<AppState> {
   const res = await sendMessage({ type: 'GET_STATE' })
@@ -45,7 +50,7 @@ export const SidePanel = () => {
     if (!state) return
     setBusy(true)
     setStatusMsg(null)
-    const res = await sendMessage({
+    const res: any = await sendMessage({
       type: 'SET_PAUSED',
       paused: !state.settings.paused,
     })
@@ -57,7 +62,7 @@ export const SidePanel = () => {
     setBusy(true)
     setStatusMsg(null)
     try {
-      const res = await sendMessage({ type: 'FORCE_CARD' })
+      const res: any = await sendMessage({ type: 'FORCE_CARD' })
       if (res?.state) setState(res.state as AppState)
       else await refresh()
       setStatusMsg(forceResultMessage(res?.result))
@@ -68,14 +73,30 @@ export const SidePanel = () => {
   }
 
   const openOptions = () => {
-    openOptionsPage()
+    ;(chrome as any).runtime.openOptionsPage()
+  }
+
+  const theme = {
+    token: {
+      colorPrimary: '#b7f36b',
+      colorText: '#f7f7f8',
+      colorTextSecondary: '#9a99a5',
+      colorBgContainer: '#202024',
+      borderRadius: 12,
+      fontFamily: "'Avenir Next', 'Segoe UI', sans-serif",
+    },
+    components: {
+      Button: { primaryColor: '#0f1012', colorPrimaryHover: '#c9ff85' },
+    },
   }
 
   if (!state) {
     return (
-      <main className="sidepanel">
-        <p className="muted">Loading…</p>
-      </main>
+      <ConfigProvider theme={theme}>
+        <Layout className="sidepanel loading-sidepanel">
+          <Spin size="large" />
+        </Layout>
+      </ConfigProvider>
     )
   }
 
@@ -83,81 +104,110 @@ export const SidePanel = () => {
   const progress = current ? countMasteredInLesson(state, current) : { mastered: 0, total: 0 }
 
   return (
-    <main className="sidepanel">
-      <header className="sidepanel-header">
-        <h1>tsunagu</h1>
-        <p className="tagline">Japanese mini-lessons while you browse</p>
-      </header>
+    <ConfigProvider theme={theme}>
+      <Layout className="sidepanel">
+        <header className="sidepanel-header">
+          <Space align="center" size={8}>
+            <Avatar className="brand-avatar" size="small">
+              つ
+            </Avatar>
+            <Title level={4}>tsunagu</Title>
+          </Space>
+          <Text className="tagline">Japanese mini-lessons while you browse</Text>
+        </header>
 
-      <section className="panel">
-        <div className="row">
-          <span className="label">Status</span>
-          <span className={state.settings.paused ? 'badge paused' : 'badge live'}>
-            {state.settings.paused ? 'Paused' : 'Active'}
-          </span>
-        </div>
-        {state.pendingCard && <p className="pending-note">A card is waiting on your active tab.</p>}
-        {statusMsg && <p className="status-msg">{statusMsg}</p>}
-        <div className="actions">
-          <button type="button" onClick={togglePause} disabled={busy}>
-            {state.settings.paused ? 'Resume' : 'Pause'}
-          </button>
-          <button type="button" className="secondary" onClick={forceCard} disabled={busy}>
-            Show card now
-          </button>
-        </div>
-      </section>
-
-      <section className="panel">
-        <h2>Current lesson</h2>
-        <p className="lesson-title">{current?.title ?? '—'}</p>
-        <p className="muted">
-          {progress.total > 0
-            ? `${progress.mastered}/${progress.total} mastered`
-            : 'Concepts in progress'}
-        </p>
-      </section>
-
-      <section className="panel">
-        <h2>Path</h2>
-        <ul className="lesson-list">
-          {lessons.map((lesson) => {
-            const unlocked = isLessonUnlocked(state, lesson)
-            const done = state.completedLessonIds.includes(lesson.id)
-            const active = lesson.id === state.currentLessonId
-            const { mastered, total } = countMasteredInLesson(state, lesson)
-            return (
-              <li
-                key={lesson.id}
-                className={[done ? 'done' : '', active ? 'active' : '', !unlocked ? 'locked' : '']
-                  .filter(Boolean)
-                  .join(' ')}
+        <Content className="sidepanel-content">
+          <section className="panel">
+            <Flex align="center" justify="space-between">
+              <Text className="label">Status</Text>
+              <Tag color={state.settings.paused ? 'warning' : 'success'}>
+                {state.settings.paused ? 'Paused' : 'Active'}
+              </Tag>
+            </Flex>
+            {state.pendingCard && (
+              <Alert
+                className="pending-alert"
+                type="warning"
+                showIcon
+                message="A card is waiting on your active tab."
+              />
+            )}
+            {statusMsg && <Alert className="status-alert" type="info" showIcon message={statusMsg} />}
+            <Space className="actions" wrap>
+              <Button type="primary" onClick={togglePause} disabled={busy}>
+                {state.settings.paused ? 'Resume' : 'Pause'}
+              </Button>
+              <Button
+                type="default"
+                icon={<SendOutlined />}
+                onClick={forceCard}
+                disabled={busy}
               >
-                <span className="lesson-name">
-                  {done ? 'Done · ' : !unlocked ? 'Locked · ' : active ? 'Now · ' : ''}
-                  {lesson.title}
-                </span>
-                <span className="lesson-meta">
-                  {!unlocked
-                    ? 'Locked'
-                    : total > 0
-                      ? `${mastered}/${total}`
-                      : done
-                        ? 'Done'
-                        : 'Open'}
-                </span>
-              </li>
-            )
-          })}
-        </ul>
-      </section>
+                Show card now
+              </Button>
+            </Space>
+          </section>
 
-      <footer className="sidepanel-footer">
-        <button type="button" className="linkish" onClick={openOptions}>
-          Settings
-        </button>
-      </footer>
-    </main>
+          <section className="panel">
+            <Text className="panel-title">Current lesson</Text>
+            <Title level={5} className="lesson-title">
+              {current?.title ?? '—'}
+            </Title>
+            <Text className="muted">
+              {progress.total > 0
+                ? `${progress.mastered}/${progress.total} mastered`
+                : 'Concepts in progress'}
+            </Text>
+          </section>
+
+          <section className="panel">
+            <Text className="panel-title">Path</Text>
+            <List
+              className="lesson-list"
+              itemLayout="horizontal"
+              dataSource={lessons}
+              renderItem={(lesson) => {
+                const unlocked = isLessonUnlocked(state, lesson)
+                const done = state.completedLessonIds.includes(lesson.id)
+                const active = lesson.id === state.currentLessonId
+                const { mastered, total } = countMasteredInLesson(state, lesson)
+                return (
+                  <List.Item
+                    className={[
+                      done ? 'done' : '',
+                      active ? 'active' : '',
+                      !unlocked ? 'locked' : '',
+                    ]
+                      .filter(Boolean)
+                      .join(' ')}
+                  >
+                    <Text className="lesson-name">
+                      {done ? 'Done · ' : !unlocked ? 'Locked · ' : active ? 'Now · ' : ''}
+                      {lesson.title}
+                    </Text>
+                    <Text className="lesson-meta">
+                      {!unlocked
+                        ? 'Locked'
+                        : total > 0
+                          ? `${mastered}/${total}`
+                          : done
+                            ? 'Done'
+                            : 'Open'}
+                    </Text>
+                  </List.Item>
+                )
+              }}
+            />
+          </section>
+        </Content>
+
+        <footer className="sidepanel-footer">
+          <Button type="text" icon={<SettingOutlined />} onClick={openOptions}>
+            Settings
+          </Button>
+        </footer>
+      </Layout>
+    </ConfigProvider>
   )
 }
 
