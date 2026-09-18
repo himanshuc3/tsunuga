@@ -184,7 +184,7 @@ export class BackgroundController {
     chrome.sidePanel.open({ windowId: windowId })
   }
 
-  private async getAuthToken(): Promise<string> {
+  private async getAuthToken(): Promise<{ ok: true; token: string; user?: unknown }> {
     // OAuth 2.0 -> Authorization
     // OpenIDC -> authentication
     // Access tokens, identity information, client IDs and API keys
@@ -204,21 +204,20 @@ export class BackgroundController {
       const result = await identity.getAuthToken({
         interactive: true,
       })
-      // Call backend and send bearer token, so that BE can fetch user
-      // profile and generate JWT
-      console.log(result)
-      const response = await axiosClient.get('https://www.googleapis.com/oauth2/v3/userinfo', {
-        headers: {
-          Authorization: `Bearer ${result.token}`,
-        },
+
+      const authTokenResult = await axiosClient.post<{ token: string; user?: unknown }>('/login', {
+        access_token: result.token,
       })
 
-      console.log(response.data)
-      // Call our backend
-      await axiosClient.post('/login', {
-        token: result.token,
-      })
-      return result.token
+      const token = authTokenResult.data?.token
+      await browser.storage.local.set({ authToken: token })
+      await browser.storage.local.set({ user: authTokenResult.data?.user || {} })
+
+      return {
+        ok: true,
+        token,
+        user: authTokenResult.data?.user,
+      }
     } catch (error) {
       console.error('Failed to get auth token or fetch contacts:', error)
       throw error

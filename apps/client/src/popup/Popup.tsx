@@ -197,6 +197,14 @@ export const Popup = () => {
   const conceptCount = activeLesson?.concepts.length ?? 0
   const completionPercent = conceptCount ? Math.round((completedConcepts / conceptCount) * 100) : 0
 
+  async function loginViaGoogle() {
+    try {
+      await sendMessage({ type: 'AUTH_TOKEN' })
+    } catch (error) {
+      console.error('Unable to get auth token', error)
+    }
+  }
+
   return (
     <ConfigProvider
       theme={{
@@ -262,7 +270,7 @@ export const Popup = () => {
                   aria-label="Open settings"
                   type="text"
                   icon={<UserOutlined />}
-                  onClick={openSettings}
+                  onClick={loginViaGoogle}
                 />
               </>
             )}

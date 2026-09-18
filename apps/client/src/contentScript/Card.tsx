@@ -40,15 +40,6 @@ export function Card({ card, onAnswer, onAck, onDismiss }: Props) {
     )
   }
 
-  async function wrapper() {
-    try {
-      const token = await browser.runtime.sendMessage({ type: 'AUTH_TOKEN' })
-      console.log(token)
-    } catch (error) {
-      console.error('Unable to get auth token', error)
-    }
-  }
-
   function RenderBasedOnType() {
     switch (card.kind) {
       case 'intro':
@@ -80,7 +71,7 @@ export function Card({ card, onAnswer, onAck, onDismiss }: Props) {
               <Button type="primary" onClick={onAck}>
                 Next card
               </Button>
-              <Button type="primary" onClick={wrapper}>
+              <Button type="primary" onClick={onAnswer}>
                 Got it
               </Button>
             </Flex>
