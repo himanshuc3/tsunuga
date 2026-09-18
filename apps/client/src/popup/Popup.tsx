@@ -26,7 +26,7 @@ import {
 import browser from 'webextension-polyfill'
 import type { AppState, QuietHour, Settings } from '../domain/types'
 import './Popup.css'
-import { openSidePanel, sendMessage } from '../common/helpers'
+import { OPEN_SETTINGS_ON_LOAD_KEY, openSidePanel, sendMessage } from '../common/helpers'
 import { getNextLesson, lessons } from '../content/lessons'
 import { getOrCreateProgress, progressKey } from '../domain/progress'
 
@@ -119,6 +119,17 @@ export const Popup = () => {
     setSettingsSaved(false)
     setShowSettings(true)
   }
+
+  useEffect(() => {
+    if (!state) return
+    void (async () => {
+      const stored = await browser.storage.local.get(OPEN_SETTINGS_ON_LOAD_KEY)
+      if (!stored[OPEN_SETTINGS_ON_LOAD_KEY]) return
+      await browser.storage.local.remove(OPEN_SETTINGS_ON_LOAD_KEY)
+      openSettings()
+    })()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state])
 
   const updateSetting = <K extends keyof Settings>(key: K, value: Settings[K]) => {
     setSettingsDraft((previous) => (previous ? { ...previous, [key]: value } : previous))

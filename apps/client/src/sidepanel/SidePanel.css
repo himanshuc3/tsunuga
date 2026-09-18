@@ -35,40 +35,12 @@ body {
   justify-content: center;
 }
 
-.sidepanel-header {
-  position: sticky;
-  z-index: 10;
-  top: 0;
-  padding: 12px 16px 14px;
-  background: rgb(32, 32, 36);
-  border-bottom: 1px solid var(--sp-line);
-}
-
-.sidepanel-header .ant-typography {
-  margin: 0;
-  color: #f7f7f8;
-}
-
-.sidepanel-header .tagline {
-  display: block;
-  margin-top: 4px;
-  color: var(--sp-muted);
-  font-size: 12px;
-}
-
-.brand-avatar {
-  color: #10120c;
-  background: var(--sp-accent);
-  font-weight: 800;
-}
-
 .sidepanel-content {
-  padding: 14px 16px 4px;
+  padding: 16px 0;
 }
 
 .panel {
   background: var(--sp-panel);
-  border: 1px solid var(--sp-line);
   border-radius: 10px;
   padding: 12px 14px;
   margin-bottom: 12px;
@@ -115,29 +87,187 @@ body {
   color: #f7f7f8;
 }
 
-.lesson-list .ant-list-item {
-  display: flex;
-  justify-content: space-between;
-  gap: 8px;
-  padding: 6px 0;
-  border-bottom: 1px solid var(--sp-line);
+.current-lesson-panel {
+  margin-bottom: 8px;
+}
+.row {
+  padding-left: 16px;
+  padding-right: 16px;
 }
 
-.lesson-list .ant-list-item:last-child {
-  border-bottom: 0;
+.current-lesson-collapse.ant-collapse {
+  background: transparent;
+  border: 0;
 }
 
-.lesson-list .ant-list-item.locked {
+.current-lesson-collapse .ant-collapse-item {
+  border: 0;
+}
+
+.current-lesson-collapse > .ant-collapse-item > .ant-collapse-header {
+  align-items: flex-start !important;
+  padding: 0 14px 0 0 !important;
+}
+
+.current-lesson-collapse .ant-collapse-expand-icon {
+  padding-top: 3px;
+  color: var(--sp-muted);
+}
+
+.current-lesson-collapse .ant-collapse-content {
+  background: transparent;
+}
+
+.current-lesson-collapse .ant-collapse-content-box {
+  padding: 10px 0 14px !important;
+}
+
+.current-lesson-summary {
+  width: 100%;
+}
+
+.current-lesson-summary .panel-title {
+  margin-bottom: 4px;
+}
+
+.current-lesson-summary .lesson-title {
+  font-size: 20px !important;
+}
+
+.actions-row {
+  padding-bottom: 14px;
+  margin-bottom: 14px;
+}
+
+.actions-row .actions {
+  align-items: center;
+  margin-top: 0;
+}
+
+.path-panel {
+  margin-bottom: 12px;
+}
+
+.lesson-collapse.ant-collapse {
+  color: #f7f7f8;
+  background: transparent;
+  border: 0;
+}
+
+.lesson-collapse .ant-collapse-item {
+  margin-bottom: 6px;
+  overflow: hidden;
+  border: 1px solid var(--sp-line);
+  border-radius: 8px !important;
+}
+
+.lesson-collapse .ant-collapse-item:last-child {
+  margin-bottom: 0;
+}
+
+.lesson-collapse .ant-collapse-header {
+  align-items: center !important;
+  padding: 8px 10px !important;
+  background: #202024;
+}
+
+.lesson-collapse .ant-collapse-content {
+  color: #f7f7f8;
+  background: #1c1c1f;
+}
+
+.lesson-collapse .ant-collapse-content-box {
+  padding: 10px 12px !important;
+}
+
+.divider {
+  height: 1px;
+  background-color: var(--sp-line);
+  border: none;
+}
+
+.lesson-collapse .ant-collapse-item.locked .ant-collapse-header {
   opacity: 0.45;
 }
 
-.lesson-list .ant-list-item.active .lesson-name {
-  color: var(--sp-accent);
-  font-weight: 700;
+.lesson-collapse .ant-collapse-item.done .lesson-name {
+  color: #72d59a;
 }
 
-.lesson-list .ant-list-item.done .lesson-name {
+.lesson-collapse-header {
+  width: 100%;
+}
+
+.lesson-meta-tag {
+  margin: 0;
+  color: var(--sp-muted);
+  background: #2b2b31;
+  border-color: var(--sp-line);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.detail-group + .detail-group {
+  margin-top: 12px;
+}
+
+.detail-group-title {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--sp-muted);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.detail-items {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.detail-item {
+  padding: 6px 8px;
+  background: #242428;
+  border: 1px solid var(--sp-line);
+  border-radius: 6px;
+}
+
+.detail-item-copy {
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.detail-item-romaji {
+  color: #f7f7f8;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.detail-item-en {
+  color: var(--sp-muted);
+  font-size: 12px;
+}
+
+.streak-tag.ant-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0;
+  color: var(--sp-muted);
+  background: #2b2b31;
+  border-color: var(--sp-line);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.streak-tag.ant-tag-success {
   color: #72d59a;
+  background: rgba(114, 213, 154, 0.12);
+  border-color: rgba(114, 213, 154, 0.35);
 }
 
 .lesson-name {
@@ -149,14 +279,4 @@ body {
   color: var(--sp-muted);
   font-size: 13px;
   white-space: nowrap;
-}
-
-.sidepanel-footer {
-  display: flex;
-  justify-content: flex-end;
-  padding: 4px 16px 12px;
-}
-
-.sidepanel-footer .ant-btn {
-  color: var(--sp-accent);
 }

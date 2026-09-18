@@ -492,3 +492,14 @@ NOTE: For me the most critical layer, because it makes deliver life easy and sho
   - Threads can share memory (heap) within a process
   - Overhead: memory, context switch
 - Event loop
+- Race conditions: Overlapping operations
+  - Locks, mutexes
+
+### Object storage
+
+- Why should traditional databases like PostgreSQL handle it?
+- Problems of storing it on the server instance: dumb, ephemeral, horizontal scaling, a disk has a fixed size, solved on one instance (synchronization), availability and durability, downloads, no transaction
+- Block storage -> file system (posix standards) -> object storage (how to provide the minimum interface) [GET, PUT, DELETE]
+  - Object storage called so because it doesn't have a rich set of features vailable for files
+  - It doesn't have nested structure, it's available for convenience: no object modification, no heirarchy, any server can serve any request, capacity you never provision, anything that speaks to http can read it
+  - An object consists of key, value, metadata, user metadata

@@ -1,11 +1,35 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Alert, Avatar, Button, ConfigProvider, Flex, Layout, List, Space, Spin, Tag, Typography } from 'antd'
-import { SendOutlined, SettingOutlined } from '@ant-design/icons'
+import {
+  Alert,
+  Button,
+  Collapse,
+  ConfigProvider,
+  Flex,
+  Layout,
+  Space,
+  Spin,
+  Tag,
+  Typography,
+} from 'antd'
+import {
+  CheckCircleFilled,
+  LockOutlined,
+  PauseOutlined,
+  PlayCircleOutlined,
+  SendOutlined,
+  SettingOutlined,
+} from '@ant-design/icons'
 import { lessons } from '../content/lessons'
-import { countMasteredInLesson, isLessonUnlocked } from '../domain/progress'
-import type { AppState } from '../domain/types'
+import {
+  countMasteredInLesson,
+  getOrCreateProgress,
+  isLessonUnlocked,
+  progressKey,
+} from '../domain/progress'
+import type { AppState, Lesson } from '../domain/types'
+import { MASTERY_STREAK } from '../domain/types'
 import './SidePanel.css'
-import { sendMessage } from '../common/helpers'
+import { openPopupWithSettings, sendMessage } from '../common/helpers'
 
 const { Content } = Layout
 const { Text, Title } = Typography
@@ -32,10 +56,68 @@ function forceResultMessage(result: { status: string } | undefined): string | nu
   }
 }
 
+function LessonDetails({ state, lesson }: { state: AppState; lesson: Lesson }) {
+  return (
+    <div className="lesson-details">
+      {lesson.vocab.length > 0 && (
+        <div className="detail-group">
+          <Text className="detail-group-title">Vocabulary</Text>
+          <div className="detail-items">
+            {lesson.vocab.map((item) => {
+              const progress = getOrCreateProgress(state, progressKey(lesson.id, 'vocab', item.id))
+              const mastered = progress.correctStreak >= MASTERY_STREAK
+              return (
+                <Flex key={item.id} className="detail-item" align="center" justify="space-between">
+                  <div className="detail-item-copy">
+                    <Text className="detail-item-romaji">{item.romaji}</Text>
+                    <Text className="detail-item-en">{item.en}</Text>
+                  </div>
+                  <Tag className="streak-tag" color={mastered ? 'success' : undefined}>
+                    {mastered && <CheckCircleFilled />}
+                    {progress.correctStreak}/{MASTERY_STREAK} streak
+                  </Tag>
+                </Flex>
+              )
+            })}
+          </div>
+        </div>
+      )}
+      {lesson.concepts.length > 0 && (
+        <div className="detail-group">
+          <Text className="detail-group-title">Concepts</Text>
+          <div className="detail-items">
+            {lesson.concepts.map((concept) => {
+              const progress = getOrCreateProgress(
+                state,
+                progressKey(lesson.id, 'concept', concept.id),
+              )
+              return (
+                <Flex
+                  key={concept.id}
+                  className="detail-item"
+                  align="center"
+                  justify="space-between"
+                >
+                  <Text className="detail-item-en">{concept.title}</Text>
+                  <Tag className="streak-tag" color={progress.conceptShown ? 'success' : undefined}>
+                    {progress.conceptShown && <CheckCircleFilled />}
+                    {progress.conceptShown ? 'Seen' : 'Not seen'}
+                  </Tag>
+                </Flex>
+              )
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 export const SidePanel = () => {
   const [state, setState] = useState<AppState | null>(null)
   const [busy, setBusy] = useState(false)
   const [statusMsg, setStatusMsg] = useState<string | null>(null)
+  const [currentLessonExpanded, setCurrentLessonExpanded] = useState(false)
 
   const refresh = useCallback(async () => {
     const s = await fetchState()
@@ -72,8 +154,8 @@ export const SidePanel = () => {
     setBusy(false)
   }
 
-  const openOptions = () => {
-    ;(chrome as any).runtime.openOptionsPage()
+  const openSettings = () => {
+    void openPopupWithSettings()
   }
 
   const theme = {
@@ -86,7 +168,14 @@ export const SidePanel = () => {
       fontFamily: "'Avenir Next', 'Segoe UI', sans-serif",
     },
     components: {
-      Button: { primaryColor: '#0f1012', colorPrimaryHover: '#c9ff85' },
+      Button: {
+        primaryColor: '#0f1012',
+        colorPrimaryHover: '#c9ff85',
+        boxShadow: 'none',
+        primaryShadow: 'none',
+        defaultShadow: 'none',
+        dangerShadow: 'none',
+      },
     },
   }
 
@@ -106,106 +195,107 @@ export const SidePanel = () => {
   return (
     <ConfigProvider theme={theme}>
       <Layout className="sidepanel">
-        <header className="sidepanel-header">
-          <Space align="center" size={8}>
-            <Avatar className="brand-avatar" size="small">
-              つ
-            </Avatar>
-            <Title level={4}>tsunagu</Title>
-          </Space>
-          <Text className="tagline">Japanese mini-lessons while you browse</Text>
-        </header>
-
         <Content className="sidepanel-content">
-          <section className="panel">
-            <Flex align="center" justify="space-between">
-              <Text className="label">Status</Text>
-              <Tag color={state.settings.paused ? 'warning' : 'success'}>
-                {state.settings.paused ? 'Paused' : 'Active'}
-              </Tag>
-            </Flex>
-            {state.pendingCard && (
-              <Alert
-                className="pending-alert"
-                type="warning"
-                showIcon
-                message="A card is waiting on your active tab."
-              />
-            )}
-            {statusMsg && <Alert className="status-alert" type="info" showIcon message={statusMsg} />}
-            <Space className="actions" wrap>
-              <Button type="primary" onClick={togglePause} disabled={busy}>
-                {state.settings.paused ? 'Resume' : 'Pause'}
-              </Button>
-              <Button
-                type="default"
-                icon={<SendOutlined />}
-                onClick={forceCard}
-                disabled={busy}
-              >
+          <section className="current-lesson-panel row">
+            <Collapse
+              className="current-lesson-collapse"
+              ghost
+              expandIconPosition="end"
+              activeKey={currentLessonExpanded ? ['current'] : []}
+              onChange={(keys) =>
+                setCurrentLessonExpanded(Array.isArray(keys) ? keys.length > 0 : Boolean(keys))
+              }
+              items={[
+                {
+                  key: 'current',
+                  label: (
+                    <div className="current-lesson-summary">
+                      <Text className="panel-title">Current lesson</Text>
+                      <Title level={5} className="lesson-title">
+                        {current?.title ?? '—'}
+                      </Title>
+                      <Text className="muted">
+                        {progress.total > 0
+                          ? `${progress.mastered}/${progress.total} mastered`
+                          : 'Concepts in progress'}
+                      </Text>
+                    </div>
+                  ),
+                  children: current ? (
+                    <LessonDetails state={state} lesson={current} />
+                  ) : (
+                    <Text className="muted">No lesson in progress.</Text>
+                  ),
+                },
+              ]}
+            />
+          </section>
+
+          <section className="actions-row row">
+            <Flex className="actions" align="center" justify="space-between">
+              <Button type="primary" icon={<SendOutlined />} onClick={forceCard} disabled={busy}>
                 Show card now
               </Button>
-            </Space>
+              <Space size={4}>
+                <Button
+                  aria-label={state.settings.paused ? 'Resume' : 'Pause'}
+                  type="text"
+                  icon={state.settings.paused ? <PlayCircleOutlined /> : <PauseOutlined />}
+                  onClick={togglePause}
+                  disabled={busy}
+                />
+                <Button
+                  aria-label="Open settings"
+                  type="text"
+                  icon={<SettingOutlined />}
+                  onClick={openSettings}
+                />
+              </Space>
+            </Flex>
           </section>
+          <hr className="divider" />
 
-          <section className="panel">
-            <Text className="panel-title">Current lesson</Text>
-            <Title level={5} className="lesson-title">
-              {current?.title ?? '—'}
-            </Title>
-            <Text className="muted">
-              {progress.total > 0
-                ? `${progress.mastered}/${progress.total} mastered`
-                : 'Concepts in progress'}
-            </Text>
-          </section>
-
-          <section className="panel">
+          <section className="path-panel row">
             <Text className="panel-title">Path</Text>
-            <List
-              className="lesson-list"
-              itemLayout="horizontal"
-              dataSource={lessons}
-              renderItem={(lesson) => {
+            <Collapse
+              className="lesson-collapse"
+              accordion
+              defaultActiveKey={state.currentLessonId}
+              items={lessons.map((lesson) => {
                 const unlocked = isLessonUnlocked(state, lesson)
                 const done = state.completedLessonIds.includes(lesson.id)
-                const active = lesson.id === state.currentLessonId
                 const { mastered, total } = countMasteredInLesson(state, lesson)
-                return (
-                  <List.Item
-                    className={[
-                      done ? 'done' : '',
-                      active ? 'active' : '',
-                      !unlocked ? 'locked' : '',
-                    ]
-                      .filter(Boolean)
-                      .join(' ')}
-                  >
-                    <Text className="lesson-name">
-                      {done ? 'Done · ' : !unlocked ? 'Locked · ' : active ? 'Now · ' : ''}
-                      {lesson.title}
-                    </Text>
-                    <Text className="lesson-meta">
-                      {!unlocked
-                        ? 'Locked'
-                        : total > 0
-                          ? `${mastered}/${total}`
-                          : done
-                            ? 'Done'
-                            : 'Open'}
-                    </Text>
-                  </List.Item>
-                )
-              }}
+                return {
+                  key: lesson.id,
+                  collapsible: unlocked ? undefined : 'disabled',
+                  className: [done ? 'done' : '', !unlocked ? 'locked' : '']
+                    .filter(Boolean)
+                    .join(' '),
+                  label: (
+                    <Flex align="center" justify="space-between" className="lesson-collapse-header">
+                      <Text className="lesson-name">
+                        {done ? 'Done · ' : !unlocked ? 'Locked · ' : ''}
+                        {lesson.title}
+                      </Text>
+                      <Tag className="lesson-meta-tag">
+                        {!unlocked ? (
+                          <LockOutlined />
+                        ) : total > 0 ? (
+                          `${mastered}/${total}`
+                        ) : done ? (
+                          'Done'
+                        ) : (
+                          'Open'
+                        )}
+                      </Tag>
+                    </Flex>
+                  ),
+                  children: unlocked ? <LessonDetails state={state} lesson={lesson} /> : null,
+                }
+              })}
             />
           </section>
         </Content>
-
-        <footer className="sidepanel-footer">
-          <Button type="text" icon={<SettingOutlined />} onClick={openOptions}>
-            Settings
-          </Button>
-        </footer>
       </Layout>
     </ConfigProvider>
   )

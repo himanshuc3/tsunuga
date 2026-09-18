@@ -30,7 +30,6 @@ export default defineManifest({
     default_icon: 'img/logo-48.png',
     default_title: 'tsunagu',
   },
-  options_page: 'options.html',
   background: {
     service_worker: 'src/background/index.ts',
     type: 'module',
