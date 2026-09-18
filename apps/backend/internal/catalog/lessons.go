@@ -1,6 +1,6 @@
 package catalog
 
-import "github.com/himanshuc3/tsunuga-be/internal/domain"
+import "github.com/himanshuc3/tango-be/internal/domain"
 
 // Lessons is the authoring source of truth. Edit this slice, restart the API,
 // and SyncCatalog upserts the same IDs/content into Postgres.

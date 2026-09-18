@@ -2,7 +2,7 @@
 // go mod init [module-name]
 // go get [package-name]@[version]
 // go mod download
-module github.com/himanshuc3/tsunuga-be
+module github.com/himanshuc3/tango-be
 
 go 1.26.5
 

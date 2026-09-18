@@ -1,6 +1,6 @@
 package repository
 
-import "github.com/himanshuc3/tsunuga-be/internal/server"
+import "github.com/himanshuc3/tango-be/internal/server"
 
 type Repositories struct {
 	Lesson   *LessonRepository

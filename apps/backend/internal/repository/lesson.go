@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/himanshuc3/tsunuga-be/internal/model/lesson"
-	"github.com/himanshuc3/tsunuga-be/internal/server"
+	"github.com/himanshuc3/tango-be/internal/model/lesson"
+	"github.com/himanshuc3/tango-be/internal/server"
 	"github.com/jackc/pgx/v5"
 )
 

@@ -3,11 +3,11 @@ package router
 import (
 	"net/http"
 
-	"github.com/himanshuc3/tsunuga-be/internal/handler"
-	"github.com/himanshuc3/tsunuga-be/internal/middleware"
-	v1 "github.com/himanshuc3/tsunuga-be/internal/router/v1"
-	"github.com/himanshuc3/tsunuga-be/internal/server"
-	"github.com/himanshuc3/tsunuga-be/internal/service"
+	"github.com/himanshuc3/tango-be/internal/handler"
+	"github.com/himanshuc3/tango-be/internal/middleware"
+	v1 "github.com/himanshuc3/tango-be/internal/router/v1"
+	"github.com/himanshuc3/tango-be/internal/server"
+	"github.com/himanshuc3/tango-be/internal/service"
 	"github.com/labstack/echo/v4"
 	echoMiddleware "github.com/labstack/echo/v4/middleware"
 	"golang.org/x/time/rate"

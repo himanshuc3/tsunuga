@@ -1,4 +1,4 @@
-# Tsunuga-(bae)kend
+# Tango-(bae)kend
 
 ## Local dev setup
 

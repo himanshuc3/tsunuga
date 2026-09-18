@@ -7,7 +7,7 @@ func (c *Client) SendWelcomeEmail(to, firstName string) error {
 
 	return c.SendEmail(
 		to,
-		"Welcome to Tsunuga",
+		"Welcome to Tango",
 		TemplateWelcome,
 		data,
 	)

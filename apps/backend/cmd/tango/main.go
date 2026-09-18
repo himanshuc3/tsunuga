@@ -8,15 +8,15 @@ import (
 	"os/signal"
 	"time"
 
-	"github.com/himanshuc3/tsunuga-be/cmd/content"
-	"github.com/himanshuc3/tsunuga-be/internal/config"
-	"github.com/himanshuc3/tsunuga-be/internal/database"
-	"github.com/himanshuc3/tsunuga-be/internal/handler"
-	"github.com/himanshuc3/tsunuga-be/internal/logger"
-	"github.com/himanshuc3/tsunuga-be/internal/repository"
-	"github.com/himanshuc3/tsunuga-be/internal/router"
-	"github.com/himanshuc3/tsunuga-be/internal/server"
-	"github.com/himanshuc3/tsunuga-be/internal/service"
+	"github.com/himanshuc3/tango-be/cmd/content"
+	"github.com/himanshuc3/tango-be/internal/config"
+	"github.com/himanshuc3/tango-be/internal/database"
+	"github.com/himanshuc3/tango-be/internal/handler"
+	"github.com/himanshuc3/tango-be/internal/logger"
+	"github.com/himanshuc3/tango-be/internal/repository"
+	"github.com/himanshuc3/tango-be/internal/router"
+	"github.com/himanshuc3/tango-be/internal/server"
+	"github.com/himanshuc3/tango-be/internal/service"
 )
 
 /** Memory Access Patterns

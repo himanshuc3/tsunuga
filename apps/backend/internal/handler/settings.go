@@ -3,9 +3,9 @@ package handler
 import (
 	"net/http"
 
-	model "github.com/himanshuc3/tsunuga-be/internal/model/user"
-	"github.com/himanshuc3/tsunuga-be/internal/server"
-	"github.com/himanshuc3/tsunuga-be/internal/service"
+	model "github.com/himanshuc3/tango-be/internal/model/user"
+	"github.com/himanshuc3/tango-be/internal/server"
+	"github.com/himanshuc3/tango-be/internal/service"
 	"github.com/labstack/echo/v4"
 )
 

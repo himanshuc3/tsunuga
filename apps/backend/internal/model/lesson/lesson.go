@@ -1,6 +1,6 @@
 package lesson
 
-import "github.com/himanshuc3/tsunuga-be/internal/model"
+import "github.com/himanshuc3/tango-be/internal/model"
 
 // json for output to clients
 // db for input from database

@@ -4,9 +4,9 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/himanshuc3/tsunuga-be/internal/errs"
-	"github.com/himanshuc3/tsunuga-be/internal/server"
-	"github.com/himanshuc3/tsunuga-be/internal/sqlerr"
+	"github.com/himanshuc3/tango-be/internal/errs"
+	"github.com/himanshuc3/tango-be/internal/server"
+	"github.com/himanshuc3/tango-be/internal/sqlerr"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/rs/zerolog"

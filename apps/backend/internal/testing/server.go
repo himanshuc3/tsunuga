@@ -3,9 +3,9 @@ package testing
 import (
 	"time"
 
-	"github.com/himanshuc3/tsunuga-be/internal/config"
-	"github.com/himanshuc3/tsunuga-be/internal/database"
-	"github.com/himanshuc3/tsunuga-be/internal/server"
+	"github.com/himanshuc3/tango-be/internal/config"
+	"github.com/himanshuc3/tango-be/internal/database"
+	"github.com/himanshuc3/tango-be/internal/server"
 	"github.com/rs/zerolog"
 )
 

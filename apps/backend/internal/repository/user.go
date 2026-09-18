@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	model "github.com/himanshuc3/tsunuga-be/internal/model/user"
-	"github.com/himanshuc3/tsunuga-be/internal/server"
+	model "github.com/himanshuc3/tango-be/internal/model/user"
+	"github.com/himanshuc3/tango-be/internal/server"
 	"github.com/jackc/pgx/v5"
 )
 

@@ -115,8 +115,8 @@ func LoadConfig() (*Config, error) {
 
 	k := koanf.New(".")
 
-	err := k.Load(env.Provider("TSUNUGA_", ".", func(s string) string {
-		return strings.ToLower(strings.TrimPrefix(s, "TSUNUGA_"))
+	err := k.Load(env.Provider("TANGO_", ".", func(s string) string {
+		return strings.ToLower(strings.TrimPrefix(s, "TANGO_"))
 	}), nil)
 
 	if err != nil {
@@ -148,7 +148,7 @@ func LoadConfig() (*Config, error) {
 		mainConfig.Observability = DefaultObservabilityConfig()
 	}
 
-	mainConfig.Observability.ServiceName = "Tsunuga"
+	mainConfig.Observability.ServiceName = "Tango"
 	mainConfig.Observability.Environment = mainConfig.Primary.Env
 
 	if err := mainConfig.Observability.Validate(); err != nil {

@@ -11,7 +11,7 @@ import (
 	"strconv"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/himanshuc3/tsunuga-be/internal/config"
+	"github.com/himanshuc3/tango-be/internal/config"
 	"github.com/jackc/pgx/v5"
 	zerolog "github.com/rs/zerolog"
 	"gopkg.in/yaml.v3"

@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
-	"github.com/himanshuc3/tsunuga-be/internal/model/progress"
-	"github.com/himanshuc3/tsunuga-be/internal/server"
+	"github.com/himanshuc3/tango-be/internal/model/progress"
+	"github.com/himanshuc3/tango-be/internal/server"
 	"github.com/jackc/pgx/v5"
 )
 

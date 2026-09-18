@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/himanshuc3/tsunuga-be/internal/server"
+	"github.com/himanshuc3/tango-be/internal/server"
 	"github.com/labstack/echo/v4"
 )
 

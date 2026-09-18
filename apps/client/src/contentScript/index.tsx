@@ -6,7 +6,7 @@ import { Card } from './Card'
 import cssText from './Card.css?inline'
 import { StyleProvider } from '@ant-design/cssinjs'
 
-const HOST_ID = 'tsunagu-extension-host'
+const HOST_ID = 'tango-extension-host'
 
 class Controller {
   private static _instance: Controller
@@ -97,7 +97,7 @@ class Controller {
       style.textContent = cssText
       this._shadow.appendChild(style)
       const mount = document.createElement('div')
-      mount.className = 'tsunagu-root'
+      mount.className = 'tango-root'
       this._shadow.appendChild(mount)
       this._root = createRoot(mount)
     } else if (!this._shadow) {

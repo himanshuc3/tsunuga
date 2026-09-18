@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"github.com/himanshuc3/tsunuga-be/internal/server"
+	"github.com/himanshuc3/tango-be/internal/server"
 	"github.com/labstack/echo/v4"
 	"github.com/newrelic/go-agent/v3/integrations/nrecho-v4"
 	"github.com/newrelic/go-agent/v3/integrations/nrpkgerrors"

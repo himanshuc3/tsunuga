@@ -1,7 +1,7 @@
 package router
 
 import (
-	"github.com/himanshuc3/tsunuga-be/internal/handler"
+	"github.com/himanshuc3/tango-be/internal/handler"
 	"github.com/labstack/echo/v4"
 )
 

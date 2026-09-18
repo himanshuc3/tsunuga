@@ -37,7 +37,7 @@ type HealthChecksConfig struct {
 
 func DefaultObservabilityConfig() *ObservabilityConfig {
 	return &ObservabilityConfig{
-		ServiceName: "tsunuga",
+		ServiceName: "tango",
 		Environment: "development",
 		Logging: LoggingConfig{
 			Level:              "info",

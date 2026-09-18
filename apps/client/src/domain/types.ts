@@ -99,4 +99,4 @@ export const DEFAULT_SETTINGS: Settings = {
   paused: false,
 }
 
-export const ALARM_NAME = 'tsunagu-next-card'
+export const ALARM_NAME = 'tango-next-card'

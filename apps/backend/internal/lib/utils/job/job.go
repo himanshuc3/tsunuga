@@ -2,7 +2,7 @@ package job
 
 import (
 	"github.com/hibiken/asynq"
-	"github.com/himanshuc3/tsunuga-be/internal/config"
+	"github.com/himanshuc3/tango-be/internal/config"
 	zerolog "github.com/rs/zerolog"
 )
 

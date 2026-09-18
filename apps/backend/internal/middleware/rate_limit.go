@@ -1,6 +1,6 @@
 package middleware
 
-import "github.com/himanshuc3/tsunuga-be/internal/server"
+import "github.com/himanshuc3/tango-be/internal/server"
 
 type RateLimitMiddleware struct {
 	server *server.Server

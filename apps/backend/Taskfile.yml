@@ -7,7 +7,7 @@ dotenv:
   - .env
 
 # vars:
-#   TSUNUGA_DB_DSN: '{{.TSUNUGA_DB_DSN | default ""}}'
+#   TANGO_DB_DSN: '{{.TANGO_DB_DSN | default ""}}'
 
 tasks:
   help:
@@ -54,11 +54,11 @@ tasks:
   run:
     desc: run the tsununga server
     cmds:
-      - go run ./cmd/tsunuga
+      - go run ./cmd/tango
 
   build:
     cmds:
-      - go build -o bin/tsunuga ./cmd/tsunuga
+      - go build -o bin/tango ./cmd/tango
 
   migrations:new:
     desc: create a new database migration
@@ -79,7 +79,7 @@ tasks:
     deps: [confirm]
     cmds:
       - echo 'Running up migrations...'
-      - tern migrate -m ./internal/database/migrations --conn-string {{.TSUNUGA_DB_DSN}}
+      - tern migrate -m ./internal/database/migrations --conn-string {{.TANGO_DB_DSN}}
 
   tidy:
     desc: format all .go files, and tidy and vendor module deps

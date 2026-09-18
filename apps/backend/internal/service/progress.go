@@ -2,11 +2,11 @@ package service
 
 import (
 	"github.com/google/uuid"
-	"github.com/himanshuc3/tsunuga-be/internal/errs"
-	"github.com/himanshuc3/tsunuga-be/internal/middleware"
-	"github.com/himanshuc3/tsunuga-be/internal/model/progress"
-	"github.com/himanshuc3/tsunuga-be/internal/repository"
-	"github.com/himanshuc3/tsunuga-be/internal/server"
+	"github.com/himanshuc3/tango-be/internal/errs"
+	"github.com/himanshuc3/tango-be/internal/middleware"
+	"github.com/himanshuc3/tango-be/internal/model/progress"
+	"github.com/himanshuc3/tango-be/internal/repository"
+	"github.com/himanshuc3/tango-be/internal/server"
 	"github.com/labstack/echo/v4"
 )
 

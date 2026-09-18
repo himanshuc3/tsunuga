@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/himanshuc3/tsunuga-be/internal/config"
+	"github.com/himanshuc3/tango-be/internal/config"
 )
 
 const tokenTTL = 7 * 24 * time.Hour

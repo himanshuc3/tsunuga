@@ -69,7 +69,7 @@ export const Options = () => {
   return (
     <main className="options">
       <header>
-        <h1>tsunagu settings</h1>
+        <h1>tango settings</h1>
         <p>Control when lesson cards appear while you browse.</p>
       </header>
 

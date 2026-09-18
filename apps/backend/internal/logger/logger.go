@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/himanshuc3/tsunuga-be/internal/config"
+	"github.com/himanshuc3/tango-be/internal/config"
 
 	"github.com/newrelic/go-agent/v3/integrations/logcontext-v2/zerologWriter"
 	"github.com/newrelic/go-agent/v3/newrelic"

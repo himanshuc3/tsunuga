@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/himanshuc3/tsunuga-be/internal/config"
-	"github.com/himanshuc3/tsunuga-be/internal/database"
+	"github.com/himanshuc3/tango-be/internal/config"
+	"github.com/himanshuc3/tango-be/internal/database"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/require"

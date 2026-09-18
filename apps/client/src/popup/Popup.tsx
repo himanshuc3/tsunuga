@@ -229,7 +229,7 @@ export const Popup = () => {
             <Avatar className="brand-avatar" size="small">
               つ
             </Avatar>
-            <Title level={5}>{showSettings ? 'Settings' : 'tsunagu'}</Title>
+            <Title level={5}>{showSettings ? 'Settings' : 'tango'}</Title>
             {/* <Badge status={state.settings.paused ? 'default' : 'success'} /> */}
           </Space>
           <Flex className="popup-right">

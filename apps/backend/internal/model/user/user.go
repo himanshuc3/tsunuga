@@ -1,6 +1,6 @@
 package model
 
-import "github.com/himanshuc3/tsunuga-be/internal/model"
+import "github.com/himanshuc3/tango-be/internal/model"
 
 type User struct {
 	model.Base

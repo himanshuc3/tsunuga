@@ -9,7 +9,7 @@ import (
 	"net/url"
 	"strconv"
 
-	"github.com/himanshuc3/tsunuga-be/internal/config"
+	"github.com/himanshuc3/tango-be/internal/config"
 	"github.com/jackc/pgx/v5"
 	tern "github.com/jackc/tern/v2/migrate"
 	"github.com/rs/zerolog"

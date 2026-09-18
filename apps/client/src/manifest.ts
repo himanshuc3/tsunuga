@@ -28,7 +28,7 @@ export default defineManifest({
   action: {
     default_popup: 'popup.html',
     default_icon: 'img/logo-48.png',
-    default_title: 'tsunagu',
+    default_title: 'tango',
   },
   background: {
     service_worker: 'src/background/index.ts',
@@ -51,7 +51,7 @@ export default defineManifest({
       },
     },
     'open-side-panel': {
-      description: 'Open tsunagu side panel',
+      description: 'Open tango side panel',
     },
   },
   web_accessible_resources: [

@@ -6,8 +6,8 @@ import (
 	"fmt"
 
 	"github.com/hibiken/asynq"
-	"github.com/himanshuc3/tsunuga-be/internal/config"
-	"github.com/himanshuc3/tsunuga-be/internal/lib/email"
+	"github.com/himanshuc3/tango-be/internal/config"
+	"github.com/himanshuc3/tango-be/internal/lib/email"
 	zerolog "github.com/rs/zerolog"
 )
 

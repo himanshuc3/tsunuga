@@ -54,26 +54,26 @@ export function Card({ card, onAnswer, onAck, onDismiss }: Props) {
       case 'intro':
         return (
           <>
-            <Flex className="tsunagu-pair">
-              <Flex className="tsunagu-half left" vertical align="center" gap={4}>
+            <Flex className="tango-pair">
+              <Flex className="tango-half left" vertical align="center" gap={4}>
                 <Flex justify="center" className="label-container">
-                  <Typography.Text className="tsunagu-half-label">Romaji</Typography.Text>
+                  <Typography.Text className="tango-half-label">Romaji</Typography.Text>
                 </Flex>
                 <Flex flex="1" justify="center" align="center">
-                  <Typography.Text className="tsunagu-half-text">{card.romaji}</Typography.Text>
+                  <Typography.Text className="tango-half-text">{card.romaji}</Typography.Text>
                 </Flex>
               </Flex>
-              <Flex className="tsunagu-half right" vertical align="center" gap={4}>
+              <Flex className="tango-half right" vertical align="center" gap={4}>
                 <Flex justify="center" className="label-container">
-                  <Typography.Text className="tsunagu-half-label">English</Typography.Text>
+                  <Typography.Text className="tango-half-label">English</Typography.Text>
                 </Flex>
                 <Flex flex="1" justify="center" align="center">
-                  <Typography.Text className="tsunagu-half-text">{card.en}</Typography.Text>
+                  <Typography.Text className="tango-half-text">{card.en}</Typography.Text>
                 </Flex>
               </Flex>
             </Flex>
-            {card.meta && <Typography.Text className="tsunagu-meta">{card.meta}</Typography.Text>}
-            <Flex className="tsunagu-actions">
+            {card.meta && <Typography.Text className="tango-meta">{card.meta}</Typography.Text>}
+            <Flex className="tango-actions">
               <Button type="default" onClick={onAck}>
                 Review later
               </Button>
@@ -89,12 +89,12 @@ export function Card({ card, onAnswer, onAck, onDismiss }: Props) {
       case 'concept':
         return (
           <>
-            <Typography.Title level={2} className="tsunagu-title">
+            <Typography.Title level={2} className="tango-title">
               {card.title}
             </Typography.Title>
-            <Typography.Paragraph className="tsunagu-detail">{card.body}</Typography.Paragraph>
-            {card.meta && <Typography.Text className="tsunagu-meta">{card.meta}</Typography.Text>}
-            <Flex className="tsunagu-actions">
+            <Typography.Paragraph className="tango-detail">{card.body}</Typography.Paragraph>
+            {card.meta && <Typography.Text className="tango-meta">{card.meta}</Typography.Text>}
+            <Flex className="tango-actions">
               <Button type="primary" onClick={onAck}>
                 Continue
               </Button>
@@ -104,21 +104,21 @@ export function Card({ card, onAnswer, onAck, onDismiss }: Props) {
       case 'test':
         return (
           <>
-            <Flex className="tsunagu-pair" gap={12}>
-              <Flex className="tsunagu-half" vertical align="center" justify="center" gap={4}>
-                <Typography.Text className="tsunagu-half-label">Romaji</Typography.Text>
-                <Typography.Text className="tsunagu-half-text">{card.romaji}</Typography.Text>
+            <Flex className="tango-pair" gap={12}>
+              <Flex className="tango-half" vertical align="center" justify="center" gap={4}>
+                <Typography.Text className="tango-half-label">Romaji</Typography.Text>
+                <Typography.Text className="tango-half-text">{card.romaji}</Typography.Text>
               </Flex>
-              <Flex className="tsunagu-half" vertical align="center" justify="center" gap={4}>
-                <Typography.Text className="tsunagu-half-label">English</Typography.Text>
-                <Typography.Text className="tsunagu-half-text">{card.en}</Typography.Text>
+              <Flex className="tango-half" vertical align="center" justify="center" gap={4}>
+                <Typography.Text className="tango-half-label">English</Typography.Text>
+                <Typography.Text className="tango-half-text">{card.en}</Typography.Text>
               </Flex>
             </Flex>
-            <Typography.Paragraph className="tsunagu-prompt small">
+            <Typography.Paragraph className="tango-prompt small">
               {card.prompt}
             </Typography.Paragraph>
-            {card.meta && <Typography.Text className="tsunagu-meta">{card.meta}</Typography.Text>}
-            <Space className="tsunagu-choices" direction="vertical" size={8}>
+            {card.meta && <Typography.Text className="tango-meta">{card.meta}</Typography.Text>}
+            <Space className="tango-choices" direction="vertical" size={8}>
               {card.choices.map((choice) => {
                 let state: 'correct' | 'wrong' | undefined
                 if (feedback) {
@@ -128,7 +128,7 @@ export function Card({ card, onAnswer, onAck, onDismiss }: Props) {
                 return (
                   <Button
                     key={choice}
-                    className="tsunagu-choice"
+                    className="tango-choice"
                     type="default"
                     block
                     data-state={state}
@@ -141,10 +141,10 @@ export function Card({ card, onAnswer, onAck, onDismiss }: Props) {
               })}
             </Space>
             {feedback === 'correct' && (
-              <Typography.Text className="tsunagu-feedback ok">Correct</Typography.Text>
+              <Typography.Text className="tango-feedback ok">Correct</Typography.Text>
             )}
             {feedback === 'incorrect' && (
-              <Typography.Text className="tsunagu-feedback bad">
+              <Typography.Text className="tango-feedback bad">
                 Answer: {card.answer}
               </Typography.Text>
             )}
@@ -168,33 +168,33 @@ export function Card({ card, onAnswer, onAck, onDismiss }: Props) {
       }}
     >
       <Flex
-        className="tsunagu-card"
+        className="tango-card"
         data-kind={card.kind}
         data-feedback={feedback ?? undefined}
         role="dialog"
         orientation="vertical"
-        aria-label="Tsunagu lesson card"
+        aria-label="Tango lesson card"
       >
-        <Flex className="tsunagu-header" align="center" justify="space-between">
-          <Tag color={KIND_COLOR[card.kind]} className="tsunagu-kind">
+        <Flex className="tango-header" align="center" justify="space-between">
+          <Tag color={KIND_COLOR[card.kind]} className="tango-kind">
             {KIND_LABEL[card.kind]}
           </Tag>
           {card.kind === 'intro' ? (
-            <Typography.Text className="tsunagu-script">
+            <Typography.Text className="tango-script">
               {card.itemType.toUpperCase()}
             </Typography.Text>
           ) : (
-            <Typography.Text className="tsunagu-header-spacer" aria-hidden="true" />
+            <Typography.Text className="tango-header-spacer" aria-hidden="true" />
           )}
           <Button
-            className="tsunagu-close"
+            className="tango-close"
             type="text"
             icon={<CloseOutlined />}
             aria-label="Dismiss"
             onClick={onDismiss}
           />
         </Flex>
-        <Space className="tsunagu-body" direction="vertical" size={12}>
+        <Space className="tango-body" direction="vertical" size={12}>
           {RenderBasedOnType()}
         </Space>
       </Flex>

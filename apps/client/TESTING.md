@@ -1,4 +1,4 @@
-# Tsunagu manual test checklist
+# Tango manual test checklist
 
 ## Setup
 

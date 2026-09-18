@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/himanshuc3/tsunuga-be/internal/config"
-	loggerConfig "github.com/himanshuc3/tsunuga-be/internal/logger"
+	"github.com/himanshuc3/tango-be/internal/config"
+	loggerConfig "github.com/himanshuc3/tango-be/internal/logger"
 	pgxzero "github.com/jackc/pgx-zerolog"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"

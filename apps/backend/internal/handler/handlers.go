@@ -1,8 +1,8 @@
 package handler
 
 import (
-	"github.com/himanshuc3/tsunuga-be/internal/server"
-	"github.com/himanshuc3/tsunuga-be/internal/service"
+	"github.com/himanshuc3/tango-be/internal/server"
+	"github.com/himanshuc3/tango-be/internal/service"
 )
 
 type Handlers struct {

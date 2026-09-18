@@ -3,8 +3,8 @@ package middleware
 import (
 	"context"
 
-	"github.com/himanshuc3/tsunuga-be/internal/logger"
-	"github.com/himanshuc3/tsunuga-be/internal/server"
+	"github.com/himanshuc3/tango-be/internal/logger"
+	"github.com/himanshuc3/tango-be/internal/server"
 	"github.com/labstack/echo/v4"
 	"github.com/newrelic/go-agent/v3/newrelic"
 	"github.com/rs/zerolog"

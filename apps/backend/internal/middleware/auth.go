@@ -8,9 +8,9 @@ import (
 
 	"github.com/clerk/clerk-sdk-go/v2"
 	clerkhttp "github.com/clerk/clerk-sdk-go/v2/http"
-	"github.com/himanshuc3/tsunuga-be/internal/errs"
-	"github.com/himanshuc3/tsunuga-be/internal/lib/jwt"
-	"github.com/himanshuc3/tsunuga-be/internal/server"
+	"github.com/himanshuc3/tango-be/internal/errs"
+	"github.com/himanshuc3/tango-be/internal/lib/jwt"
+	"github.com/himanshuc3/tango-be/internal/server"
 	"github.com/labstack/echo/v4"
 )
 

@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/himanshuc3/tsunuga-be/internal/server"
+	"github.com/himanshuc3/tango-be/internal/server"
 	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/require"
 )

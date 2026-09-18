@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/himanshuc3/tsunuga-be/internal/domain"
+	"github.com/himanshuc3/tango-be/internal/domain"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 

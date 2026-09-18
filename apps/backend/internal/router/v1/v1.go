@@ -1,8 +1,8 @@
 package v1
 
 import (
-	"github.com/himanshuc3/tsunuga-be/internal/handler"
-	"github.com/himanshuc3/tsunuga-be/internal/middleware"
+	"github.com/himanshuc3/tango-be/internal/handler"
+	"github.com/himanshuc3/tango-be/internal/middleware"
 	"github.com/labstack/echo/v4"
 )
 
