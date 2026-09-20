@@ -5,6 +5,7 @@
   --popup-muted: #9a99a5;
   --popup-line: #323238;
   --popup-accent: #b7f36b;
+  --popup-card: rgba(255, 255, 255, 0.04);
 }
 
 * {
@@ -33,6 +34,199 @@ body {
 .loading-popup {
   align-items: center;
   justify-content: center;
+}
+
+.logged-out-popup,
+.logged-out-sidepanel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--popup-bg);
+}
+
+button.ant-btn,
+button.ant-btn:hover,
+button.ant-btn:focus,
+button.ant-btn:focus-visible,
+button.ant-btn:active {
+  box-shadow: none !important;
+}
+
+.logged-out-shell {
+  display: flex;
+  width: 100%;
+  min-height: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 18px 18px 22px;
+  gap: 20px;
+}
+
+.logged-out-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  animation: fadeUp 420ms ease;
+}
+
+.brand-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #dfffb0, var(--popup-accent));
+  color: #171719;
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.brand-name {
+  color: #f7f7f8;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: lowercase;
+}
+
+.logged-out-card-wrap {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  perspective: 1100px;
+}
+
+.logged-out-card {
+  position: relative;
+  display: block;
+  width: 100%;
+  max-width: 240px;
+  min-height: 116px;
+  padding: 18px 16px;
+  border: 1px solid rgba(183, 243, 107, 0.2);
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02));
+  box-shadow:
+    0 12px 28px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  animation: cardFlip 700ms ease;
+  overflow: hidden;
+}
+
+.logged-out-card::before {
+  content: '';
+  position: absolute;
+  inset: 10px 12px auto;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(183, 243, 107, 0.5), transparent);
+}
+
+.stat-item {
+  --delay: 0ms;
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(22px) scale(0.97);
+  animation: statReveal 1.8s ease-in-out infinite;
+  animation-delay: var(--delay);
+}
+
+.stat-value {
+  color: #f7f7f8;
+  font-size: clamp(2rem, 6vw, 2.5rem);
+  line-height: 1;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+
+.stat-label {
+  color: var(--popup-muted);
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
+}
+
+.google-login-button.ant-btn {
+  display: flex;
+  width: min(100%, 180px);
+  height: 48px;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 2px 16px;
+  border-radius: 10px;
+  color: #d6d5dc;
+  background: #292a2f;
+  border: none;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.google-login-button.ant-btn:hover,
+.google-login-button.ant-btn:focus-visible {
+  color: #f7f7f8;
+  background: #333338;
+}
+
+.google-login-button .anticon {
+  width: auto;
+  height: auto;
+  color: #9a99a5;
+  font-size: 18px;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes cardFlip {
+  0% {
+    opacity: 0;
+    transform: translateY(16px) scale(0.96);
+  }
+  55% {
+    opacity: 1;
+    transform: translateY(-2px) scale(1.01);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes statReveal {
+  0%,
+  12% {
+    opacity: 0;
+    transform: translateY(22px) scale(0.97);
+  }
+  22%,
+  38% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  48%,
+  100% {
+    opacity: 0;
+    transform: translateY(-18px) scale(0.98);
+  }
 }
 
 .popup-header {

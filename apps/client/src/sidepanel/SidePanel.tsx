@@ -115,11 +115,21 @@ function LessonDetails({ state, lesson }: { state: AppState; lesson: Lesson }) {
 
 export const SidePanel = () => {
   const [state, setState] = useState<AppState | null>(null)
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
   const [busy, setBusy] = useState(false)
   const [statusMsg, setStatusMsg] = useState<string | null>(null)
   const [currentLessonExpanded, setCurrentLessonExpanded] = useState(false)
 
   const refresh = useCallback(async () => {
+    const stored = await chrome.storage.local.get('authToken')
+    const authenticated = Boolean(stored.authToken)
+    setIsAuthenticated(authenticated)
+
+    if (!authenticated) {
+      setState(null)
+      return
+    }
+
     const s = await fetchState()
     setState(s)
   }, [])
@@ -158,6 +168,18 @@ export const SidePanel = () => {
     void openPopupWithSettings()
   }
 
+  async function loginViaGoogle() {
+    try {
+      setBusy(true)
+      await sendMessage({ type: 'AUTH_TOKEN' })
+      await refresh()
+    } catch (error) {
+      console.error('Unable to get auth token', error)
+    } finally {
+      setBusy(false)
+    }
+  }
+
   const theme = {
     token: {
       colorPrimary: '#b7f36b',
@@ -177,6 +199,53 @@ export const SidePanel = () => {
         dangerShadow: 'none',
       },
     },
+  }
+
+  if (isAuthenticated === false) {
+    const stats = [
+      { value: '150+', label: 'vocab cards' },
+      { value: '16+', label: 'concepts' },
+      { value: 'N5', label: 'level grammar' },
+    ]
+
+    return (
+      <ConfigProvider theme={theme}>
+        <Layout className="sidepanel logged-out-sidepanel">
+          <div className="logged-out-shell">
+            <header className="logged-out-header">
+              <div className="brand-mark">つ</div>
+              <div className="brand-name">tango</div>
+            </header>
+
+            <div className="logged-out-card-wrap">
+              <div className="logged-out-card">
+                {stats.map((stat, index) => (
+                  <div
+                    key={stat.label}
+                    className="stat-item"
+                    style={{ ['--delay' as any]: `${index * 220}ms` }}
+                  >
+                    <div className="stat-value">{stat.value}</div>
+                    <div className="stat-label">{stat.label}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <Button
+              className="google-login-button"
+              type="primary"
+              size="large"
+              icon={<span className="google-glyph">G</span>}
+              onClick={() => void loginViaGoogle()}
+              disabled={busy}
+            >
+              Login with Google
+            </Button>
+          </div>
+        </Layout>
+      </ConfigProvider>
+    )
   }
 
   if (!state) {

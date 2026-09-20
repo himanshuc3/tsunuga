@@ -1,3 +1,5 @@
+**NOTE: no matter the mount of best practices followed by the team, you will always have the leverage on the company, if the technology is as cryptic, archaic, in-house and complex as possible.**
+
 ## Low level design concepts (FITYMIP)
 
 1. High level understanding
@@ -502,4 +504,340 @@ NOTE: For me the most critical layer, because it makes deliver life easy and sho
 - Block storage -> file system (posix standards) -> object storage (how to provide the minimum interface) [GET, PUT, DELETE]
   - Object storage called so because it doesn't have a rich set of features vailable for files
   - It doesn't have nested structure, it's available for convenience: no object modification, no heirarchy, any server can serve any request, capacity you never provision, anything that speaks to http can read it
-  - An object consists of key, value, metadata, user metadata
+  - An object consists of key, value, metadata, user metadata and stored inside a bucket
+  - Object storage split in: metadata plane and data plane
+  - eventual consistent vs strongly consistent::metadata plane vs data plane
+  - Magic incoming: to solve storage replication problem across multiple servers, we divide the original data across n shards and using reed-solomon algorithm (create some extra shards). Now, any 1 of the shard is enough to reconstrunct the whole data.
+  - S3 durability: eleven 9's.
+  - versioning to access older data
+  - metadata plane: bucket + ke -> shard locations
+  - Conditional writes: Put request can now be sent with "If-None-Match", create this object only if the key does not exist (412 - precondition failure)
+    - If-match on etag
+    - Because of conditional writes, we have a synchronization primitives
+- Uploads:
+  - For small files, client->server->bucket is fine
+  - For larger files, above pattern can work with streaming of files
+  - Problem: idletimeouts with load balancer of 60s, nginx has body size limits
+  - Pre-signed urls: a url valid for a limited amount of time (5 minutes)
+    - the signed url is fetched from the server
+    - A policy document can enforce stuff like content length, content-type etc.
+    - Since we're bypassing, to directly upload to S3, how does server knows?
+    - The actual id of the uploaded object returned by the s3 server which is given to the server which verified S3 for headobject as per policy document
+  - Uploading files larger than 5GB is not supported by object storage:
+    - Uploading the complete fail because of hard limit, all of nothing, througput, user experience
+    - Mutipart upload solves this: converting a file into multiple chunks, sends them into parallel http calls, stores them into multiple files in the bucket, maximum of 10k chunks
+    - Etags are hashes for specific chunks
+    - Abort multipartupload
+    - Presigned urls + multipartupload
+    - Flow: upload/init -> backend -> bucket (createmultipartupload) + database (entry with status pending) + presigned urls for each part?. Browser using presigned urls -> bucket. After completion browser -> backend (with etag ids) -> bucket verification -> status ready in DB
+    - presigned urls can be streamed instead of all generated and send in one go
+- Downloads:
+  - Do not proxy downloads through backend
+  - Pattern1: Objectively public content -> make the bucket public or make the CDN hit the private bucket
+  - Pattern2: Pre-sign GET, CDN wouldn't be able to cache these since everytime we get a different pre-signed url. (egress for data leaving out from cloud).
+    - Instead we can move authorization and pre-signed urls being generated at edge/CDN
+  - Range requests: Partial content in video for example, can work with multiple http connections getting partial content of the video for faster downloads
+  - Segmented streaming: Helping us stream in resolution based on user's bandwidth
+    - standards like HLS, DASH
+    - transcode: rewrite the video into another format, for another purpose
+    - Transode original file/video into different files (it doesn't happen on the fly, a bummer)
+    - Adaptive bitrate
+    - Object storage + CDN -> for streaming/serving files
+- Pricing model:
+  - Object storage in terms of bytes saved
+  - operations aka per request: reads are less expensive than writes
+  - egress: based on bandwidth (data going out)
+
+- Recap:
+  - Object storage exists since file system doesn't scale
+  - No mutability
+  - 11 9s of durability
+  - High entropy strings as prefix for easier fetching/querying
+
+### Real-time backends
+
+- The client-server architecture where client always initiates the conversation doesn't necessarily work here (client hi asli mard hai matlab?)
+- The naive approach: polling, increases backend load unnecessarily
+  - Average delay is 1.5s which is faulty though, should do a median metric
+  - Doesn't scale with scale like upwards of 10k users polling the backend
+  - Cost of polling increases with users, not with events
+- Long polling:
+  - Server doesn't send the response, keeps the connection open until it detects a change
+  - High server overhead and network traffic due to header overheads
+- Server sent events:
+  - content-type: text/event-stream
+  - connection kept open because of keep-alive
+  - last-event-id
+  - used by llms
+  - server speaks first
+  - unidirectional
+- Websockets:
+  - Initialized using http
+  - Protocol switching to websocket by sending a response of 101
+  - Smaller header overhead
+  - ping-pong model as a heartbeat (opcode 9 & 10)
+  - a connection isn't just limited to ports (i.e. 65000 is not the uppercap)
+  - it is identified by source_address:source_port:destination_address:destination_port
+  - each connection causing about 9KB
+  - at scale, epoll instead of goroutine/connection
+  - Sticky sessions can make a client always stick to one specific instance of server
+  - Backend follow pub-sub. Whenever a message is recieved from one socket connection, that is published to event-queue, and consumed by other instances, relaying that to the client.
+    - Event queues has fire and forget pub/sub model
+    - To relay some information required after a certain message, similar to server-sent events, we record the last message id that we recieved
+    - Fan out: problem with one message being relayed to 20k users in realtime
+
+### Testing for BE
+
+- TDD:
+  - guidance, documentation, catch regressions
+  - To test we need runners, assertion utils etc. automated by the library
+  - Unit test, mocks, integration test, e2e tests, testing pyramid
+  - An alternative approach: small, medium, large tests (touching across network, db, filesystem, os operations like sleep)
+  - flaky tests: touches across multiple boundaries and non-deterministic
+  - functional testing: spec written first -> feature
+  - security testing
+  - functional, regression, perforamnce, security are just adjectives to describe the type of test, but it falls inside unit, integration or e2e only
+  - Test doubles: dummy, stub, spy, mock, fake
+  - Don't mock what you don't own: Just wrap what you don't own and pass that around
+  - DI: instead of utility/function making it's own dependencies (like calling a database connection open), we pass that into the function
+  - Shell/core: Core should be easy to test if dependency injection is followed, since it can be mocked
+  - Database testing:
+    - Transaction rollback with each test to have a deterministic initial state
+  - hermetic testing
+  - TDD workflow
+    - Red, green, refactor
+    - Useful the answer is deterministic and known but the approach to get there is not (how)
+  - Testing the state of the system, instead of the behavior
+  - Flaky test can be dangerous because it can lead to jainuine failed tests to feel flaky and con the system
+  - Test coverage:
+    - What is not covered in the coverage is more important that what is (obviously everyone sees your problems)
+  - Mutation listening
+  - Cyclomatic complexity
+    - number of paths for the code path
+    - should be under 10 for functions accordfing to the research paper
+  - Useful tools:
+    - linter
+    - type checker
+    - static analysis
+
+### 12 factor app
+
+- PasS - your code, run for you
+- Applied to applications that work as a service:
+- Software erosion:
+  - in house servers
+  - Manual installation process
+  - Software eroded without any change to software due to os patch and other external stuff.
+- Factor 1: Codebase
+  - one codebase tracked in revision control, many deploys
+  - versioning wasn't very common probably back then
+  - code: shared, config: per deploy
+- Dependencies:
+  - List all deps explicitly at the root
+  - Inception of dep managers?
+  - docker is probably at the heart of it currently
+- Config:
+  - Should live outside the code
+  - Environment variables
+  - Secret manager service is the optimum service since the credentials can still be leaked if stored in environmnet variables in the deploymnet OS (linux) itself
+- Backing service:
+  - database, redis, smtp service (emails), s3 (all services talked to by the server)
+  - treat them as attached resources
+  - back in the day server lives in the same machine where the server is, so servers don't really have a resource url to be attached to
+- Separate build and stage pipelines
+  - Commits are the primary drivers for deployment
+  - build only contains code + dependencies
+  - build + config -> release
+  - Run the release
+  - Because builds are immutable, rolling back doesn't take much time, if the build was same
+- Processes:
+  - Run applications as separate isolated processes
+  - no sticky sessions
+- Port binding:
+  - Historically, the applications like php, java used to run inside apache, tomcat etc.
+- Concurrency:
+  - Having different processes based on types like server, video processing/email (worker jobs) etc.
+- Disposability:
+  - Easy start and stop lifecycle
+  - Queue: on shudown, the job can come back in the queue (reentrant)
+- Dev/prod parity:
+  - Time gap, personnel gap, tools gap
+  - ORMs extract SQL queries based on the database. But logical errors could leak through due to certain differences/default functionality in both being different
+- Logs:
+  - Stream of events sorted by time to stdout
+- Admin processes:
+  - Run it as one off process.
+
+### OpenAPI & contracts
+
+- Documenting the contracts which stay in sync with code
+- Manually creating postman collection also has a delay and can cause runtime failures
+- OpenAPI could solve that at compile time to enforce that contract
+- Configuration based: openapi.{json, yaml}
+- Programs like swagger can generate contract tester, client docs generator
+- YAML >>> JSON because yaml allows comments (& who cares about other features)
+- File first or code first?
+- Contract first works fine because it helps us work on frontend on backend in parallel (given different folks are implementing it)
+- design first pipeline: write the config openapi.yaml -> lint -> mock -> client -> server -> docs -> test
+- Easier to give openapi specification to agents for better context
+
+### Webhooks
+
+- The notification system, similar to websockets in a way
+- The whole premise has been always that the client initiates the connection
+- This is busted using webhooks for server to server communication
+- Reverse api call
+- Google engineers built a similar protocol insipred by kuchu puchu, called pubsubhubbub
+- An event can be delivered multiple times
+- Implementation specifics:
+  - A publish looks like a simple http request
+  - A subscribe is a tunnel, has a public, https hostname (ngrok, cloudflare tunnel)
+  - Forwards to 8081
+  - The webhook: url, json, a secret
+  - Push events only
+  - Each hook should be separate since headers, payload etc. could be different
+  - Initial handshakes are required for security
+  - Tunnels help with local development providing temporary https endpoints
+  - Proof it came from a provider:
+    - token in the url: can be intercepted or logged
+    - ip whitelisting
+    - mutual TLS
+    - a signature from shared secret key, though it looks stupid (most common)
+    - a signature using public key
+  - HMAC does the hashing, giving fixed length string
+    - Verify bytes and then deserialize to prevent corruption after deserialization
+    - replay ticket: use timestamps for prevention
+    - Never follow redirects in case of webhooks (status code 301,302)
+  - Delivery id needs to be maintained as a unique constraint in our DB to prevent parsing and processing the same message
+  - Most edge-case problems happen with inconsistency in order of messages aka race conditions
+- Svix: webhooks as a service
+- To prevent retries due to heavy handling on our handler side, we should do minimum possible work in the handler and then do async handling in the worker
+  - Exponential backoff and jitter
+  - Retry after
+  - one queue per endpoint
+- Example: Clerk is a service used for authentication, the users are stored in their DB though and our server could face way more latency hitting their DB compared to ours, so some folks use it for syncing/copying that data to our DB
+  - Alternative approach: Background worker fetching from clerk and syncing our data (if data is not urgent), subscribing to log hooks instead and spawning a service worker
+
+### Devops
+
+- How does code become accessible over the internet and keep alive (making samay proud)
+- Traditionally there were 2 teams:
+  - Developers: want to make more deployments
+  - Infra team: want to create least amount of deployment
+- Some good practices started appearing:
+  - Infrastructure from code, instead of scratch everytime
+  - One command to build; one command to deploy
+  - Feature flags to prevent deploying code unnecesarily
+  - Logs, alerts, metrics shared with the developers
+  - Small, cheap, boring
+- DORA: surveyed tens of thousands of teams
+  - Speed: merge -> live (2 hours lead time)
+  - Deployment frequency
+  - Stability: deloys that broke (change failure rate)
+  - Failed deployment recovery
+- Speed and stability doesn't have to tradeoffs
+- For webapps, trunk-based branching is fine (feature -> master with feature flags as often as possible). Note that this is a little difficult when trying to overwrite the current feature.
+- Most codebases do not have 1:1 parity with ci/cd pipeline and therefore, pushing and verifying fixes can take longer since developers are directly testing on ci/cd failures.
+- Example: Github actions, a job (steps that run on one machine), a runner (a fresh machine), a step (an atomic command/action)
+- Continuous deployment:
+  - For accessing secrets, github used to give repo secrets
+  - Now, the cloud (like AWS), gives a job scoped credential for deployment
+- For servers, semantic versioning doesn't matter:
+  - commit ID is the single source of truth
+- Docker enables: Ship the environment with the code called a container
+  - Doesn't have a separate kernel
+  - Implemented using a mix of namespaces, control groups and layered file system
+  - Eight kinds of namespaces. Namespace is what a container can see, essentially, api?
+  - Always reusing the linux kernel and simulating everything else that is required. So on mac, it runs on top of linux VM
+  - control groups: it's a folder and configuration files like memory limit
+  - file system: overlayfs overlaps file system and we see a very thin slab at the top
+  - Blob? Collection of unstructured data like text, pdf
+    - Identified by sha256 of its bytes
+    - the config
+    - the manifest
+  - Docker identity: hash of the manifest file
+  - Why hashes? if two images A and B have the same base layer, that image isn't going to be computed again and again since they have the same hash
+    - Order of lines is important to prevent cache invalidation
+  - Registry:
+    - an http server, two kinds of objects
+    - blobs, by digest
+    - manifests, by tag or digest
+  - Docker run: who calls clone?
+    - docker client -> dockerd daemon -> containerd -> runc -> the process
+  - Scanner to get the vulnerabilities of base images and prevent security leakages
+  - To run it we need to have:
+    - one linux machine
+    - the process: systemd
+    - a reverse proxy: nginx (needs a certificate for https) -> ACME protocol has automated it now
+- Kubernetes:
+  - Container orchestration with error handling, auto-scaling, replication etc to prevent downtime
+  - Immutable infrastructure: servers are replaced with the same instance
+  - what do we want, declarative language
+  - It has an API server, etcd, controller
+  - Pod: 1 of more container, container with helpers sharing file system, scheduled as one, one IP address, killed as one, fetched by labels like pod app name
+    - A replicaset
+    - A deployment: owns the replica set
+    - a service: a fixed name, a fixed address
+    - ephemeral, internal implementation
+  - Ingress/Gateway API:
+    - internet -> load balancer -> service -> pods
+  - Where does ready come from?
+    - our service is probed by the kubelet
+  - Three probes:
+    - Readiness
+    - Liveness
+    - startup
+  - Scaling in the orchestrator's world:
+    - Just change a number, like replicas
+- The last stages of the pipeline:
+  - A green build, always deployable -> continuous delivery
+  - No deployment without continuous delivery
+  - Blue-green:
+    - blue: live, current version
+    - green: the new version, no users
+    - Tradeoff is the redundant costs
+  - Canary release:
+    - 10 pods, new application deployed only on 1 pod, therefore test on 10% traffic
+    - progressive delivery based on metrics defined by us, to increase the traffic on the new application version
+  - GitOps: declarative config
+    - ArgoCD, flux
+  - Environments: dev, staging, production (preview environment on PR)
+- Infrastructure as code;
+  - AWS:handling machines, networks, permissions, configuration
+  - Three kinds of tools:
+    - provisioning: terraform, another fooking config, plan -> approve -> apply those to the cloud itself
+    - Configuration management: ansible
+    - Image baking: packer
+- Terraform (over-engineering):
+  - state is it's form of version control
+  - drift, directly make the change in the cloud console manually
+
+- The service runs; now operations:
+  - SLI: service level indicator - a measurement users care about
+  - Example, how many requests are succeeding out of all the requests
+  - SLO: Target for SLI over a window
+  - SLA: a contract with a customer -> betting on a number
+  - 99.9% availability over a month -> 43 minutes of failure, at most
+  - Every 9 added gets the 10x better
+
+### Miscellaneous
+
+- CAP theorem:
+  - at most of the three: consistency, availability and partition tolerance
+- Zookeeper
+  - for distributed system manager/orchestration
+  - distributed synchronization, locking etc.
+  - persistent and ephemeral nodes in a tree like structure maintained by it
+  - can generate snowflake id
+
+- System design basics:
+  - Functional and non-functional requirements
+    - non functional has some buzzwords like latency, scale (DAU/ requests/sec), CAP, uniqueness, handling assymetric relationship of reads and writes
+  - Identifying entities
+  - APIs
+  - High level design
+  - Low level design
+
+- Encryption/encoding:
+  - Take a long unique key -> base64 encoding 6 bits converted to 1 character
+  - 1:1 bijective function

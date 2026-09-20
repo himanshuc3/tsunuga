@@ -13,7 +13,7 @@ import { CardFeature, type AnswerInput } from './features/card'
 import { SettingsFeature } from './features/settings'
 import { backgroundDeps, type BackgroundDeps } from './deps'
 import { hideOnTab, sendToTab, setBadge } from './helpers'
-import { axiosClient } from './async'
+import { loginWithGoogle } from './async/apis'
 
 export type ShowResult =
   | { status: 'shown'; tabId: number }
@@ -205,18 +205,16 @@ export class BackgroundController {
         interactive: true,
       })
 
-      const authTokenResult = await axiosClient.post<{ token: string; user?: unknown }>('/login', {
-        access_token: result.token,
-      })
+      const authTokenResult = await loginWithGoogle(result.token)
 
-      const token = authTokenResult.data?.token
+      const token = authTokenResult.token
       await browser.storage.local.set({ authToken: token })
-      await browser.storage.local.set({ user: authTokenResult.data?.user || {} })
+      await browser.storage.local.set({ user: authTokenResult.user || {} })
 
       return {
         ok: true,
         token,
-        user: authTokenResult.data?.user,
+        user: authTokenResult.user,
       }
     } catch (error) {
       console.error('Failed to get auth token or fetch contacts:', error)
@@ -318,4 +316,6 @@ export class BackgroundController {
       return false
     }
   }
+
+  // Fetch
 }

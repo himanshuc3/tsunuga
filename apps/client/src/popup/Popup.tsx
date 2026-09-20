@@ -15,6 +15,7 @@ import {
 import {
   ArrowDownOutlined,
   ArrowUpOutlined,
+  GoogleOutlined,
   PlayCircleOutlined,
   SaveOutlined,
   SendOutlined,
@@ -57,6 +58,7 @@ function forceResultMessage(result: { status: string } | undefined): string | nu
 
 export const Popup = () => {
   const [state, setState] = useState<AppState | null>(null)
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
   const [busy, setBusy] = useState(false)
   const [statusMsg, setStatusMsg] = useState<string | null>(null)
   const [showSettings, setShowSettings] = useState(false)
@@ -65,6 +67,15 @@ export const Popup = () => {
   const [settingsSaved, setSettingsSaved] = useState(false)
 
   const refresh = useCallback(async () => {
+    const stored = await browser.storage.local.get('authToken')
+    const authenticated = Boolean(stored.authToken)
+    setIsAuthenticated(authenticated)
+
+    if (!authenticated) {
+      setState(null)
+      return
+    }
+
     const s = await fetchState()
     setState(s)
   }, [])
@@ -174,6 +185,70 @@ export const Popup = () => {
     setBusy(false)
   }
 
+  if (!isAuthenticated) {
+    const stats = [
+      { value: '150+', label: 'vocab cards' },
+      { value: '16+', label: 'concepts' },
+      { value: 'N5', label: 'level grammar' },
+    ]
+
+    return (
+      <ConfigProvider
+        theme={{
+          token: {
+            colorPrimary: '#b7f36b',
+            colorText: '#f7f7f8',
+            colorTextSecondary: '#9a99a5',
+            colorBgContainer: '#202024',
+            borderRadius: 12,
+            fontFamily: "'Avenir Next', 'Segoe UI', sans-serif",
+            boxShadow: 'none',
+          },
+        }}
+      >
+        <Layout className="popup logged-out-popup">
+          <div className="logged-out-shell">
+            <header className="logged-out-header">
+              <div className="brand-mark">つ</div>
+              <div className="brand-name">tango</div>
+            </header>
+
+            {/* <div className="logged-out-card-wrap">
+              <div className="logged-out-card">
+                {stats.map((stat, index) => (
+                  <div
+                    key={stat.label}
+                    className="stat-item"
+                    style={{ ['--delay' as any]: `${index * 220}ms` }}
+                  >
+                    <div className="stat-value">{stat.value}</div>
+                    <div className="stat-label">{stat.label}</div>
+                  </div>
+                ))}
+              </div>
+            </div> */}
+
+            <Button
+              className="google-login-button"
+              icon={<GoogleOutlined />}
+              onClick={() => void loginViaGoogle()}
+              disabled={busy}
+            >
+              Login with Google
+            </Button>
+          </div>
+
+          <span className="creator-pill">
+            Created by{' '}
+            <a href="https://github.com/himanshu" target="_blank" rel="noreferrer">
+              Himanshu
+            </a>
+          </span>
+        </Layout>
+      </ConfigProvider>
+    )
+  }
+
   if (!state) {
     return (
       <ConfigProvider theme={{ token: { colorPrimary: '#b7f36b' } }}>
@@ -199,10 +274,58 @@ export const Popup = () => {
 
   async function loginViaGoogle() {
     try {
+      setBusy(true)
       await sendMessage({ type: 'AUTH_TOKEN' })
+      await refresh()
     } catch (error) {
       console.error('Unable to get auth token', error)
+    } finally {
+      setBusy(false)
     }
+  }
+
+  function getIsUnauthenticatedUI() {
+    return (
+      <Layout className="popup logged-out-popup">
+        <div className="logged-out-shell">
+          <header className="logged-out-header">
+            <div className="brand-mark">つ</div>
+            <div className="brand-name">tango</div>
+          </header>
+
+          {/* <div className="logged-out-card-wrap">
+              <div className="logged-out-card">
+                {stats.map((stat, index) => (
+                  <div
+                    key={stat.label}
+                    className="stat-item"
+                    style={{ ['--delay' as any]: `${index * 220}ms` }}
+                  >
+                    <div className="stat-value">{stat.value}</div>
+                    <div className="stat-label">{stat.label}</div>
+                  </div>
+                ))}
+              </div>
+            </div> */}
+
+          <Button
+            className="google-login-button"
+            icon={<GoogleOutlined />}
+            onClick={() => void loginViaGoogle()}
+            disabled={busy}
+          >
+            Login with Google
+          </Button>
+        </div>
+
+        <span className="creator-pill">
+          Created by{' '}
+          <a href="https://github.com/himanshu" target="_blank" rel="noreferrer">
+            Himanshu
+          </a>
+        </span>
+      </Layout>
+    )
   }
 
   return (
@@ -223,218 +346,225 @@ export const Popup = () => {
         },
       }}
     >
-      <Layout className="popup">
-        <header className="popup-header">
-          <Space className="popup-left">
-            {showSettings && (
+      {!isAuthenticated ? (
+        getIsUnauthenticatedUI()
+      ) : (
+        <Layout className="popup">
+          <header className="popup-header">
+            <Space className="popup-left">
+              {showSettings && (
+                <Button
+                  aria-label="Back to popup"
+                  type="text"
+                  icon={<ArrowDownOutlined rotate={90} />}
+                  onClick={() => setShowSettings(false)}
+                />
+              )}
+              <Avatar className="brand-avatar" size="small">
+                つ
+              </Avatar>
+              <Title level={5}>{showSettings ? 'Settings' : 'tango'}</Title>
+              {/* <Badge status={state.settings.paused ? 'default' : 'success'} /> */}
+            </Space>
+            <Flex className="popup-right">
               <Button
-                aria-label="Back to popup"
+                aria-label="Pause extension"
                 type="text"
-                icon={<ArrowDownOutlined rotate={90} />}
-                onClick={() => setShowSettings(false)}
-              />
-            )}
-            <Avatar className="brand-avatar" size="small">
-              つ
-            </Avatar>
-            <Title level={5}>{showSettings ? 'Settings' : 'tango'}</Title>
-            {/* <Badge status={state.settings.paused ? 'default' : 'success'} /> */}
-          </Space>
-          <Flex className="popup-right">
-            <Button
-              aria-label="Pause extension"
-              type="text"
-              icon={state.settings.paused ? <PlayCircleOutlined /> : <PauseOutlined />}
-              onClick={() => void togglePause()}
-              disabled={busy}
-            />
-            {showSettings && (
-              <Button
-                className="settings-save-button"
-                aria-label="Save settings"
-                type="text"
-                icon={<SaveOutlined />}
-                onClick={() => void saveSettings()}
+                icon={state.settings.paused ? <PlayCircleOutlined /> : <PauseOutlined />}
+                onClick={() => void togglePause()}
                 disabled={busy}
               />
-            )}
-            {!showSettings && (
-              <>
+              {showSettings && (
                 <Button
-                  aria-label="Open settings"
+                  className="settings-save-button"
+                  aria-label="Save settings"
                   type="text"
-                  icon={<SettingOutlined />}
-                  onClick={openSettings}
+                  icon={<SaveOutlined />}
+                  onClick={() => void saveSettings()}
+                  disabled={busy}
                 />
-                <Button
-                  aria-label="Open settings"
-                  type="text"
-                  icon={<UserOutlined />}
-                  onClick={loginViaGoogle}
-                />
-              </>
-            )}
-          </Flex>
-        </header>
-
-        {showSettings && settingsDraft ? (
-          <Content className="popup-content settings-content">
-            <section className="settings-section">
-              <Title level={4}>Sampling interval</Title>
-              <div className="settings-range-label">
-                <span>{settingsDraft.minIntervalMin} min</span>
-                <span>{settingsDraft.maxIntervalMin} min</span>
-              </div>
-              <Slider
-                className="settings-range"
-                range
-                min={1}
-                max={120}
-                value={[settingsDraft.minIntervalMin, settingsDraft.maxIntervalMin]}
-                onChange={(value) => {
-                  if (Array.isArray(value)) {
-                    updateSetting('minIntervalMin', value[0])
-                    updateSetting('maxIntervalMin', value[1])
-                  }
-                }}
-              />
-            </section>
-
-            <section className="settings-section">
-              <Title level={4}>Quiet hours</Title>
-              {settingsDraft.quietHours.map((quietHour, index) => (
-                <div
-                  className="quiet-hour-row"
-                  key={`${quietHour.start}-${quietHour.end}-${index}`}
-                >
-                  <input
-                    type="time"
-                    value={quietHour.start}
-                    onChange={(event) => updateQuietHour(index, { start: event.target.value })}
-                  />
-                  <span>to</span>
-                  <input
-                    type="time"
-                    value={quietHour.end}
-                    onChange={(event) => updateQuietHour(index, { end: event.target.value })}
+              )}
+              {!showSettings && (
+                <>
+                  <Button
+                    aria-label="Open settings"
+                    type="text"
+                    icon={<SettingOutlined />}
+                    onClick={openSettings}
                   />
                   <Button
+                    aria-label="Open settings"
                     type="text"
-                    onClick={() =>
-                      updateSetting(
-                        'quietHours',
-                        settingsDraft.quietHours.filter(
-                          (_, quietHourIndex) => quietHourIndex !== index,
-                        ),
-                      )
-                    }
-                  >
-                    Remove
-                  </Button>
-                </div>
-              ))}
-              <Button
-                className="settings-secondary-action"
-                type="default"
-                onClick={() =>
-                  updateSetting('quietHours', [
-                    ...settingsDraft.quietHours,
-                    { start: '22:00', end: '07:00' },
-                  ])
-                }
-              >
-                Add quiet hours
-              </Button>
-            </section>
-
-            {settingsError && <Alert message={settingsError} type="error" showIcon />}
-            {settingsSaved && (
-              <div className="settings-saved-toast" role="status">
-                Settings saved
-              </div>
-            )}
-          </Content>
-        ) : (
-          <Content className="popup-content">
-            <Flex className="lesson-summary">
-              <Space align="start">
-                {/* <Avatar className="lesson-icon" icon={<BookOutlined />} /> */}
-                <div className="lesson-summary-copy">
-                  <Flex>
-                    <Title level={4}>{activeLesson?.title ?? 'Your next lesson'}</Title>
-                  </Flex>
-                  <Space className="lesson-counts" size={6} wrap>
-                    <Tag className="lesson-count">
-                      <strong>{activeLesson?.vocab.length ?? 0}</strong>
-                      <span>vocab</span>
-                    </Tag>
-                    <Tag className="lesson-count">
-                      <strong>{activeLesson?.concepts.length ?? 0}</strong>
-                      <span>concepts</span>
-                    </Tag>
-                  </Space>
-                </div>
-              </Space>
-              {upcomingLesson && (
-                <Tag
-                  className="upcoming-lesson"
-                  color="green"
-                  aria-label={`Up next: ${upcomingLesson.title}`}
-                  tabIndex={0}
-                >
-                  <ThunderboltOutlined />
-                  <span>Up next: {upcomingLesson.title}</span>
-                </Tag>
+                    icon={<UserOutlined />}
+                    onClick={loginViaGoogle}
+                  />
+                </>
               )}
-              <div
-                className="lesson-progress"
-                role="progressbar"
-                aria-label="Current block completion"
-                aria-valuemin={0}
-                aria-valuemax={conceptCount}
-                aria-valuenow={completedConcepts}
-              >
-                <span className="lesson-progress-label">
-                  Current block: {completedConcepts}/{conceptCount} concepts completed
-                </span>
-                <span className="lesson-progress-fill" style={{ width: `${completionPercent}%` }} />
-              </div>
             </Flex>
+          </header>
 
-            <section className="quick-actions" aria-label="Quick actions">
-              <Button
-                className="quick-action"
-                type="text"
-                icon={<SendOutlined />}
-                onClick={forceCard}
-                disabled={busy}
-              >
-                Show card
-              </Button>
-              <Button
-                className="quick-action"
-                type="text"
-                icon={<ArrowUpOutlined />}
-                onClick={openLearningPanel}
-                disabled={busy}
-              >
-                Open
-              </Button>
-            </section>
+          {showSettings && settingsDraft ? (
+            <Content className="popup-content settings-content">
+              <section className="settings-section">
+                <Title level={4}>Sampling interval</Title>
+                <div className="settings-range-label">
+                  <span>{settingsDraft.minIntervalMin} min</span>
+                  <span>{settingsDraft.maxIntervalMin} min</span>
+                </div>
+                <Slider
+                  className="settings-range"
+                  range
+                  min={1}
+                  max={120}
+                  value={[settingsDraft.minIntervalMin, settingsDraft.maxIntervalMin]}
+                  onChange={(value) => {
+                    if (Array.isArray(value)) {
+                      updateSetting('minIntervalMin', value[0])
+                      updateSetting('maxIntervalMin', value[1])
+                    }
+                  }}
+                />
+              </section>
 
-            {/* {statusMsg && (
+              <section className="settings-section">
+                <Title level={4}>Quiet hours</Title>
+                {settingsDraft.quietHours.map((quietHour, index) => (
+                  <div
+                    className="quiet-hour-row"
+                    key={`${quietHour.start}-${quietHour.end}-${index}`}
+                  >
+                    <input
+                      type="time"
+                      value={quietHour.start}
+                      onChange={(event) => updateQuietHour(index, { start: event.target.value })}
+                    />
+                    <span>to</span>
+                    <input
+                      type="time"
+                      value={quietHour.end}
+                      onChange={(event) => updateQuietHour(index, { end: event.target.value })}
+                    />
+                    <Button
+                      type="text"
+                      onClick={() =>
+                        updateSetting(
+                          'quietHours',
+                          settingsDraft.quietHours.filter(
+                            (_, quietHourIndex) => quietHourIndex !== index,
+                          ),
+                        )
+                      }
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  className="settings-secondary-action"
+                  type="default"
+                  onClick={() =>
+                    updateSetting('quietHours', [
+                      ...settingsDraft.quietHours,
+                      { start: '22:00', end: '07:00' },
+                    ])
+                  }
+                >
+                  Add quiet hours
+                </Button>
+              </section>
+
+              {settingsError && <Alert message={settingsError} type="error" showIcon />}
+              {settingsSaved && (
+                <div className="settings-saved-toast" role="status">
+                  Settings saved
+                </div>
+              )}
+            </Content>
+          ) : (
+            <Content className="popup-content">
+              <Flex className="lesson-summary">
+                <Space align="start">
+                  {/* <Avatar className="lesson-icon" icon={<BookOutlined />} /> */}
+                  <div className="lesson-summary-copy">
+                    <Flex>
+                      <Title level={4}>{activeLesson?.title ?? 'Your next lesson'}</Title>
+                    </Flex>
+                    <Space className="lesson-counts" size={6} wrap>
+                      <Tag className="lesson-count">
+                        <strong>{activeLesson?.vocab.length ?? 0}</strong>
+                        <span>vocab</span>
+                      </Tag>
+                      <Tag className="lesson-count">
+                        <strong>{activeLesson?.concepts.length ?? 0}</strong>
+                        <span>concepts</span>
+                      </Tag>
+                    </Space>
+                  </div>
+                </Space>
+                {upcomingLesson && (
+                  <Tag
+                    className="upcoming-lesson"
+                    color="green"
+                    aria-label={`Up next: ${upcomingLesson.title}`}
+                    tabIndex={0}
+                  >
+                    <ThunderboltOutlined />
+                    <span>Up next: {upcomingLesson.title}</span>
+                  </Tag>
+                )}
+                <div
+                  className="lesson-progress"
+                  role="progressbar"
+                  aria-label="Current block completion"
+                  aria-valuemin={0}
+                  aria-valuemax={conceptCount}
+                  aria-valuenow={completedConcepts}
+                >
+                  <span className="lesson-progress-label">
+                    Current block: {completedConcepts}/{conceptCount} concepts completed
+                  </span>
+                  <span
+                    className="lesson-progress-fill"
+                    style={{ width: `${completionPercent}%` }}
+                  />
+                </div>
+              </Flex>
+
+              <section className="quick-actions" aria-label="Quick actions">
+                <Button
+                  className="quick-action"
+                  type="text"
+                  icon={<SendOutlined />}
+                  onClick={forceCard}
+                  disabled={busy}
+                >
+                  Show card
+                </Button>
+                <Button
+                  className="quick-action"
+                  type="text"
+                  icon={<ArrowUpOutlined />}
+                  onClick={openLearningPanel}
+                  disabled={busy}
+                >
+                  Open
+                </Button>
+              </section>
+
+              {/* {statusMsg && (
             <Alert className="status-alert" message={statusMsg} type="info" showIcon closable />
           )} */}
-          </Content>
-        )}
+            </Content>
+          )}
 
-        <span className="creator-pill">
-          Created by{' '}
-          <a href="https://github.com/himanshu" target="_blank" rel="noreferrer">
-            Himanshu
-          </a>
-        </span>
-      </Layout>
+          <span className="creator-pill">
+            Created by{' '}
+            <a href="https://github.com/himanshu" target="_blank" rel="noreferrer">
+              Himanshu
+            </a>
+          </span>
+        </Layout>
+      )}
     </ConfigProvider>
   )
 }
