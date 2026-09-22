@@ -83,6 +83,7 @@ export class StorageController {
       STORAGE_KEYS.itemProgress,
       STORAGE_KEYS.settings,
       STORAGE_KEYS.pendingCard,
+      STORAGE_KEYS.lessons,
     ])
 
     return {
@@ -99,11 +100,12 @@ export class StorageController {
           : defaults.itemProgress,
       settings: this.mergeSettings(result.settings),
       pendingCard: this.migratePendingCard(result.pendingCard),
-      lessons: [],
+      lessons: result.lessons ?? [],
     }
   }
 
   async saveState(state: AppState): Promise<void> {
+    console.log(state)
     await browser.storage.local.set({
       [STORAGE_KEYS.currentLessonId]: state.currentLessonId,
       [STORAGE_KEYS.completedLessonIds]: state.completedLessonIds,

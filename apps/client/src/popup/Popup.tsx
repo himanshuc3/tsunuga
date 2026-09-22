@@ -29,9 +29,9 @@ import {
 } from '@ant-design/icons'
 import { gsap } from 'gsap'
 import { DrawSVGPlugin } from 'gsap/DrawSVGPlugin'
-import type { AppState, QuietHour, Settings } from '../domain/types'
+import type { AppState, QuietHour, Settings } from '../common/types'
 import './Popup.css'
-import { openSidePanel, sendMessage } from '../common/helpers'
+import { getNextLesson, openSidePanel, sendMessage } from '../common/helpers'
 import { getOrCreateProgress, progressKey } from '../domain/progress'
 import logoTree from '../assets/logo_tree.svg?raw'
 import logo from '../assets/logo.svg'
@@ -80,7 +80,7 @@ function AnimatedLogoTree() {
 }
 
 const { Content } = Layout
-const { Text, Title } = Typography
+const { Title } = Typography
 
 const loggedOutStats = [
   {
@@ -149,15 +149,23 @@ export const Popup = () => {
   }
 
   useEffect(() => {
+    async function getData() {
+      const data = await browser.storage.local.get([...keysForChange])
+
+      setState(data)
+    }
+    getData()
+
     browser.storage.onChanged.addListener(async (changes, areaName) => {
       if (areaName !== 'local') return
 
       if (Object.keys(changes).find((key) => keysForChange.has(key))) {
-        const data = browser.storage.local.get([...keysForChange])
-        setState(data)
+        getData()
+        return
       }
     })
   }, [])
+  console.log('state', state)
 
   useEffect(() => {
     if (!posterRef.current || isAuthenticated !== false) return
@@ -363,11 +371,13 @@ export const Popup = () => {
 
   if (!state) return null
 
-  const activeLesson = state && state.lessons.find(
-    (lesson) => lesson.id === (state.pendingCard?.lessonId ?? state.currentLessonId),
-  )
-  const currentLesson = lessons.find((lesson) => lesson.id === state.currentLessonId)
-  const upcomingLesson = currentLesson ? getNextLesson(currentLesson.id) : undefined
+  const activeLesson =
+    state &&
+    state.lessons.find(
+      (lesson) => lesson.id === (state.pendingCard?.lessonId ?? state.currentLessonId),
+    )
+  const currentLesson = state?.lessons.find((lesson) => lesson.id === state.currentLessonId)
+  const upcomingLesson = currentLesson ? getNextLesson(state) : undefined
   const completedConcepts =
     activeLesson?.concepts.filter((concept) => {
       const key = progressKey(activeLesson.id, 'concept', concept.id)

@@ -18,6 +18,7 @@ export type Lesson = {
   title: string
   concepts: Concept[]
   vocab: VocabItem[]
+  position: number
 }
 
 export type ItemProgress = {
@@ -25,6 +26,7 @@ export type ItemProgress = {
   correctStreak: number
   lastSeenAt: number | null
   conceptShown: boolean
+  completedAt: null | number
 }
 
 export type QuietHour = {

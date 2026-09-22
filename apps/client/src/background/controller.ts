@@ -23,6 +23,7 @@ import {
   updateUserSettings,
 } from './async/apis'
 import { StorageController } from './storage'
+import { completedLessonIds, getCurrentLessonId } from '../common/helpers'
 
 export type ShowResult =
   | { status: 'shown'; tabId: number }
@@ -233,6 +234,16 @@ export class BackgroundController {
         await this.syncLessonsFromApi(token)
         await this.syncProgressFromApi(token)
         await this.syncSettingsFromApi(token)
+        this.storageController.updateState((prev) => {
+          const completedIds = completedLessonIds(prev)
+          const currentLessonId = getCurrentLessonId(prev, completedIds)
+          console.log(completedIds, currentLessonId)
+          return {
+            ...prev,
+            completedLessonIds: completedIds,
+            currentLessonId: currentLessonId,
+          }
+        })
       } catch (err) {
         console.error('Failed to fetch data', err)
       }
@@ -290,6 +301,7 @@ export class BackgroundController {
 
   private async syncLessonsFromApi(token: string): Promise<void> {
     const items = await listLessons(token)
+    console.log('items', items)
     await this.storageController.updateState((prev) => ({
       ...prev,
       lessons: items,
