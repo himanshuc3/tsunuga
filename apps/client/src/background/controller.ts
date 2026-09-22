@@ -13,9 +13,11 @@ import { CardFeature, type AnswerInput } from './features/card'
 import { SettingsFeature } from './features/settings'
 import { hideOnTab, sendToTab, setBadge } from './helpers'
 import {
+  apiProgressToClientProgress,
   apiSettingsToClientSettings,
   clientSettingsToApiSettings,
   getUserSettings,
+  listUserProgress,
   loginWithGoogle,
   updateUserSettings,
 } from './async/apis'
@@ -238,8 +240,11 @@ export class BackgroundController {
         }))
       }
 
-      // Lazily hydrate the rest of the lesson catalog and user settings in the background.
+      // Lazily hydrate the rest of the lesson catalog, progress and settings in the background.
       void loadAllLessons(token).catch((error) => console.error('Failed to load lessons', error))
+      void this.syncProgressFromApi(token).catch((error) =>
+        console.error('Failed to load user progress', error),
+      )
       void this.syncSettingsFromApi(token).catch((error) =>
         console.error('Failed to load user settings', error),
       )
@@ -277,6 +282,15 @@ export class BackgroundController {
     await this.storageController.updateState((prev) => ({
       ...prev,
       settings: apiSettingsToClientSettings(prev.settings, response.settings),
+    }))
+  }
+
+  private async syncProgressFromApi(token: string): Promise<void> {
+    const items = await listUserProgress(token)
+    const itemProgress = apiProgressToClientProgress(items)
+    await this.storageController.updateState((prev) => ({
+      ...prev,
+      itemProgress: { ...prev.itemProgress, ...itemProgress },
     }))
   }
 

@@ -1,5 +1,5 @@
 import { axiosClient } from '../index'
-import type { Settings } from '../../../domain/types'
+import type { ItemProgress, Settings } from '../../../domain/types'
 
 export type AuthUser = {
   id?: string
@@ -131,6 +131,22 @@ export function clientSettingsToApiSettings(settings: Settings): Partial<UserSet
 
 export async function listUserProgress(token: string): Promise<UserProgressItem[]> {
   return apiRequest<UserProgressItem[]>('get', '/progress', token)
+}
+
+// The API keys each item by `${lessonId}:${kind}:${itemKey}`, matching the client's progressKey format.
+export function apiProgressToClientProgress(
+  items: UserProgressItem[],
+): Record<string, ItemProgress> {
+  const result: Record<string, ItemProgress> = {}
+  for (const item of items) {
+    result[item.item_id] = {
+      introducedAt: item.introduced_at ? Date.parse(item.introduced_at) : null,
+      correctStreak: item.correct_streak,
+      lastSeenAt: item.last_seen_at ? Date.parse(item.last_seen_at) : null,
+      conceptShown: item.concept_shown,
+    }
+  }
+  return result
 }
 
 export async function recordItemAttempt(

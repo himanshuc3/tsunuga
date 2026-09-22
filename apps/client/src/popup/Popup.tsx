@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   Alert,
-  Avatar,
   Button,
   ConfigProvider,
   Layout,
@@ -29,9 +28,10 @@ import { DrawSVGPlugin } from 'gsap/DrawSVGPlugin'
 import type { AppState, QuietHour, Settings } from '../domain/types'
 import './Popup.css'
 import { openSidePanel, sendMessage } from '../common/helpers'
-import { getNextLesson, lessons } from '../content/lessons'
+import { getNextLesson, hydrateLessonsCache, lessons } from '../content/lessons'
 import { getOrCreateProgress, progressKey } from '../domain/progress'
-import logoTree from '../assets/logo_tree.svg?raw'
+import logoTree from '../assets/logo_tree.svg'
+import logo from '../assets/logo.svg'
 
 gsap.registerPlugin(DrawSVGPlugin)
 
@@ -176,6 +176,9 @@ export const Popup = () => {
         return
       }
 
+      // The popup is a fresh JS context each time it opens, so the in-memory
+      // lessons cache is empty until we re-hydrate it from storage.
+      await hydrateLessonsCache()
       const s = await fetchState()
       setState(s)
     } catch (error) {
@@ -403,9 +406,7 @@ export const Popup = () => {
                   onClick={() => setShowSettings(false)}
                 />
               )}
-              <Avatar className="brand-avatar" size="small">
-                つ
-              </Avatar>
+              <img className="brand-logo" src={logo} alt="" />
               <Title level={5}>{showSettings ? 'Settings' : 'tango'}</Title>
               {/* <Badge status={state.settings.paused ? 'default' : 'success'} /> */}
             </Space>

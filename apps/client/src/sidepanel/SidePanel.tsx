@@ -19,7 +19,7 @@ import {
   SendOutlined,
   SettingOutlined,
 } from '@ant-design/icons'
-import { lessons } from '../content/lessons'
+import { hydrateLessonsCache, lessons } from '../content/lessons'
 import {
   countMasteredInLesson,
   getOrCreateProgress,
@@ -130,6 +130,9 @@ export const SidePanel = () => {
       return
     }
 
+    // The side panel is a fresh JS context each time it opens, so the in-memory
+    // lessons cache is empty until we re-hydrate it from storage.
+    await hydrateLessonsCache()
     const s = await fetchState()
     setState(s)
   }, [])

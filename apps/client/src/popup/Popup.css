@@ -403,10 +403,10 @@ button.ant-btn:active {
   transition: width 240ms ease;
 }
 
-.brand-avatar {
-  color: #10120c;
-  background: var(--popup-accent);
-  font-weight: 800;
+.brand-logo {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
 }
 .popup-content {
   /* padding: 22px 18px 0; */
