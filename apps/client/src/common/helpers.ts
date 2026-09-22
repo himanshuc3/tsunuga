@@ -19,7 +19,12 @@ export async function openPopupWithSettings(): Promise<void> {
 }
 
 export function getNextLesson(state: AppState) {
-  return state.lessons.findIndex((lesson) => lesson.id === state.currentLessonId) + 1
+  const completedIds = new Set(state.completedLessonIds)
+  const indexCurrent = state.lessons.findIndex((lesson) => lesson.id === state.currentLessonId)
+  return (
+    state.lessons.find((lesson, index) => index > indexCurrent && !completedIds.has(lesson.id)) ??
+    state.lessons[state.lessons.length - 1]
+  )
 }
 
 function isLessonComplete(

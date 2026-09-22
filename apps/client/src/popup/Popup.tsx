@@ -19,11 +19,9 @@ import {
   ArrowDownOutlined,
   ArrowUpOutlined,
   GoogleOutlined,
-  PlayCircleOutlined,
   PoweroffOutlined,
   SaveOutlined,
   SendOutlined,
-  PauseOutlined,
   SettingOutlined,
   ThunderboltOutlined,
 } from '@ant-design/icons'
@@ -481,8 +479,6 @@ export const Popup = () => {
                   checked={!state.settings.paused}
                   onChange={() => void togglePause()}
                   disabled={busy}
-                  checkedChildren={<PlayCircleOutlined />}
-                  unCheckedChildren={<PauseOutlined />}
                 />
               </Tooltip>
               {showSettings && (
