@@ -58,7 +58,6 @@ button.ant-btn:active {
   min-height: 100%;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   padding: 0px 18px 22px;
   gap: 20px;
 }
@@ -67,6 +66,7 @@ button.ant-btn:active {
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin-top: 25px;
   gap: 12px;
   animation: fadeUp 420ms ease;
 }
@@ -75,9 +75,7 @@ button.ant-btn:active {
   position: relative;
   font-size: 26px;
   font-weight: 700;
-  margin-top: -80px;
   z-index: 2;
-  /* color:; */
 }
 
 .brand-mark {
@@ -173,29 +171,66 @@ button.ant-btn:active {
   letter-spacing: 0.02em;
 }
 
+.poster {
+  display: flex;
+  z-index: 2;
+  align-items: flex-end;
+  color: #f7f7f8;
+  font-weight: 700;
+  width: 70%;
+  line-height: 0.9;
+  margin-top: -100px;
+}
+
+.poster .stat {
+  font-size: 60px;
+  font-weight: 800;
+  display: flex;
+  /* align-items: flex-end; */
+
+  color: rgba(200, 200, 200, 0.5);
+  font-style: italic;
+}
+
+.poster .stat span {
+  display: inline-block;
+  margin-left: 5px;
+  font-size: 30px;
+}
+
+.poster .subtext {
+  font-size: 16px;
+  line-height: 1.2;
+}
+
 .google-login-button.ant-btn {
   display: flex;
   width: min(100%, 180px);
+  height: 40px;
   align-items: center;
   justify-content: center;
-  border-radius: 10px;
-  color: #d6d5dc;
-  background: #292a2f;
-  border: none;
+  gap: 8px;
+  border: 1px solid #3a3b42;
+  border-radius: 8px;
+  color: #f7f7f8 !important;
+  background: #292a2f !important;
   font-size: 13px;
   font-weight: 700;
 }
 
-/* .google-login-button.ant-btn:hover,
-.google-login-button.ant-btn:focus-visible {
-  color: #f7f7f8;
-  background: #333338;
-} */
+.google-login-button.ant-btn:hover,
+.google-login-button.ant-btn:focus,
+.google-login-button.ant-btn:focus-visible,
+.google-login-button.ant-btn:active {
+  color: #f7f7f8 !important;
+  background: #292a2f !important;
+  border-color: #3a3b42 !important;
+}
 
 .google-login-button .anticon {
   width: auto;
   height: auto;
-  color: #9a99a5;
+  color: #b7f36b !important;
   font-size: 18px;
 }
 

@@ -277,10 +277,15 @@ export const Popup = () => {
       <Layout className="popup logged-out-popup">
         <div className="logged-out-shell">
           <header className="logged-out-header">
-            <AnimatedLogoTree />
             <div className="brand-name primary">TANGO</div>
+            <AnimatedLogoTree />
           </header>
-
+          <div className="poster primary">
+            <span className="stat">
+              15<span>+</span>
+            </span>
+            <span className="subtext">concepts to reach N5</span>
+          </div>
           <Button
             className="google-login-button"
             icon={<GoogleOutlined />}
@@ -291,12 +296,12 @@ export const Popup = () => {
           </Button>
         </div>
 
-        <span className="creator-pill">
+        {/* <span className="creator-pill">
           Created by{' '}
           <a href="https://github.com/himanshu" target="_blank" rel="noreferrer">
             Himanshu
           </a>
-        </span>
+        </span> */}
       </Layout>
     )
   }
