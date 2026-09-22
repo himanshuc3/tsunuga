@@ -329,7 +329,7 @@ export const SidePanel = () => {
             <Collapse
               className="lesson-collapse"
               accordion
-              defaultActiveKey={state.currentLessonId}
+              defaultActiveKey={state.currentLessonId ?? undefined}
               items={lessons.map((lesson) => {
                 const unlocked = isLessonUnlocked(state, lesson)
                 const done = state.completedLessonIds.includes(lesson.id)

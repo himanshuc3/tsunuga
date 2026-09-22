@@ -114,6 +114,7 @@ function buildVocabTest(
 
 /** Pick next card: unseen current lesson first, then weak, then light review. */
 export function sampleNextCard(state: AppState): PendingCard | null {
+  if (!state.currentLessonId) return null
   const current = getLessonById(state.currentLessonId)
   if (!current) return null
 

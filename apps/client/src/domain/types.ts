@@ -83,7 +83,7 @@ export type TestCard = {
 export type PendingCard = IntroCard | ConceptCard | TestCard
 
 export type AppState = {
-  currentLessonId: string
+  currentLessonId: string | null
   completedLessonIds: string[]
   itemProgress: Record<string, ItemProgress>
   settings: Settings

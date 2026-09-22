@@ -11,7 +11,6 @@ import { openSidePanelFromGesture } from './sidepanelHelper'
 import { getActiveInjectableTab, isInjectableUrl } from './utils'
 import { CardFeature, type AnswerInput } from './features/card'
 import { SettingsFeature } from './features/settings'
-import { backgroundDeps, type BackgroundDeps } from './deps'
 import { hideOnTab, sendToTab, setBadge } from './helpers'
 import {
   apiSettingsToClientSettings,
@@ -21,6 +20,7 @@ import {
   updateUserSettings,
 } from './async/apis'
 import { fetchCurrentLesson, hydrateLessonsCache, loadAllLessons } from '../content/lessons'
+import { StorageController } from './storage'
 
 export type ShowResult =
   | { status: 'shown'; tabId: number }
@@ -49,10 +49,12 @@ export class BackgroundController {
   private readonly settings: SettingsFeature
   private readonly eventHandlers: EventHandlerMap
   private readonly requestHandlers: RequestHandlerMap
+  private readonly storageController: StorageController
 
-  constructor(private readonly deps: BackgroundDeps = backgroundDeps) {
-    this.cards = new CardFeature(deps)
-    this.settings = new SettingsFeature(deps)
+  constructor() {
+    this.storageController = StorageController.getInstance()
+    this.cards = new CardFeature(this.storageController)
+    this.settings = new SettingsFeature(this.storageController)
     this.eventHandlers = {
       ANSWER: (message) => this.answerCard(message),
       DISMISS: (message) => this.dismissCard(message.cardId),
@@ -64,18 +66,18 @@ export class BackgroundController {
       UPDATE_SETTINGS: (message) => this.createSettingsResponse(message.settings),
       FORCE_CARD: () => this.forceCardResponse(),
       AUTH_TOKEN: () => this.getAuthToken(),
+      AUTH_TOKEN_STATUS: () => this.getAuthTokenStatus(),
+      OPEN_SETTINGS: () => this.openSettings(),
+      CONSUME_OPEN_SETTINGS: () => this.consumeOpenSettings(),
     }
   }
 
   // initialize on startup/install/background app start
   async initialize(onStartup = false): Promise<void> {
-    const state = await this.deps.loadState()
-    if (!onStartup) await this.deps.saveState(state)
+    const state = await this.storageController.loadState()
+    if (!onStartup) await this.storageController.saveState(state)
 
     await hydrateLessonsCache()
-    void this.ensureLessonsLoaded(state.currentLessonId).catch((error) =>
-      console.error('Failed to (re)load lessons on init', error),
-    )
 
     await setBadge(Boolean(state.pendingCard))
     if (state.pendingCard) {
@@ -102,7 +104,7 @@ export class BackgroundController {
 
   async handleTabActivated(tabId: number): Promise<void> {
     // this.lastActiveTabId = tabId
-    const state = await this.deps.loadState()
+    const state = await this.storageController.loadState()
     if (state.pendingCard) await this.showPendingOnActiveTab(state.pendingCard)
   }
 
@@ -113,7 +115,7 @@ export class BackgroundController {
   ): Promise<void> {
     if (changeInfo.status !== 'complete' || !isInjectableUrl(url)) return
 
-    const state = await this.deps.loadState()
+    const state = await this.storageController.loadState()
     if (!state.pendingCard) return
 
     const [active] = await browser.tabs.query({
@@ -179,7 +181,7 @@ export class BackgroundController {
       bypassQuietHours: true,
       bypassPause: true,
     })
-    return { result, state: await this.deps.loadState() }
+    return { result, state: await this.storageController.loadState() }
   }
 
   /**
@@ -230,7 +232,10 @@ export class BackgroundController {
         return null
       })
       if (currentLesson) {
-        await this.deps.updateState((prev) => ({ ...prev, currentLessonId: currentLesson.id }))
+        await this.storageController.updateState((prev) => ({
+          ...prev,
+          currentLessonId: currentLesson.id,
+        }))
       }
 
       // Lazily hydrate the rest of the lesson catalog and user settings in the background.
@@ -250,9 +255,26 @@ export class BackgroundController {
     }
   }
 
+  private async getAuthTokenStatus(): Promise<{ ok: true; authenticated: boolean }> {
+    const stored = await browser.storage.local.get('authToken')
+    return {
+      ok: true,
+      authenticated: typeof stored.authToken === 'string' && Boolean(stored.authToken),
+    }
+  }
+
+  private async openSettings(): Promise<{ ok: true }> {
+    await this.storageController.setOpenSettingsOnLoad()
+    return { ok: true }
+  }
+
+  private async consumeOpenSettings(): Promise<{ ok: true; open: boolean }> {
+    return { ok: true, open: await this.storageController.consumeOpenSettingsOnLoad() }
+  }
+
   private async syncSettingsFromApi(token: string): Promise<void> {
     const response = await getUserSettings(token)
-    await this.deps.updateState((prev) => ({
+    await this.storageController.updateState((prev) => ({
       ...prev,
       settings: apiSettingsToClientSettings(prev.settings, response.settings),
     }))
@@ -267,7 +289,7 @@ export class BackgroundController {
   }
 
   async getState(): Promise<{ type: 'STATE'; ok: true; state: AppState }> {
-    return { type: 'STATE', ok: true, state: await this.deps.loadState() }
+    return { type: 'STATE', ok: true, state: await this.storageController.loadState() }
   }
 
   private async answerCard(input: AnswerInput): Promise<void> {

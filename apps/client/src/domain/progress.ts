@@ -75,6 +75,7 @@ export function isLessonUnlocked(state: AppState, lesson: Lesson): boolean {
 
 /** Apply mastery unlock: mark current complete and advance if ready. */
 export function maybeAdvanceLesson(state: AppState): AppState {
+  if (!state.currentLessonId) return state
   const current = getLessonById(state.currentLessonId)
   if (!current) return state
 

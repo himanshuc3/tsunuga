@@ -47,6 +47,18 @@ export type AuthTokenMessage = {
   type: 'AUTH_TOKEN'
 }
 
+export type AuthTokenStatusMessage = {
+  type: 'AUTH_TOKEN_STATUS'
+}
+
+export type OpenSettingsMessage = {
+  type: 'OPEN_SETTINGS'
+}
+
+export type ConsumeOpenSettingsMessage = {
+  type: 'CONSUME_OPEN_SETTINGS'
+}
+
 export type ExtensionMessage =
   | ShowCardMessage
   | HideCardMessage
@@ -57,12 +69,22 @@ export type ExtensionMessage =
   | UpdateSettingsMessage
   | ForceCardMessage
   | AuthTokenMessage
+  | AuthTokenStatusMessage
+  | OpenSettingsMessage
+  | ConsumeOpenSettingsMessage
   | OpenSidePanel
 
 export type BackgroundEvent = AnswerMessage | DismissMessage | OpenSidePanel
 
 export type BackgroundRequest =
-  GetStateMessage | SetPausedMessage | UpdateSettingsMessage | ForceCardMessage | AuthTokenMessage
+  | GetStateMessage
+  | SetPausedMessage
+  | UpdateSettingsMessage
+  | ForceCardMessage
+  | AuthTokenMessage
+  | AuthTokenStatusMessage
+  | OpenSettingsMessage
+  | ConsumeOpenSettingsMessage
 
 export type StateResponse = {
   type: 'STATE'

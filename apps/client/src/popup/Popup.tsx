@@ -24,12 +24,11 @@ import {
   ThunderboltOutlined,
   UserOutlined,
 } from '@ant-design/icons'
-import browser from 'webextension-polyfill'
 import { gsap } from 'gsap'
 import { DrawSVGPlugin } from 'gsap/DrawSVGPlugin'
 import type { AppState, QuietHour, Settings } from '../domain/types'
 import './Popup.css'
-import { OPEN_SETTINGS_ON_LOAD_KEY, openSidePanel, sendMessage } from '../common/helpers'
+import { openSidePanel, sendMessage } from '../common/helpers'
 import { getNextLesson, lessons } from '../content/lessons'
 import { getOrCreateProgress, progressKey } from '../domain/progress'
 import logoTree from '../assets/logo_tree.svg?raw'
@@ -96,7 +95,7 @@ const loggedOutStats = [
 ]
 
 async function fetchState(): Promise<AppState> {
-  const res: any = await browser.runtime.sendMessage({ type: 'GET_STATE' })
+  const res = (await sendMessage({ type: 'GET_STATE' })) as { state: AppState }
   return res.state as AppState
 }
 
@@ -165,17 +164,25 @@ export const Popup = () => {
   }, [isAuthenticated, loggedOutStatIndex])
 
   const refresh = useCallback(async () => {
-    const stored = await browser.storage.local.get('authToken')
-    const authenticated = Boolean(stored.authToken)
-    setIsAuthenticated(authenticated)
+    try {
+      const authResponse = (await sendMessage({ type: 'AUTH_TOKEN_STATUS' })) as {
+        authenticated?: boolean
+      } | null
+      const authenticated = Boolean(authResponse?.authenticated)
+      setIsAuthenticated(authenticated)
 
-    if (!authenticated) {
+      if (!authenticated) {
+        setState(null)
+        return
+      }
+
+      const s = await fetchState()
+      setState(s)
+    } catch (error) {
+      console.error('Unable to read authentication state', error)
+      setIsAuthenticated(false)
       setState(null)
-      return
     }
-
-    const s = await fetchState()
-    setState(s)
   }, [])
 
   useEffect(() => {
@@ -186,7 +193,7 @@ export const Popup = () => {
     if (!state) return
     setBusy(true)
     setStatusMsg(null)
-    const res = await browser.runtime.sendMessage({
+    const res = await sendMessage({
       type: 'SET_PAUSED',
       paused: !state.settings.paused,
     })
@@ -202,11 +209,13 @@ export const Popup = () => {
     setBusy(true)
     setStatusMsg(null)
     try {
-      // TODO[ts]: Remove all references to any
-      const res: any = await sendMessage({ type: 'FORCE_CARD' })
-      if (res?.state) setState(res?.state as AppState)
+      const res = (await sendMessage({ type: 'FORCE_CARD' })) as {
+        state?: AppState
+        result?: { status: string }
+      }
+      if (res?.state) setState(res.state)
       else await refresh()
-      setStatusMsg(forceResultMessage(res?.result))
+      setStatusMsg(forceResultMessage(res.result))
     } catch {
       setStatusMsg('Extension background failed to respond. Reload the extension.')
     }
@@ -232,9 +241,10 @@ export const Popup = () => {
   useEffect(() => {
     if (!state) return
     void (async () => {
-      const stored = await browser.storage.local.get(OPEN_SETTINGS_ON_LOAD_KEY)
-      if (!stored[OPEN_SETTINGS_ON_LOAD_KEY]) return
-      await browser.storage.local.remove(OPEN_SETTINGS_ON_LOAD_KEY)
+      const response = (await sendMessage({ type: 'CONSUME_OPEN_SETTINGS' })) as {
+        open: boolean
+      }
+      if (!response.open) return
       openSettings()
     })()
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -269,7 +279,7 @@ export const Popup = () => {
 
     setBusy(true)
     setSettingsError(null)
-    const res = await browser.runtime.sendMessage({
+    const res = await sendMessage({
       type: 'UPDATE_SETTINGS',
       settings: settingsDraft,
     })

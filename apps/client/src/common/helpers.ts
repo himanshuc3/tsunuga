@@ -7,11 +7,9 @@ export async function openSidePanel(): Promise<void> {
   chrome.sidePanel.open({ windowId: windowId })
 }
 
-export const OPEN_SETTINGS_ON_LOAD_KEY = 'openSettingsOnLoad'
-
 // Flags the popup to open straight into its settings view, then requests the popup itself.
 export async function openPopupWithSettings(): Promise<void> {
-  await browser.storage.local.set({ [OPEN_SETTINGS_ON_LOAD_KEY]: true })
+  await browser.runtime.sendMessage({ type: 'OPEN_SETTINGS' })
   try {
     await (chrome.action as any).openPopup()
   } catch (error) {

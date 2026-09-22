@@ -1,13 +1,6 @@
-import { loadState, saveState, updateState } from '../common/storage'
+import type { AppState } from '../domain/types'
 
 export type BackgroundDeps = {
-  loadState: typeof loadState
-  saveState: typeof saveState
-  updateState: typeof updateState
-}
-
-export const backgroundDeps: BackgroundDeps = {
-  loadState,
-  saveState,
-  updateState,
+  loadState: () => Promise<AppState>
+  updateState: (updater: (prev: AppState) => AppState) => Promise<AppState>
 }

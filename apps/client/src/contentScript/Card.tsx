@@ -71,7 +71,7 @@ export function Card({ card, onAnswer, onAck, onDismiss }: Props) {
               <Button type="primary" onClick={onAck}>
                 Next card
               </Button>
-              <Button type="primary" onClick={onAnswer}>
+              <Button type="primary" onClick={() => onAnswer(card.romaji, true)}>
                 Got it
               </Button>
             </Flex>
