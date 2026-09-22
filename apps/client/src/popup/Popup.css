@@ -44,14 +44,6 @@ body {
   background: var(--popup-bg);
 }
 
-button.ant-btn,
-button.ant-btn:hover,
-button.ant-btn:focus,
-button.ant-btn:focus-visible,
-button.ant-btn:active {
-  box-shadow: none !important;
-}
-
 .logged-out-shell {
   display: flex;
   width: 100%;
@@ -212,10 +204,6 @@ button.ant-btn:active {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  border: 1px solid #3a3b42;
-  border-radius: 8px;
-  color: #f7f7f8 !important;
-  background: #292a2f !important;
   font-size: 13px;
   font-weight: 700;
 }
@@ -283,11 +271,6 @@ button.ant-btn:active {
 .popup-right .ant-btn {
   width: 40px;
   height: 100%;
-  /* background-color: red !important; */
-}
-.popup-right .ant-btn:hover,
-.popup-right .ant-btn:focus-visible {
-  /* background-color: red !important; */
 }
 
 .popup-header .ant-typography {
@@ -295,11 +278,7 @@ button.ant-btn:active {
   color: #f7f7f8;
 }
 .popup-header .ant-btn {
-  color: var(--popup-muted);
   font-size: 17px;
-}
-.popup-header .settings-save-button {
-  color: var(--popup-accent);
 }
 
 .lesson-summary {
@@ -469,14 +448,10 @@ button.ant-btn:active {
 .quiet-hour-row .ant-btn {
   height: 28px;
   padding: 0 3px;
-  color: #e88d8d;
   font-size: 11px;
 }
 .settings-secondary-action {
   height: 30px;
-  border-color: var(--popup-line);
-  color: #d6d5dc;
-  background: #292a2f;
   font-size: 11px;
 }
 .settings-saved-toast {
@@ -533,26 +508,16 @@ button.ant-btn:active {
 }
 .quick-action.ant-btn {
   display: flex;
-  height: 48px;
   flex-direction: row;
   align-items: center;
   justify-content: center;
   gap: 7px;
-  padding: 2px;
   border-radius: 10px;
-  color: #d6d5dc;
-  background: #292a2f;
   font-size: 13px;
-}
-.quick-action.ant-btn:hover,
-.quick-action.ant-btn:focus-visible {
-  color: var(--popup-accent);
-  background: #29292e;
 }
 .quick-action .anticon {
   width: auto;
   height: auto;
-  color: var(--popup-accent);
   font-size: 18px;
 }
 
@@ -666,14 +631,4 @@ button.ant-btn:active {
 .popup-footer {
   padding: 14px 18px 20px;
   border-top: 1px solid var(--popup-line);
-}
-.popup-footer .ant-btn-primary {
-  color: #10120c;
-  border: 0;
-  background: var(--popup-accent);
-  font-weight: 700;
-}
-.popup-footer .ant-btn-primary:hover {
-  color: #10120c;
-  background: #c9ff85;
 }

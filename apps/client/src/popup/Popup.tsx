@@ -387,7 +387,6 @@ export const Popup = () => {
           fontFamily: "'Avenir Next', 'Segoe UI', sans-serif",
         },
         components: {
-          Button: { primaryColor: '#0f1012', colorPrimaryHover: '#c9ff85' },
           Tabs: { itemColor: '#777681', itemSelectedColor: '#f7f7f8', inkBarColor: '#b7f36b' },
         },
       }}
@@ -407,7 +406,9 @@ export const Popup = () => {
                 />
               )}
               <img className="brand-logo" src={logo} alt="" />
-              <Title level={5}>{showSettings ? 'Settings' : 'tango'}</Title>
+              <Title className="primary" level={5}>
+                {showSettings ? 'Settings' : 'Tango'}
+              </Title>
               {/* <Badge status={state.settings.paused ? 'default' : 'success'} /> */}
             </Space>
             <Flex className="popup-right">
@@ -577,7 +578,7 @@ export const Popup = () => {
               <section className="quick-actions" aria-label="Quick actions">
                 <Button
                   className="quick-action"
-                  type="text"
+                  type="default"
                   icon={<SendOutlined />}
                   onClick={forceCard}
                   disabled={busy}
@@ -586,7 +587,7 @@ export const Popup = () => {
                 </Button>
                 <Button
                   className="quick-action"
-                  type="text"
+                  type="default"
                   icon={<ArrowUpOutlined />}
                   onClick={openLearningPanel}
                   disabled={busy}
