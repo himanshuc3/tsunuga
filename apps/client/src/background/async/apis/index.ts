@@ -1,4 +1,5 @@
 import { axiosClient } from '../index'
+import type { Settings } from '../../../domain/types'
 
 export type AuthUser = {
   id?: string
@@ -34,6 +35,28 @@ export type UserProgressItem = {
   last_seen_at: string | null
   concept_shown: boolean
   completed_at: string | null
+}
+
+export type LessonConceptApi = {
+  id: string
+  title: string
+  body: string
+  meta?: string
+}
+
+export type LessonVocabApi = {
+  id: string
+  romaji: string
+  en: string
+  meta?: string
+}
+
+export type LessonApi = {
+  id: string
+  title: string
+  position: number
+  concepts: LessonConceptApi[]
+  vocab: LessonVocabApi[]
 }
 
 function authHeaders(token: string) {
@@ -81,6 +104,31 @@ export async function updateUserSettings(
   return apiRequest<UserSettingsResponse>('put', '/settings', token, settings)
 }
 
+// The backend only models a single quiet-time range and has no `paused` concept yet,
+// so those fields fall back to whatever the client already has locally.
+export function apiSettingsToClientSettings(existing: Settings, api: UserSettingsApi): Settings {
+  return {
+    ...existing,
+    minIntervalMin: api.random_interval_min_minutes,
+    maxIntervalMin: api.random_interval_max_minutes,
+    quietHours:
+      api.quiet_time_start && api.quiet_time_end
+        ? [{ start: api.quiet_time_start, end: api.quiet_time_end }]
+        : existing.quietHours,
+  }
+}
+
+export function clientSettingsToApiSettings(settings: Settings): Partial<UserSettingsApi> {
+  const [firstQuietHour] = settings.quietHours
+  return {
+    random_interval_min_minutes: settings.minIntervalMin,
+    random_interval_max_minutes: settings.maxIntervalMin,
+    ...(firstQuietHour
+      ? { quiet_time_start: firstQuietHour.start, quiet_time_end: firstQuietHour.end }
+      : {}),
+  }
+}
+
 export async function listUserProgress(token: string): Promise<UserProgressItem[]> {
   return apiRequest<UserProgressItem[]>('get', '/progress', token)
 }
@@ -91,4 +139,16 @@ export async function recordItemAttempt(
   correct: boolean,
 ): Promise<UserProgressItem> {
   return apiRequest<UserProgressItem>('post', `/progress/${itemId}/attempt`, token, { correct })
+}
+
+export async function listLessons(token: string): Promise<LessonApi[]> {
+  return apiRequest<LessonApi[]>('get', '/lessons', token)
+}
+
+export async function getLesson(token: string, id: string): Promise<LessonApi> {
+  return apiRequest<LessonApi>('get', `/lessons/${id}`, token)
+}
+
+export async function getNextLesson(token: string): Promise<LessonApi> {
+  return apiRequest<LessonApi>('get', '/lessons/next', token)
 }

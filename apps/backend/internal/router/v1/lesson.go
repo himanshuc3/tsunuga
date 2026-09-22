@@ -10,4 +10,9 @@ func registerLessonRoutes(r *echo.Group, h *handler.LessonHandler) {
 
 	// Collection operations
 	lessons.POST("", h.CreateLesson)
+	lessons.GET("", h.ListLessons)
+
+	// Static routes must be registered before the dynamic /:id route
+	lessons.GET("/next", h.GetNextLesson)
+	lessons.GET("/:id", h.GetLesson)
 }

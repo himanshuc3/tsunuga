@@ -16,7 +16,7 @@ type Services struct {
 
 func NewServices(s *server.Server, repos *repository.Repositories) (*Services, error) {
 	authService := NewAuthService(s, *repos.User)
-	lessonService := NewLessonService(s, repos.Lesson)
+	lessonService := NewLessonService(s, repos.Lesson, repos.Progress)
 	settingsService := NewSettingsService(s, repos.Settings)
 	progressService := NewProgressService(s, repos.Progress)
 

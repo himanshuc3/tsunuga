@@ -13,7 +13,14 @@ import { CardFeature, type AnswerInput } from './features/card'
 import { SettingsFeature } from './features/settings'
 import { backgroundDeps, type BackgroundDeps } from './deps'
 import { hideOnTab, sendToTab, setBadge } from './helpers'
-import { loginWithGoogle } from './async/apis'
+import {
+  apiSettingsToClientSettings,
+  clientSettingsToApiSettings,
+  getUserSettings,
+  loginWithGoogle,
+  updateUserSettings,
+} from './async/apis'
+import { fetchCurrentLesson, hydrateLessonsCache, loadAllLessons } from '../content/lessons'
 
 export type ShowResult =
   | { status: 'shown'; tabId: number }
@@ -64,6 +71,11 @@ export class BackgroundController {
   async initialize(onStartup = false): Promise<void> {
     const state = await this.deps.loadState()
     if (!onStartup) await this.deps.saveState(state)
+
+    await hydrateLessonsCache()
+    void this.ensureLessonsLoaded(state.currentLessonId).catch((error) =>
+      console.error('Failed to (re)load lessons on init', error),
+    )
 
     await setBadge(Boolean(state.pendingCard))
     if (state.pendingCard) {
@@ -211,6 +223,22 @@ export class BackgroundController {
       await browser.storage.local.set({ authToken: token })
       await browser.storage.local.set({ user: authTokenResult.user || {} })
 
+      // Fetch the user's current lesson first so the popup isn't stuck waiting
+      // on the full catalog before it can show something.
+      const currentLesson = await fetchCurrentLesson(token).catch((error) => {
+        console.error('Failed to fetch current lesson', error)
+        return null
+      })
+      if (currentLesson) {
+        await this.deps.updateState((prev) => ({ ...prev, currentLessonId: currentLesson.id }))
+      }
+
+      // Lazily hydrate the rest of the lesson catalog and user settings in the background.
+      void loadAllLessons(token).catch((error) => console.error('Failed to load lessons', error))
+      void this.syncSettingsFromApi(token).catch((error) =>
+        console.error('Failed to load user settings', error),
+      )
+
       return {
         ok: true,
         token,
@@ -220,6 +248,14 @@ export class BackgroundController {
       console.error('Failed to get auth token or fetch contacts:', error)
       throw error
     }
+  }
+
+  private async syncSettingsFromApi(token: string): Promise<void> {
+    const response = await getUserSettings(token)
+    await this.deps.updateState((prev) => ({
+      ...prev,
+      settings: apiSettingsToClientSettings(prev.settings, response.settings),
+    }))
   }
 
   private async createSettingsResponse(settings: Partial<AppState['settings']>): Promise<unknown> {
@@ -256,7 +292,17 @@ export class BackgroundController {
   private async updateSettings(settings: Partial<AppState['settings']>): Promise<AppState> {
     const state = await this.settings.updateSettings(settings)
     await this.syncAfterSettingsChange(state)
+    void this.pushSettingsToApi(state.settings).catch((error) =>
+      console.error('Failed to sync settings to API', error),
+    )
     return state
+  }
+
+  private async pushSettingsToApi(settings: AppState['settings']): Promise<void> {
+    const stored = await browser.storage.local.get('authToken')
+    const token = stored.authToken
+    if (typeof token !== 'string' || !token) return
+    await updateUserSettings(token, clientSettingsToApiSettings(settings))
   }
 
   private async syncAfterSettingsChange(state: AppState): Promise<void> {

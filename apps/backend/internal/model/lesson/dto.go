@@ -28,3 +28,13 @@ func (p *CreateLessonPayload) Validate() error {
 	validate := validator.New()
 	return validate.Struct(p)
 }
+
+// GetLessonByIDPayload identifies a single lesson to fetch.
+type GetLessonByIDPayload struct {
+	ID string `param:"id" json:"-" validate:"required"`
+}
+
+func (p *GetLessonByIDPayload) Validate() error {
+	validate := validator.New()
+	return validate.Struct(p)
+}

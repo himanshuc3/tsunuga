@@ -1,4 +1,3 @@
-import { getFirstLesson } from '../../content/lessons'
 import type { AppState, ItemProgress, PendingCard, Settings } from '../../domain/types'
 import { DEFAULT_SETTINGS } from '../../domain/types'
 import browser from 'webextension-polyfill'
@@ -13,7 +12,8 @@ const STORAGE_KEYS = {
 
 export function createDefaultState(): AppState {
   return {
-    currentLessonId: getFirstLesson().id,
+    // Populated once the API-backed "current lesson" fetch resolves after login.
+    currentLessonId: '',
     completedLessonIds: [],
     itemProgress: {},
     settings: { ...DEFAULT_SETTINGS },
