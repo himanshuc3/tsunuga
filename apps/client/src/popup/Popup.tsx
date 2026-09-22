@@ -80,6 +80,21 @@ function AnimatedLogoTree() {
 const { Content } = Layout
 const { Text, Title } = Typography
 
+const loggedOutStats = [
+  {
+    stat: '200',
+    desc: 'categorized vocab cards',
+  },
+  {
+    stat: '15',
+    desc: 'concepts to reach N5',
+  },
+  {
+    stat: '5',
+    desc: 'settings to tweak for learning',
+  },
+]
+
 async function fetchState(): Promise<AppState> {
   const res: any = await browser.runtime.sendMessage({ type: 'GET_STATE' })
   return res.state as AppState
@@ -111,6 +126,43 @@ export const Popup = () => {
   const [settingsDraft, setSettingsDraft] = useState<Settings | null>(null)
   const [settingsError, setSettingsError] = useState<string | null>(null)
   const [settingsSaved, setSettingsSaved] = useState(false)
+  const [loggedOutStatIndex, setLoggedOutStatIndex] = useState(0)
+  const posterRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!posterRef.current || isAuthenticated !== false) return
+
+    const context = gsap.context(() => {
+      const poster = posterRef.current
+      if (!poster) return
+
+      gsap.fromTo(
+        poster,
+        { autoAlpha: 0, y: 16 },
+        {
+          autoAlpha: 1,
+          y: 0,
+          duration: 0.42,
+          ease: 'power3.out',
+          delay: loggedOutStatIndex === 0 ? 0 : 0.12,
+        },
+      )
+
+      gsap.delayedCall(3.4, () => {
+        gsap.to(poster, {
+          autoAlpha: 0,
+          y: -16,
+          duration: 0.32,
+          ease: 'power2.in',
+          onComplete: () => {
+            setLoggedOutStatIndex((index) => (index + 1) % loggedOutStats.length)
+          },
+        })
+      })
+    }, posterRef)
+
+    return () => context.revert()
+  }, [isAuthenticated, loggedOutStatIndex])
 
   const refresh = useCallback(async () => {
     const stored = await browser.storage.local.get('authToken')
@@ -273,20 +325,8 @@ export const Popup = () => {
   }
 
   function getIsUnauthenticatedUI() {
-    const stats = [
-      {
-        stat: '200',
-        desc: 'categorized vocab cards',
-      },
-      {
-        stat: '15',
-        desc: 'concepts to reach N5',
-      },
-      {
-        stat: '5',
-        desc: 'settings to tweak it for learning',
-      },
-    ]
+    const activeStat = loggedOutStats[loggedOutStatIndex]
+
     return (
       <Layout className="popup logged-out-popup">
         <div className="logged-out-shell">
@@ -294,11 +334,12 @@ export const Popup = () => {
             <div className="brand-name primary">TANGO</div>
             <AnimatedLogoTree />
           </header>
-          <div className="poster primary">
+          <div ref={posterRef} className="poster primary">
             <span className="stat">
-              15<span>+</span>
+              {activeStat.stat}
+              <span>+</span>
             </span>
-            <span className="subtext">concepts to reach N5</span>
+            <span className="subtext">{activeStat.desc}</span>
           </div>
           <Button
             className="google-login-button"

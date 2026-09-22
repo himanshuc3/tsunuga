@@ -174,33 +174,35 @@ button.ant-btn:active {
 .poster {
   display: flex;
   z-index: 2;
+  min-height: 98px;
   align-items: flex-end;
   color: #f7f7f8;
   font-weight: 700;
-  width: 70%;
-  line-height: 0.9;
+  width: 80%;
   margin-top: -100px;
+  will-change: opacity, transform;
 }
 
 .poster .stat {
-  font-size: 60px;
-  font-weight: 800;
+  margin-right: 5px;
   display: flex;
-  /* align-items: flex-end; */
-
+  justify-content: flex-start;
+  font-size: 50px;
+  font-weight: 800;
+  line-height: 0.88;
   color: rgba(200, 200, 200, 0.5);
   font-style: italic;
 }
 
 .poster .stat span {
-  display: inline-block;
-  margin-left: 5px;
   font-size: 30px;
 }
 
 .poster .subtext {
+  display: block;
   font-size: 16px;
-  line-height: 1.2;
+  color: rgba(220, 220, 220, 1);
+  font-weight: 500;
 }
 
 .google-login-button.ant-btn {
@@ -216,22 +218,6 @@ button.ant-btn:active {
   background: #292a2f !important;
   font-size: 13px;
   font-weight: 700;
-}
-
-.google-login-button.ant-btn:hover,
-.google-login-button.ant-btn:focus,
-.google-login-button.ant-btn:focus-visible,
-.google-login-button.ant-btn:active {
-  color: #f7f7f8 !important;
-  background: #292a2f !important;
-  border-color: #3a3b42 !important;
-}
-
-.google-login-button .anticon {
-  width: auto;
-  height: auto;
-  color: #b7f36b !important;
-  font-size: 18px;
 }
 
 @keyframes fadeUp {
