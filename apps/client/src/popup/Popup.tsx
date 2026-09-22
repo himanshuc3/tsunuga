@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   Alert,
   Avatar,
@@ -25,11 +25,57 @@ import {
   UserOutlined,
 } from '@ant-design/icons'
 import browser from 'webextension-polyfill'
+import { gsap } from 'gsap'
+import { DrawSVGPlugin } from 'gsap/DrawSVGPlugin'
 import type { AppState, QuietHour, Settings } from '../domain/types'
 import './Popup.css'
 import { OPEN_SETTINGS_ON_LOAD_KEY, openSidePanel, sendMessage } from '../common/helpers'
 import { getNextLesson, lessons } from '../content/lessons'
 import { getOrCreateProgress, progressKey } from '../domain/progress'
+import logoTree from '../assets/logo_tree.svg?raw'
+
+gsap.registerPlugin(DrawSVGPlugin)
+
+function AnimatedLogoTree() {
+  const logoRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!logoRef.current) return
+
+    const context = gsap.context(() => {
+      gsap.from('.branch', {
+        duration: 1,
+        drawSVG: '50% 50%',
+        ease: 'power2.out',
+        repeat: 0,
+      })
+
+      gsap.from('.outward-path', {
+        duration: 1,
+        delay: 0.9,
+        drawSVG: '0% 0%',
+        ease: 'power2.out',
+        repeat: 0,
+      })
+
+      gsap.to('.shape', {
+        duration: 1.4,
+        x: 4,
+        y: -4,
+        rotation: 8,
+        transformOrigin: '50% 50%',
+        ease: 'sine.inOut',
+        repeat: -1,
+        yoyo: true,
+        stagger: 0.2,
+      })
+    }, logoRef)
+
+    return () => context.revert()
+  }, [])
+
+  return <div ref={logoRef} className="brand-tree" dangerouslySetInnerHTML={{ __html: logoTree }} />
+}
 
 const { Content } = Layout
 const { Text, Title } = Typography
@@ -58,7 +104,7 @@ function forceResultMessage(result: { status: string } | undefined): string | nu
 
 export const Popup = () => {
   const [state, setState] = useState<AppState | null>(null)
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
   const [busy, setBusy] = useState(false)
   const [statusMsg, setStatusMsg] = useState<string | null>(null)
   const [showSettings, setShowSettings] = useState(false)
@@ -185,71 +231,7 @@ export const Popup = () => {
     setBusy(false)
   }
 
-  if (!isAuthenticated) {
-    const stats = [
-      { value: '150+', label: 'vocab cards' },
-      { value: '16+', label: 'concepts' },
-      { value: 'N5', label: 'level grammar' },
-    ]
-
-    return (
-      <ConfigProvider
-        theme={{
-          token: {
-            colorPrimary: '#b7f36b',
-            colorText: '#f7f7f8',
-            colorTextSecondary: '#9a99a5',
-            colorBgContainer: '#202024',
-            borderRadius: 12,
-            fontFamily: "'Avenir Next', 'Segoe UI', sans-serif",
-            boxShadow: 'none',
-          },
-        }}
-      >
-        <Layout className="popup logged-out-popup">
-          <div className="logged-out-shell">
-            <header className="logged-out-header">
-              <div className="brand-mark">つ</div>
-              <div className="brand-name">tango</div>
-            </header>
-
-            {/* <div className="logged-out-card-wrap">
-              <div className="logged-out-card">
-                {stats.map((stat, index) => (
-                  <div
-                    key={stat.label}
-                    className="stat-item"
-                    style={{ ['--delay' as any]: `${index * 220}ms` }}
-                  >
-                    <div className="stat-value">{stat.value}</div>
-                    <div className="stat-label">{stat.label}</div>
-                  </div>
-                ))}
-              </div>
-            </div> */}
-
-            <Button
-              className="google-login-button"
-              icon={<GoogleOutlined />}
-              onClick={() => void loginViaGoogle()}
-              disabled={busy}
-            >
-              Login with Google
-            </Button>
-          </div>
-
-          <span className="creator-pill">
-            Created by{' '}
-            <a href="https://github.com/himanshu" target="_blank" rel="noreferrer">
-              Himanshu
-            </a>
-          </span>
-        </Layout>
-      </ConfigProvider>
-    )
-  }
-
-  if (!state) {
+  if (isAuthenticated === null || (isAuthenticated && !state)) {
     return (
       <ConfigProvider theme={{ token: { colorPrimary: '#b7f36b' } }}>
         <Layout className="popup loading-popup">
@@ -258,6 +240,12 @@ export const Popup = () => {
       </ConfigProvider>
     )
   }
+
+  if (!isAuthenticated) {
+    return getIsUnauthenticatedUI()
+  }
+
+  if (!state) return null
 
   const activeLesson = lessons.find(
     (lesson) => lesson.id === (state.pendingCard?.lessonId ?? state.currentLessonId),
@@ -289,24 +277,9 @@ export const Popup = () => {
       <Layout className="popup logged-out-popup">
         <div className="logged-out-shell">
           <header className="logged-out-header">
-            <div className="brand-mark">つ</div>
-            <div className="brand-name">tango</div>
+            <AnimatedLogoTree />
+            <div className="brand-name primary">TANGO</div>
           </header>
-
-          {/* <div className="logged-out-card-wrap">
-              <div className="logged-out-card">
-                {stats.map((stat, index) => (
-                  <div
-                    key={stat.label}
-                    className="stat-item"
-                    style={{ ['--delay' as any]: `${index * 220}ms` }}
-                  >
-                    <div className="stat-value">{stat.value}</div>
-                    <div className="stat-label">{stat.label}</div>
-                  </div>
-                ))}
-              </div>
-            </div> */}
 
           <Button
             className="google-login-button"

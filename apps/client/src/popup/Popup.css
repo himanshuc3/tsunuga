@@ -59,7 +59,7 @@ button.ant-btn:active {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 18px 18px 22px;
+  padding: 0px 18px 22px;
   gap: 20px;
 }
 
@@ -67,8 +67,17 @@ button.ant-btn:active {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   animation: fadeUp 420ms ease;
+}
+
+.brand-name {
+  position: relative;
+  font-size: 26px;
+  font-weight: 700;
+  margin-top: -80px;
+  z-index: 2;
+  /* color:; */
 }
 
 .brand-mark {
@@ -84,12 +93,21 @@ button.ant-btn:active {
   font-weight: 800;
 }
 
-.brand-name {
-  color: #f7f7f8;
-  font-size: 22px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: lowercase;
+.brand-tree {
+  position: relative;
+  display: flex;
+  width: 300px;
+  /* height: 94px; */
+  align-items: center;
+  justify-content: center;
+  -webkit-mask-image: radial-gradient(ellipse 72% 68% at center, #000 48%, transparent 100%);
+  mask-image: radial-gradient(ellipse 72% 68% at center, #000 48%, transparent 100%);
+}
+
+.brand-tree svg {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 .logged-out-card-wrap {
@@ -158,25 +176,21 @@ button.ant-btn:active {
 .google-login-button.ant-btn {
   display: flex;
   width: min(100%, 180px);
-  height: 48px;
   align-items: center;
   justify-content: center;
-  gap: 7px;
-  padding: 2px 16px;
   border-radius: 10px;
   color: #d6d5dc;
   background: #292a2f;
   border: none;
   font-size: 13px;
   font-weight: 700;
-  letter-spacing: 0.01em;
 }
 
-.google-login-button.ant-btn:hover,
+/* .google-login-button.ant-btn:hover,
 .google-login-button.ant-btn:focus-visible {
   color: #f7f7f8;
   background: #333338;
-}
+} */
 
 .google-login-button .anticon {
   width: auto;
