@@ -17,13 +17,15 @@ import {
 import browser from 'webextension-polyfill'
 import {
   ArrowDownOutlined,
-  ArrowUpOutlined,
   GoogleOutlined,
+  MenuUnfoldOutlined,
   PoweroffOutlined,
   SaveOutlined,
   SendOutlined,
   SettingOutlined,
   ThunderboltOutlined,
+  HeartFilled,
+  IdcardFilled,
 } from '@ant-design/icons'
 import { gsap } from 'gsap'
 import { DrawSVGPlugin } from 'gsap/DrawSVGPlugin'
@@ -434,12 +436,15 @@ export const Popup = () => {
     )
   }
 
+  function supportProject() {}
+
   return (
     <ConfigProvider
       theme={{
         algorithm: undefined,
         token: {
           colorPrimary: '#b7f36b',
+          colorTextLightSolid: '#ffffff',
           colorText: '#f7f7f8',
           colorTextSecondary: '#9a99a5',
           colorBgContainer: '#202024',
@@ -447,6 +452,20 @@ export const Popup = () => {
           fontFamily: "'Avenir Next', 'Segoe UI', sans-serif",
         },
         components: {
+          Button: {
+            primaryColor: '#1a3804',
+            colorPrimaryHover: '#c9ff85',
+            colorPrimaryActive: '#a6e25a',
+            boxShadow: 'none',
+            primaryShadow: 'none',
+            defaultShadow: 'none',
+            dangerShadow: 'none',
+            fontWeight: 600,
+          },
+          Tooltip: {
+            colorBgSpotlight: '#2a2a30',
+            colorTextLightSolid: '#f7f7f8',
+          },
           Tabs: { itemColor: '#777681', itemSelectedColor: '#f7f7f8', inkBarColor: '#b7f36b' },
         },
       }}
@@ -645,23 +664,34 @@ export const Popup = () => {
 
               <section className="quick-actions" aria-label="Quick actions">
                 <Button
-                  className="quick-action"
+                  className="quick-action show-card-btn"
                   type="primary"
-                  icon={<SendOutlined />}
                   onClick={forceCard}
                   disabled={busy}
                 >
                   Show card
                 </Button>
-                <Button
-                  className="quick-action"
-                  type="default"
-                  icon={<ArrowUpOutlined />}
-                  onClick={openLearningPanel}
-                  disabled={busy}
-                >
-                  Open
-                </Button>
+
+                <Tooltip title="Open sidepanel">
+                  <Button
+                    className="quick-action sidepanel-btn"
+                    type="text"
+                    icon={<MenuUnfoldOutlined />}
+                    onClick={openLearningPanel}
+                    disabled={busy}
+                    aria-label="Open sidepanel"
+                  />
+                </Tooltip>
+                <Tooltip title="Support the project">
+                  <Button
+                    className="quick-action sidepanel-btn"
+                    type="text"
+                    icon={<HeartFilled style={{ color: 'pink' }} />}
+                    onClick={supportProject}
+                    disabled={busy}
+                    aria-label="Support the project"
+                  />
+                </Tooltip>
               </section>
 
               <section className="overall-percentage">

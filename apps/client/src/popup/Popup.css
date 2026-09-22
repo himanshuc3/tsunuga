@@ -508,8 +508,9 @@ body {
 }
 
 .quick-actions {
-  display: grid;
-  grid-template-columns: 3fr 1fr;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
   gap: 8px;
   padding: 10px;
   margin-bottom: 20px;
@@ -520,8 +521,54 @@ body {
   align-items: center;
   justify-content: center;
   gap: 7px;
-  border-radius: 5px;
+  border-radius: 6px;
   font-size: 13px;
+}
+.show-card-btn.ant-btn {
+  width: auto;
+  padding: 4px 8px;
+  font-weight: 400;
+  border: 1px solid transparent !important;
+  outline: none !important;
+  box-shadow: none !important;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+}
+.sidepanel-btn.ant-btn {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid transparent !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background: rgba(255, 255, 255, 0.06);
+  color: #f7f7f8;
+  font-size: 15px;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+}
+.sidepanel-btn.ant-btn:hover,
+.sidepanel-btn.ant-btn:focus,
+.sidepanel-btn.ant-btn:focus-visible,
+.sidepanel-btn.ant-btn:active {
+  outline: none !important;
+  box-shadow: none !important;
+  border: 1px solid transparent !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+  color: #f7f7f8 !important;
+}
+.quick-action.ant-btn-primary {
+  color: #1a3804;
+  background: var(--popup-accent);
+  font-weight: 600;
+  border: 1px solid transparent !important;
+}
+.quick-action.ant-btn-primary:hover,
+.quick-action.ant-btn-primary:focus-visible {
+  color: #122802 !important;
+  background: #c9ff85 !important;
 }
 
 .earn-banner.ant-card,
