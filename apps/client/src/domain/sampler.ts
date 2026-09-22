@@ -1,4 +1,3 @@
-import { getLessonById, lessons } from '../content/lessons'
 import { getOrCreateProgress, isItemMastered, progressKey } from './progress'
 import type {
   AppState,
@@ -7,10 +6,16 @@ import type {
   PendingCard,
   TestCard,
   TestDirection,
-} from './types'
+} from '../common/types'
 
 function uid(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
+}
+
+const lessons: any[] = []
+
+function getLessonById(lessons: any[], id: string) {
+  return lessons.find((lesson) => lesson.id === id)
 }
 
 function shuffle<T>(arr: T[]): T[] {
@@ -115,7 +120,7 @@ function buildVocabTest(
 /** Pick next card: unseen current lesson first, then weak, then light review. */
 export function sampleNextCard(state: AppState): PendingCard | null {
   if (!state.currentLessonId) return null
-  const current = getLessonById(state.currentLessonId)
+  const current = getLessonById(state.lessons, state.currentLessonId)
   if (!current) return null
 
   const candidates: { priority: number; build: () => PendingCard }[] = []

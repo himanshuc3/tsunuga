@@ -1,116 +1,6 @@
 import browser from 'webextension-polyfill'
-
-const STORAGE_KEYS = {
-  currentLessonId: 'currentLessonId',
-  completedLessonIds: 'completedLessonIds',
-  itemProgress: 'itemProgress',
-  settings: 'settings',
-  pendingCard: 'pendingCard',
-  openSettingsOnLoad: 'openSettingsOnLoad',
-} as const
-
-export type Concept = {
-  id: string
-  title: string
-  body: string
-  meta?: string
-}
-
-export type VocabItem = {
-  id: string
-  romaji: string
-  en: string
-  /** Optional clarifying subtext shown under the word or question. */
-  meta?: string
-}
-
-export type Lesson = {
-  id: string
-  title: string
-  concepts: Concept[]
-  vocab: VocabItem[]
-  unlockAfter?: string
-}
-
-export type ItemProgress = {
-  introducedAt: number | null
-  correctStreak: number
-  lastSeenAt: number | null
-  conceptShown: boolean
-}
-
-export type QuietHour = {
-  start: string // HH:mm
-  end: string // HH:mm
-}
-
-export type Settings = {
-  minIntervalMin: number
-  maxIntervalMin: number
-  quietHours: QuietHour[]
-  paused: boolean
-}
-
-export type CardKind = 'intro' | 'concept' | 'test'
-
-export type IntroCard = {
-  id: string
-  kind: 'intro'
-  lessonId: string
-  itemType: 'vocab'
-  itemKey: string
-  romaji: string
-  en: string
-  meta?: string
-}
-
-export type ConceptCard = {
-  id: string
-  kind: 'concept'
-  lessonId: string
-  conceptId: string
-  title: string
-  body: string
-  meta?: string
-}
-
-export type TestDirection = 'romaji-to-en' | 'en-to-romaji'
-
-export type TestCard = {
-  id: string
-  kind: 'test'
-  lessonId: string
-  itemType: 'vocab'
-  itemKey: string
-  direction: TestDirection
-  romaji: string
-  en: string
-  prompt: string
-  answer: string
-  choices: string[]
-  meta?: string
-}
-
-export type PendingCard = IntroCard | ConceptCard | TestCard
-
-export type AppState = {
-  currentLessonId: string | null
-  completedLessonIds: string[]
-  itemProgress: Record<string, ItemProgress>
-  settings: Settings
-  pendingCard: PendingCard | null
-}
-
-export const MASTERY_STREAK = 2
-
-export const DEFAULT_SETTINGS: Settings = {
-  minIntervalMin: 15,
-  maxIntervalMin: 45,
-  quietHours: [],
-  paused: false,
-}
-
-export const ALARM_NAME = 'tango-next-card'
+import { AppState, ItemProgress, PendingCard, Settings } from '../../common/types'
+import { DEFAULT_SETTINGS, STORAGE_KEYS } from '../../common/constants'
 
 export class StorageController {
   private _state: AppState
@@ -134,6 +24,7 @@ export class StorageController {
       itemProgress: {},
       settings: { ...DEFAULT_SETTINGS },
       pendingCard: null,
+      lessons: [],
     }
   }
 
@@ -208,6 +99,7 @@ export class StorageController {
           : defaults.itemProgress,
       settings: this.mergeSettings(result.settings),
       pendingCard: this.migratePendingCard(result.pendingCard),
+      lessons: [],
     }
   }
 
@@ -218,6 +110,7 @@ export class StorageController {
       [STORAGE_KEYS.itemProgress]: state.itemProgress,
       [STORAGE_KEYS.settings]: state.settings,
       [STORAGE_KEYS.pendingCard]: state.pendingCard,
+      [STORAGE_KEYS.lessons]: state.lessons,
     })
   }
 
@@ -226,17 +119,5 @@ export class StorageController {
     const next = updater(prev)
     await this.saveState(next)
     return next
-  }
-
-  async setOpenSettingsOnLoad(): Promise<void> {
-    await browser.storage.local.set({ [STORAGE_KEYS.openSettingsOnLoad]: true })
-  }
-
-  async consumeOpenSettingsOnLoad(): Promise<boolean> {
-    const result = await browser.storage.local.get(STORAGE_KEYS.openSettingsOnLoad)
-    if (!result[STORAGE_KEYS.openSettingsOnLoad]) return false
-
-    await browser.storage.local.remove(STORAGE_KEYS.openSettingsOnLoad)
-    return true
   }
 }

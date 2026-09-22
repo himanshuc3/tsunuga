@@ -1,6 +1,13 @@
-import { getLessonById, getNextLesson } from '../content/lessons'
-import type { AppState, ItemProgress, Lesson } from './types'
-import { MASTERY_STREAK } from './types'
+import { MASTERY_STREAK } from '../common/constants'
+import type { AppState, ItemProgress, Lesson } from '../common/types'
+
+function getLessonById(lessons: any[], id: string) {
+  return lessons.find((lesson) => lesson.id === id)
+}
+
+function getNextLesson(state: AppState) {
+  return state.lessons.findIndex((lesson) => lesson.id === state.currentLessonId) + 1
+}
 
 export function progressKey(lessonId: string, kind: 'vocab' | 'concept', itemKey: string): string {
   return `${lessonId}:${kind}:${itemKey}`
@@ -69,14 +76,13 @@ export function countMasteredInLesson(
 }
 
 export function isLessonUnlocked(state: AppState, lesson: Lesson): boolean {
-  if (!lesson.unlockAfter) return true
-  return state.completedLessonIds.includes(lesson.unlockAfter)
+  return state.completedLessonIds.includes(lesson.id)
 }
 
 /** Apply mastery unlock: mark current complete and advance if ready. */
 export function maybeAdvanceLesson(state: AppState): AppState {
   if (!state.currentLessonId) return state
-  const current = getLessonById(state.currentLessonId)
+  const current = getLessonById(state, state.currentLessonId)
   if (!current) return state
 
   if (!isLessonComplete(state, current)) return state
@@ -85,7 +91,7 @@ export function maybeAdvanceLesson(state: AppState): AppState {
     ? state.completedLessonIds
     : [...state.completedLessonIds, current.id]
 
-  const next = getNextLesson(current.id)
+  const next = getNextLesson(state)
   if (!next) {
     return { ...state, completedLessonIds: completed }
   }

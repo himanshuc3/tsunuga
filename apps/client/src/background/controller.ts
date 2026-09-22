@@ -4,8 +4,8 @@ import type {
   ExtensionMessage,
 } from '../common/messaging/messages'
 import { computeNextFireAt, delayMinutesFromNow } from '../domain/scheduler'
-import type { AppState, PendingCard } from '../domain/types'
-import { ALARM_NAME } from '../domain/types'
+import type { AppState, PendingCard } from '../common/types'
+import { ALARM_NAME } from '../common/constants'
 import browser from 'webextension-polyfill'
 import { openSidePanelFromGesture } from './sidepanelHelper'
 import { getActiveInjectableTab, isInjectableUrl } from './utils'
@@ -17,11 +17,11 @@ import {
   apiSettingsToClientSettings,
   clientSettingsToApiSettings,
   getUserSettings,
+  listLessons,
   listUserProgress,
   loginWithGoogle,
   updateUserSettings,
 } from './async/apis'
-import { fetchCurrentLesson, hydrateLessonsCache, loadAllLessons } from '../content/lessons'
 import { StorageController } from './storage'
 
 export type ShowResult =
@@ -79,8 +79,6 @@ export class BackgroundController {
   async initialize(onStartup = false): Promise<void> {
     const state = await this.storageController.loadState()
     if (!onStartup) await this.storageController.saveState(state)
-
-    await hydrateLessonsCache()
 
     await setBadge(Boolean(state.pendingCard))
     if (state.pendingCard) {
@@ -225,30 +223,19 @@ export class BackgroundController {
       const authTokenResult = await loginWithGoogle(result.token)
 
       const token = authTokenResult.token
+
+      // TODO: Save token and user details, route them via storage controller
       await browser.storage.local.set({ authToken: token })
       await browser.storage.local.set({ user: authTokenResult.user || {} })
 
-      // Fetch the user's current lesson first so the popup isn't stuck waiting
-      // on the full catalog before it can show something.
-      const currentLesson = await fetchCurrentLesson(token).catch((error) => {
-        console.error('Failed to fetch current lesson', error)
-        return null
-      })
-      if (currentLesson) {
-        await this.storageController.updateState((prev) => ({
-          ...prev,
-          currentLessonId: currentLesson.id,
-        }))
-      }
-
       // Lazily hydrate the rest of the lesson catalog, progress and settings in the background.
-      void loadAllLessons(token).catch((error) => console.error('Failed to load lessons', error))
-      void this.syncProgressFromApi(token).catch((error) =>
-        console.error('Failed to load user progress', error),
-      )
-      void this.syncSettingsFromApi(token).catch((error) =>
-        console.error('Failed to load user settings', error),
-      )
+      try {
+        await this.syncLessonsFromApi(token)
+        await this.syncProgressFromApi(token)
+        await this.syncSettingsFromApi(token)
+      } catch (err) {
+        console.error('Failed to fetch data', err)
+      }
 
       return {
         ok: true,
@@ -298,6 +285,14 @@ export class BackgroundController {
     await this.storageController.updateState((prev) => ({
       ...prev,
       itemProgress: { ...prev.itemProgress, ...itemProgress },
+    }))
+  }
+
+  private async syncLessonsFromApi(token: string): Promise<void> {
+    const items = await listLessons(token)
+    await this.storageController.updateState((prev) => ({
+      ...prev,
+      lessons: items,
     }))
   }
 

@@ -18,7 +18,6 @@ export type Lesson = {
   title: string
   concepts: Concept[]
   vocab: VocabItem[]
-  unlockAfter?: string
 }
 
 export type ItemProgress = {
@@ -88,15 +87,5 @@ export type AppState = {
   itemProgress: Record<string, ItemProgress>
   settings: Settings
   pendingCard: PendingCard | null
+  lessons: Lesson[]
 }
-
-export const MASTERY_STREAK = 2
-
-export const DEFAULT_SETTINGS: Settings = {
-  minIntervalMin: 15,
-  maxIntervalMin: 45,
-  quietHours: [],
-  paused: false,
-}
-
-export const ALARM_NAME = 'tango-next-card'

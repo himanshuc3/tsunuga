@@ -19,17 +19,17 @@ import {
   SendOutlined,
   SettingOutlined,
 } from '@ant-design/icons'
-import { hydrateLessonsCache, lessons } from '../content/lessons'
 import {
   countMasteredInLesson,
   getOrCreateProgress,
   isLessonUnlocked,
   progressKey,
 } from '../domain/progress'
-import type { AppState, Lesson } from '../domain/types'
-import { MASTERY_STREAK } from '../domain/types'
+import type { AppState, Lesson } from '../common/types'
+import { MASTERY_STREAK } from '../common/constants'
 import './SidePanel.css'
 import { openPopupWithSettings, sendMessage } from '../common/helpers'
+import browser from 'webextension-polyfill'
 
 const { Content } = Layout
 const { Text, Title } = Typography
@@ -121,7 +121,7 @@ export const SidePanel = () => {
   const [currentLessonExpanded, setCurrentLessonExpanded] = useState(false)
 
   const refresh = useCallback(async () => {
-    const stored = await chrome.storage.local.get('authToken')
+    const stored = await browser.storage.local.get('authToken')
     const authenticated = Boolean(stored.authToken)
     setIsAuthenticated(authenticated)
 
@@ -130,9 +130,6 @@ export const SidePanel = () => {
       return
     }
 
-    // The side panel is a fresh JS context each time it opens, so the in-memory
-    // lessons cache is empty until we re-hydrate it from storage.
-    await hydrateLessonsCache()
     const s = await fetchState()
     setState(s)
   }, [])
@@ -260,7 +257,7 @@ export const SidePanel = () => {
       </ConfigProvider>
     )
   }
-
+  const lessons: any[] = []
   const current = lessons.find((l) => l.id === state.currentLessonId)
   const progress = current ? countMasteredInLesson(state, current) : { mastered: 0, total: 0 }
 

@@ -14,6 +14,7 @@ import {
   Tooltip,
   Typography,
 } from 'antd'
+import browser from 'webextension-polyfill'
 import {
   ArrowDownOutlined,
   ArrowUpOutlined,
@@ -31,7 +32,6 @@ import { DrawSVGPlugin } from 'gsap/DrawSVGPlugin'
 import type { AppState, QuietHour, Settings } from '../domain/types'
 import './Popup.css'
 import { openSidePanel, sendMessage } from '../common/helpers'
-import { getNextLesson, hydrateLessonsCache, lessons } from '../content/lessons'
 import { getOrCreateProgress, progressKey } from '../domain/progress'
 import logoTree from '../assets/logo_tree.svg?raw'
 import logo from '../assets/logo.svg'
@@ -119,6 +119,14 @@ function forceResultMessage(result: { status: string } | undefined): string | nu
   }
 }
 
+const keysForChange = new Set([
+  'currentLessonId',
+  'completedLessonIds',
+  'itemProgress',
+  'settings',
+  'pendingCard',
+  'lessons',
+])
 export const Popup = () => {
   const [state, setState] = useState<AppState | null>(null)
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
@@ -139,6 +147,17 @@ export const Popup = () => {
   const twistSettingsIconOut = () => {
     gsap.to(settingsIconRef.current, { rotate: 0, duration: 0.3, ease: 'power2.out' })
   }
+
+  useEffect(() => {
+    browser.storage.onChanged.addListener(async (changes, areaName) => {
+      if (areaName !== 'local') return
+
+      if (Object.keys(changes).find((key) => keysForChange.has(key))) {
+        const data = browser.storage.local.get([...keysForChange])
+        setState(data)
+      }
+    })
+  }, [])
 
   useEffect(() => {
     if (!posterRef.current || isAuthenticated !== false) return
@@ -200,11 +219,8 @@ export const Popup = () => {
         return
       }
 
-      // The popup is a fresh JS context each time it opens, so the in-memory
-      // lessons cache is empty until we re-hydrate it from storage.
-      await hydrateLessonsCache()
-      const s = await fetchState()
-      setState(s)
+      // const s = await fetchState()
+      // setState(s)
     } catch (error) {
       console.error('Unable to read authentication state', error)
       setIsAuthenticated(false)
@@ -347,7 +363,7 @@ export const Popup = () => {
 
   if (!state) return null
 
-  const activeLesson = lessons.find(
+  const activeLesson = state && state.lessons.find(
     (lesson) => lesson.id === (state.pendingCard?.lessonId ?? state.currentLessonId),
   )
   const currentLesson = lessons.find((lesson) => lesson.id === state.currentLessonId)
@@ -359,8 +375,7 @@ export const Popup = () => {
     }).length ?? 0
   const conceptCount = activeLesson?.concepts.length ?? 0
   const totalLessonItems = (activeLesson?.vocab.length ?? 0) + conceptCount
-  // antd sizes each step block at `size` px wide, so shrink it as steps grow to keep the bar within the popup.
-  const progressStepWidth = Math.max(2, Math.floor(240 / Math.max(totalLessonItems, 1)))
+  const completedPercentage = (completedConcepts / totalLessonItems) * 100
 
   async function loginViaGoogle() {
     try {
@@ -610,14 +625,17 @@ export const Popup = () => {
                     <span>Up next: {upcomingLesson.title}</span>
                   </Tag>
                 )}
-                {/* <div className="lesson-progress" aria-label="Current block completion">
-                  <Progress
-                    percent={completedConcepts * 10}
-                    steps={totalLessonItems}
-                    size={[progressStepWidth, 8]}
-                  />
-                </div> */}
               </Flex>
+              <div className="lesson-progress" aria-label="Current block completion">
+                <Progress
+                  percent={completedPercentage}
+                  showInfo={false}
+                  strokeColor={{
+                    '0%': '#108ee9',
+                    '100%': '#87d068',
+                  }}
+                />
+              </div>
 
               <section className="quick-actions" aria-label="Quick actions">
                 <Button
@@ -640,9 +658,12 @@ export const Popup = () => {
                 </Button>
               </section>
 
-              {/* {statusMsg && (
-            <Alert className="status-alert" message={statusMsg} type="info" showIcon closable />
-          )} */}
+              <section className="overall-percentage">
+                <Progress type="dashboard" percent={50} />
+                <Progress type="dashboard" percent={50} />
+              </section>
+
+              <section className=""></section>
             </Content>
           )}
 
