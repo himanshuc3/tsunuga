@@ -622,7 +622,7 @@ export const Popup = () => {
               <section className="quick-actions" aria-label="Quick actions">
                 <Button
                   className="quick-action"
-                  type="default"
+                  type="primary"
                   icon={<SendOutlined />}
                   onClick={forceCard}
                   disabled={busy}

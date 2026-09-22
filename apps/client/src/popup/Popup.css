@@ -526,13 +526,8 @@ body {
   align-items: center;
   justify-content: center;
   gap: 7px;
-  border-radius: 10px;
+  border-radius: 5px;
   font-size: 13px;
-}
-.quick-action .anticon {
-  width: auto;
-  height: auto;
-  font-size: 18px;
 }
 
 .earn-banner.ant-card,
