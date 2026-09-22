@@ -51,6 +51,10 @@ export type AuthTokenStatusMessage = {
   type: 'AUTH_TOKEN_STATUS'
 }
 
+export type LogoutMessage = {
+  type: 'LOGOUT'
+}
+
 export type OpenSettingsMessage = {
   type: 'OPEN_SETTINGS'
 }
@@ -73,6 +77,7 @@ export type ExtensionMessage =
   | OpenSettingsMessage
   | ConsumeOpenSettingsMessage
   | OpenSidePanel
+  | LogoutMessage
 
 export type BackgroundEvent = AnswerMessage | DismissMessage | OpenSidePanel
 
@@ -85,6 +90,7 @@ export type BackgroundRequest =
   | AuthTokenStatusMessage
   | OpenSettingsMessage
   | ConsumeOpenSettingsMessage
+  | LogoutMessage
 
 export type StateResponse = {
   type: 'STATE'

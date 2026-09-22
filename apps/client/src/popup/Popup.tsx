@@ -7,8 +7,10 @@ import {
   Space,
   Spin,
   Slider,
+  Switch,
   Tag,
   Flex,
+  Tooltip,
   Typography,
 } from 'antd'
 import {
@@ -16,12 +18,12 @@ import {
   ArrowUpOutlined,
   GoogleOutlined,
   PlayCircleOutlined,
+  PoweroffOutlined,
   SaveOutlined,
   SendOutlined,
   PauseOutlined,
   SettingOutlined,
   ThunderboltOutlined,
-  UserOutlined,
 } from '@ant-design/icons'
 import { gsap } from 'gsap'
 import { DrawSVGPlugin } from 'gsap/DrawSVGPlugin'
@@ -127,6 +129,15 @@ export const Popup = () => {
   const [settingsSaved, setSettingsSaved] = useState(false)
   const [loggedOutStatIndex, setLoggedOutStatIndex] = useState(0)
   const posterRef = useRef<HTMLDivElement>(null)
+  const settingsIconRef = useRef<HTMLSpanElement>(null)
+
+  const twistSettingsIconIn = () => {
+    gsap.to(settingsIconRef.current, { rotate: 90, duration: 0.35, ease: 'back.out(2)' })
+  }
+
+  const twistSettingsIconOut = () => {
+    gsap.to(settingsIconRef.current, { rotate: 0, duration: 0.3, ease: 'power2.out' })
+  }
 
   useEffect(() => {
     if (!posterRef.current || isAuthenticated !== false) return
@@ -228,6 +239,17 @@ export const Popup = () => {
   const openLearningPanel = () => {
     openSidePanel()
     window.close()
+  }
+
+  const logout = async () => {
+    setBusy(true)
+    try {
+      await sendMessage({ type: 'LOGOUT' })
+    } finally {
+      setBusy(false)
+    }
+    setIsAuthenticated(false)
+    setState(null)
   }
 
   const openSettings = () => {
@@ -411,14 +433,18 @@ export const Popup = () => {
               </Title>
               {/* <Badge status={state.settings.paused ? 'default' : 'success'} /> */}
             </Space>
-            <Flex className="popup-right">
-              <Button
-                aria-label="Pause extension"
-                type="text"
-                icon={state.settings.paused ? <PlayCircleOutlined /> : <PauseOutlined />}
-                onClick={() => void togglePause()}
-                disabled={busy}
-              />
+            <Flex className="popup-right" align="center">
+              <Tooltip title={state.settings.paused ? 'Resume' : 'Pause'}>
+                <Switch
+                  aria-label="Pause extension"
+                  className="pause-switch"
+                  checked={!state.settings.paused}
+                  onChange={() => void togglePause()}
+                  disabled={busy}
+                  checkedChildren={<PlayCircleOutlined />}
+                  unCheckedChildren={<PauseOutlined />}
+                />
+              </Tooltip>
               {showSettings && (
                 <Button
                   className="settings-save-button"
@@ -431,18 +457,30 @@ export const Popup = () => {
               )}
               {!showSettings && (
                 <>
-                  <Button
-                    aria-label="Open settings"
-                    type="text"
-                    icon={<SettingOutlined />}
-                    onClick={openSettings}
-                  />
-                  <Button
-                    aria-label="Open settings"
-                    type="text"
-                    icon={<UserOutlined />}
-                    onClick={loginViaGoogle}
-                  />
+                  <Tooltip title="Settings">
+                    <Button
+                      aria-label="Open settings"
+                      type="text"
+                      icon={
+                        <span ref={settingsIconRef} className="settings-icon-twist">
+                          <SettingOutlined />
+                        </span>
+                      }
+                      onClick={openSettings}
+                      onMouseEnter={twistSettingsIconIn}
+                      onMouseLeave={twistSettingsIconOut}
+                    />
+                  </Tooltip>
+                  <Tooltip title="Log out">
+                    <Button
+                      className="logout-button"
+                      aria-label="Log out"
+                      type="text"
+                      icon={<PoweroffOutlined />}
+                      onClick={() => void logout()}
+                      disabled={busy}
+                    />
+                  </Tooltip>
                 </>
               )}
             </Flex>

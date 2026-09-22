@@ -272,6 +272,13 @@ body {
   width: 40px;
   height: 100%;
 }
+.pause-switch {
+  margin-right: 4px;
+}
+.settings-icon-twist {
+  display: inline-flex;
+  transform-origin: 50% 50%;
+}
 
 .popup-header .ant-typography {
   margin: 0;
@@ -279,6 +286,13 @@ body {
 }
 .popup-header .ant-btn {
   font-size: 17px;
+}
+.logout-button.ant-btn {
+  color: #e05d5d;
+}
+.logout-button.ant-btn:hover,
+.logout-button.ant-btn:focus-visible {
+  color: #ff7a7a;
 }
 
 .lesson-summary {

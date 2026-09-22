@@ -71,6 +71,7 @@ export class BackgroundController {
       AUTH_TOKEN_STATUS: () => this.getAuthTokenStatus(),
       OPEN_SETTINGS: () => this.openSettings(),
       CONSUME_OPEN_SETTINGS: () => this.consumeOpenSettings(),
+      LOGOUT: () => this.logout(),
     }
   }
 
@@ -266,6 +267,12 @@ export class BackgroundController {
       ok: true,
       authenticated: typeof stored.authToken === 'string' && Boolean(stored.authToken),
     }
+  }
+
+  private async logout(): Promise<{ ok: true }> {
+    await browser.storage.local.remove(['authToken', 'user'])
+    await browser.alarms.clear(ALARM_NAME)
+    return { ok: true }
   }
 
   private async openSettings(): Promise<{ ok: true }> {
