@@ -273,6 +273,20 @@ export const Popup = () => {
   }
 
   function getIsUnauthenticatedUI() {
+    const stats = [
+      {
+        stat: '200',
+        desc: 'categorized vocab cards',
+      },
+      {
+        stat: '15',
+        desc: 'concepts to reach N5',
+      },
+      {
+        stat: '5',
+        desc: 'settings to tweak it for learning',
+      },
+    ]
     return (
       <Layout className="popup logged-out-popup">
         <div className="logged-out-shell">
@@ -296,12 +310,12 @@ export const Popup = () => {
           </Button>
         </div>
 
-        {/* <span className="creator-pill">
+        <span className="creator-pill">
           Created by{' '}
           <a href="https://github.com/himanshu" target="_blank" rel="noreferrer">
             Himanshu
           </a>
-        </span> */}
+        </span>
       </Layout>
     )
   }
