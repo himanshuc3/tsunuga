@@ -8,6 +8,7 @@ import {
   Spin,
   Slider,
   Switch,
+  Progress,
   Tag,
   Flex,
   Tooltip,
@@ -32,7 +33,7 @@ import './Popup.css'
 import { openSidePanel, sendMessage } from '../common/helpers'
 import { getNextLesson, hydrateLessonsCache, lessons } from '../content/lessons'
 import { getOrCreateProgress, progressKey } from '../domain/progress'
-import logoTree from '../assets/logo_tree.svg'
+import logoTree from '../assets/logo_tree.svg?raw'
 import logo from '../assets/logo.svg'
 
 gsap.registerPlugin(DrawSVGPlugin)
@@ -147,7 +148,7 @@ export const Popup = () => {
       if (!poster) return
 
       gsap.fromTo(
-        poster,
+        poster.querySelector('.stat'),
         { autoAlpha: 0, y: 16 },
         {
           autoAlpha: 1,
@@ -155,6 +156,18 @@ export const Popup = () => {
           duration: 0.42,
           ease: 'power3.out',
           delay: loggedOutStatIndex === 0 ? 0 : 0.12,
+        },
+      )
+
+      gsap.fromTo(
+        poster.querySelector('.subtext'),
+        { autoAlpha: 0, y: 16 },
+        {
+          autoAlpha: 1,
+          y: 0,
+          duration: 0.42,
+          ease: 'power3.out',
+          delay: (loggedOutStatIndex === 0 ? 0 : 0.12) + 0.15,
         },
       )
 
@@ -345,7 +358,9 @@ export const Popup = () => {
       return getOrCreateProgress(state, key).conceptShown
     }).length ?? 0
   const conceptCount = activeLesson?.concepts.length ?? 0
-  const completionPercent = conceptCount ? Math.round((completedConcepts / conceptCount) * 100) : 0
+  const totalLessonItems = (activeLesson?.vocab.length ?? 0) + conceptCount
+  // antd sizes each step block at `size` px wide, so shrink it as steps grow to keep the bar within the popup.
+  const progressStepWidth = Math.max(2, Math.floor(240 / Math.max(totalLessonItems, 1)))
 
   async function loginViaGoogle() {
     try {
@@ -595,22 +610,13 @@ export const Popup = () => {
                     <span>Up next: {upcomingLesson.title}</span>
                   </Tag>
                 )}
-                <div
-                  className="lesson-progress"
-                  role="progressbar"
-                  aria-label="Current block completion"
-                  aria-valuemin={0}
-                  aria-valuemax={conceptCount}
-                  aria-valuenow={completedConcepts}
-                >
-                  <span className="lesson-progress-label">
-                    Current block: {completedConcepts}/{conceptCount} concepts completed
-                  </span>
-                  <span
-                    className="lesson-progress-fill"
-                    style={{ width: `${completionPercent}%` }}
+                {/* <div className="lesson-progress" aria-label="Current block completion">
+                  <Progress
+                    percent={completedConcepts * 10}
+                    steps={totalLessonItems}
+                    size={[progressStepWidth, 8]}
                   />
-                </div>
+                </div> */}
               </Flex>
 
               <section className="quick-actions" aria-label="Quick actions">
