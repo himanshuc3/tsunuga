@@ -73,7 +73,7 @@ const STATUS = {
 export const Popup = () => {
   const [state, setState] = useState<AppState | null>(null)
   const [status, setStatus] = useState<keyof [typeof STATUS]>(STATUS.IDLE)
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
   const [busy, setBusy] = useState(false)
   const [statusMsg, setStatusMsg] = useState<string | null>(null)
   const [showSettings, setShowSettings] = useState(false)
@@ -95,19 +95,26 @@ export const Popup = () => {
   useEffect(() => {
     async function getData() {
       const data = await browser.storage.local.get([...keysForChange])
-
+      if (data.authToken) {
+        setIsAuthenticated(true)
+      }
       setState(data as AppState)
     }
     getData()
 
-    browser.storage.onChanged.addListener(async (changes, areaName) => {
+    const handleStorageChange = (
+      changes: Record<string, browser.Storage.StorageChange>,
+      areaName: string,
+    ) => {
       if (areaName !== 'local') return
 
       if (Object.keys(changes).find((key) => keysForChange.has(key))) {
-        getData()
-        return
+        void getData()
       }
-    })
+    }
+
+    browser.storage.onChanged.addListener(handleStorageChange)
+    return () => browser.storage.onChanged.removeListener(handleStorageChange)
   }, [])
   const masteredVocabCount = state
     ? state.lessons.reduce((acc, lesson) => acc + countMasteredInLesson(state, lesson).mastered, 0)
@@ -158,64 +165,64 @@ export const Popup = () => {
     },
   ]
 
-  useEffect(() => {
-    if (!loggedInPosterRef.current || !isAuthenticated) return
+  // useEffect(() => {
+  //   if (!loggedInPosterRef.current || !isAuthenticated) return
 
-    const context = gsap.context(() => {
-      const card = loggedInPosterRef.current
-      if (!card) return
+  //   const context = gsap.context(() => {
+  //     const card = loggedInPosterRef.current
+  //     if (!card) return
 
-      gsap.fromTo(
-        card.querySelectorAll('.poster-anim'),
-        { autoAlpha: 0, y: 10 },
-        {
-          autoAlpha: 1,
-          y: 0,
-          duration: 0.42,
-          stagger: 0.07,
-          ease: 'power3.out',
-        },
-      )
+  //     gsap.fromTo(
+  //       card.querySelectorAll('.poster-anim'),
+  //       { autoAlpha: 0, y: 10 },
+  //       {
+  //         autoAlpha: 1,
+  //         y: 0,
+  //         duration: 0.42,
+  //         stagger: 0.07,
+  //         ease: 'power3.out',
+  //       },
+  //     )
 
-      gsap.delayedCall(3.5, () => {
-        gsap.to(card.querySelectorAll('.poster-anim'), {
-          autoAlpha: 0,
-          y: -10,
-          duration: 0.32,
-          stagger: 0.04,
-          ease: 'power2.in',
-          onComplete: () => {
-            setLoggedInStatIndex((index) => (index + 1) % loggedinStats.length)
-          },
-        })
-      })
-    }, loggedInPosterRef)
+  //     gsap.delayedCall(3.5, () => {
+  //       gsap.to(card.querySelectorAll('.poster-anim'), {
+  //         autoAlpha: 0,
+  //         y: -10,
+  //         duration: 0.32,
+  //         stagger: 0.04,
+  //         ease: 'power2.in',
+  //         onComplete: () => {
+  //           setLoggedInStatIndex((index) => (index + 1) % loggedinStats.length)
+  //         },
+  //       })
+  //     })
+  //   }, loggedInPosterRef)
 
-    return () => context.revert()
-  }, [isAuthenticated, loggedInStatIndex, loggedinStats.length])
+  //   return () => context.revert()
+  // }, [isAuthenticated, loggedInStatIndex, loggedinStats.length])
 
-  const refresh = useCallback(async () => {
-    try {
-      const data = await browser.storage.local.get([...keysForChange])
-      const authenticated = !!data.authToken.length
-      setIsAuthenticated(authenticated)
+  // const refresh = useCallback(async () => {
+  //   try {
+  //     const data = await browser.storage.local.get('authToken')
+  //     const authenticated = !!data.authToken.length
+  //     setIsAuthenticated(authenticated)
 
-      if (!authenticated) {
-        setState(null)
-        return
-      } else {
-        setState(data as AppState)
-      }
-    } catch (error) {
-      console.error('Unable to read authentication state', error)
-      setIsAuthenticated(false)
-      setState(null)
-    }
-  }, [])
+  //     if (!authenticated) {
+  //       setState(null)
+  //       return
+  //     } else {
+  //       setState(data as AppState)
+  //     }
+  //   } catch (error) {
+  //     console.error('Unable to read authentication state', error)
+  //     setIsAuthenticated(false)
+  //     setState(null)
+  //   }
+  // }, [])
 
-  useEffect(() => {
-    void refresh()
-  }, [refresh])
+  // useEffect(() => {
+  //   void refresh()
+  // }, [refresh])
 
   const togglePause = async () => {
     if (!state) return
