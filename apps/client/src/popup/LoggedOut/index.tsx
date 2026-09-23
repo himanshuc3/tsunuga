@@ -63,7 +63,7 @@ const loggedOutStats = [
   },
 ]
 
-export default function LoggedOut({ login, busy }) {
+export default function LoggedOut({ login, disabled }) {
   const [loggedOutStatIndex, setLoggedOutStatIndex] = useState(0)
   const posterRef = useRef<HTMLDivElement>(null)
   const activeStat = loggedOutStats[loggedOutStatIndex]
@@ -133,7 +133,7 @@ export default function LoggedOut({ login, busy }) {
           className="google-login-button"
           icon={<GoogleOutlined />}
           onClick={() => void login()}
-          disabled={busy}
+          disabled={disabled}
         >
           Login with Google
         </Button>

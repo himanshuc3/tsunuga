@@ -1,40 +1,14 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
-import {
-  Alert,
-  Button,
-  Card,
-  ConfigProvider,
-  Layout,
-  Space,
-  Spin,
-  Slider,
-  Progress,
-  Tag,
-  Flex,
-  Tooltip,
-  Typography,
-} from 'antd'
-import Switch from '../common/components/ResumeSwitch/index'
+import { useEffect, useRef, useState } from 'react'
+import { ConfigProvider, Layout, Spin } from 'antd'
+
 import browser from 'webextension-polyfill'
-import {
-  ArrowDownOutlined,
-  MenuUnfoldOutlined,
-  PoweroffOutlined,
-  SaveOutlined,
-  SettingOutlined,
-  ThunderboltOutlined,
-  HeartFilled,
-} from '@ant-design/icons'
 import { gsap } from 'gsap'
 import type { AppState, QuietHour, Settings } from '../common/types'
 import './Popup.css'
-import { getNextLesson, openSidePanel, sendMessage } from '../common/helpers'
+import { openSidePanel, sendMessage } from '../common/helpers'
 import { countMasteredInLesson, getOrCreateProgress, progressKey } from '../domain/progress'
-import logo from '../assets/logo.svg'
 import LoggedOut from './LoggedOut'
-
-const { Content } = Layout
-const { Title, Text } = Typography
+import LoggedIn from './LoggedIn'
 
 function forceResultMessage(result: { status: string } | undefined): string | null {
   switch (result?.status) {
@@ -74,7 +48,7 @@ export const Popup = () => {
   const [state, setState] = useState<AppState | null>(null)
   const [status, setStatus] = useState<keyof [typeof STATUS]>(STATUS.IDLE)
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
-  const [busy, setBusy] = useState(false)
+
   const [statusMsg, setStatusMsg] = useState<string | null>(null)
   const [showSettings, setShowSettings] = useState(false)
   const [settingsDraft, setSettingsDraft] = useState<Settings | null>(null)
@@ -116,6 +90,7 @@ export const Popup = () => {
     browser.storage.onChanged.addListener(handleStorageChange)
     return () => browser.storage.onChanged.removeListener(handleStorageChange)
   }, [])
+
   const masteredVocabCount = state
     ? state.lessons.reduce((acc, lesson) => acc + countMasteredInLesson(state, lesson).mastered, 0)
     : 10
@@ -226,7 +201,7 @@ export const Popup = () => {
 
   const togglePause = async () => {
     if (!state) return
-    setBusy(true)
+    // setBusy(true)
     setStatusMsg(null)
     const res = await sendMessage({
       type: 'SET_PAUSED',
@@ -237,11 +212,11 @@ export const Popup = () => {
     setSettingsDraft((previous) =>
       previous ? { ...previous, paused: nextState.state.settings.paused } : previous,
     )
-    setBusy(false)
+    // setBusy(false)
   }
 
   const forceCard = async () => {
-    setBusy(true)
+    // setBusy(true)
     setStatusMsg(null)
     try {
       const res = (await sendMessage({ type: 'FORCE_CARD' })) as {
@@ -249,12 +224,12 @@ export const Popup = () => {
         result?: { status: string }
       }
       if (res?.state) setState(res.state)
-      else await refresh()
+      // else await refresh()
       setStatusMsg(forceResultMessage(res.result))
     } catch {
       setStatusMsg('Extension background failed to respond. Reload the extension.')
     }
-    setBusy(false)
+    // setBusy(false)
   }
 
   const openLearningPanel = () => {
@@ -263,11 +238,11 @@ export const Popup = () => {
   }
 
   const logout = async () => {
-    setBusy(true)
+    // setBusy(true)
     try {
       await sendMessage({ type: 'LOGOUT' })
     } finally {
-      setBusy(false)
+      // setBusy(false)
     }
     setIsAuthenticated(false)
     setState(null)
@@ -324,7 +299,7 @@ export const Popup = () => {
       return
     }
 
-    setBusy(true)
+    // setBusy(true)
     setSettingsError(null)
     const res = await sendMessage({
       type: 'UPDATE_SETTINGS',
@@ -337,34 +312,20 @@ export const Popup = () => {
       quietHours: nextState.state.settings.quietHours.map((quietHour) => ({ ...quietHour })),
     })
     setSettingsSaved(true)
-    setBusy(false)
+    // setBusy(false)
   }
-
-  const activeLesson =
-    state &&
-    state.lessons.find(
-      (lesson) => lesson.id === (state.pendingCard?.lessonId ?? state.currentLessonId),
-    )
-  const currentLesson = state?.lessons.find((lesson) => lesson.id === state.currentLessonId)
-  const upcomingLesson = currentLesson ? getNextLesson(state) : undefined
-  const completedConcepts =
-    activeLesson?.concepts.filter((concept) => {
-      const key = progressKey(activeLesson.id, 'concept', concept.id)
-      return getOrCreateProgress(state, key).conceptShown
-    }).length ?? 0
-  const conceptCount = activeLesson?.concepts.length ?? 0
-  const totalLessonItems = (activeLesson?.vocab.length ?? 0) + conceptCount
-  const completedPercentage = (completedConcepts / totalLessonItems) * 100
 
   async function loginViaGoogle() {
     try {
-      setBusy(true)
+      setStatus(STATUS.PROGRESS)
       await sendMessage({ type: 'AUTH_TOKEN' })
-      await refresh()
+      // await refresh()
+      setStatus(STATUS.SUCCESS)
     } catch (error) {
+      setStatus(STATUS.FAILURE)
+
       console.error('Unable to get auth token', error)
     } finally {
-      setBusy(false)
     }
   }
 
@@ -373,7 +334,7 @@ export const Popup = () => {
   function renderRoutes() {
     switch (true) {
       case !isAuthenticated: {
-        return <LoggedOut login={loginViaGoogle} busy={busy} />
+        return <LoggedOut login={loginViaGoogle} disabled={status === STATUS.PROGRESS} />
       }
       case status === STATUS.PROGRESS:
         return (
@@ -383,271 +344,31 @@ export const Popup = () => {
         )
       case state !== null:
         return (
-          <Layout className="popup">
-            <header className="popup-header">
-              <Space className="popup-left">
-                {showSettings && (
-                  <Button
-                    aria-label="Back to popup"
-                    type="text"
-                    icon={<ArrowDownOutlined rotate={90} />}
-                    onClick={() => setShowSettings(false)}
-                  />
-                )}
-                <img className="brand-logo" src={logo} alt="" />
-                <Title className="primary" level={5}>
-                  {showSettings ? 'Settings' : 'Tango'}
-                </Title>
-              </Space>
-              <Flex className="popup-right" align="center">
-                <Switch
-                  tooltip={state.settings.paused ? 'Resume' : 'Pause'}
-                  switchProps={{
-                    checked: !state.settings.paused,
-                    onChange: () => void togglePause(),
-                    disabled: busy,
-                  }}
-                />
-
-                {showSettings && (
-                  <Button
-                    className="settings-save-button"
-                    aria-label="Save settings"
-                    type="text"
-                    icon={<SaveOutlined />}
-                    onClick={() => void saveSettings()}
-                    disabled={busy}
-                  />
-                )}
-                {!showSettings && (
-                  <>
-                    <Tooltip title="Settings">
-                      <Button
-                        aria-label="Open settings"
-                        type="text"
-                        icon={
-                          <span ref={settingsIconRef} className="settings-icon-twist">
-                            <SettingOutlined />
-                          </span>
-                        }
-                        onClick={openSettings}
-                        onMouseEnter={twistSettingsIconIn}
-                        onMouseLeave={twistSettingsIconOut}
-                      />
-                    </Tooltip>
-                    <Tooltip title="Log out">
-                      <Button
-                        className="logout-button"
-                        aria-label="Log out"
-                        type="text"
-                        icon={<PoweroffOutlined />}
-                        onClick={() => void logout()}
-                        disabled={busy}
-                      />
-                    </Tooltip>
-                  </>
-                )}
-              </Flex>
-            </header>
-
-            {showSettings && settingsDraft ? (
-              <Content className="popup-content settings-content">
-                <section className="settings-section">
-                  <Title level={4}>Sampling interval</Title>
-                  <div className="settings-range-label">
-                    <span>{settingsDraft.minIntervalMin} min</span>
-                    <span>{settingsDraft.maxIntervalMin} min</span>
-                  </div>
-                  <Slider
-                    className="settings-range"
-                    range
-                    min={1}
-                    max={120}
-                    value={[settingsDraft.minIntervalMin, settingsDraft.maxIntervalMin]}
-                    onChange={(value) => {
-                      if (Array.isArray(value)) {
-                        updateSetting('minIntervalMin', value[0])
-                        updateSetting('maxIntervalMin', value[1])
-                      }
-                    }}
-                  />
-                </section>
-
-                <section className="settings-section">
-                  <Title level={4}>Quiet hours</Title>
-                  {settingsDraft.quietHours.map((quietHour, index) => (
-                    <div
-                      className="quiet-hour-row"
-                      key={`${quietHour.start}-${quietHour.end}-${index}`}
-                    >
-                      <input
-                        type="time"
-                        value={quietHour.start}
-                        onChange={(event) => updateQuietHour(index, { start: event.target.value })}
-                      />
-                      <span>to</span>
-                      <input
-                        type="time"
-                        value={quietHour.end}
-                        onChange={(event) => updateQuietHour(index, { end: event.target.value })}
-                      />
-                      <Button
-                        type="text"
-                        onClick={() =>
-                          updateSetting(
-                            'quietHours',
-                            settingsDraft.quietHours.filter(
-                              (_, quietHourIndex) => quietHourIndex !== index,
-                            ),
-                          )
-                        }
-                      >
-                        Remove
-                      </Button>
-                    </div>
-                  ))}
-                  <Button
-                    className="settings-secondary-action"
-                    type="default"
-                    onClick={() =>
-                      updateSetting('quietHours', [
-                        ...settingsDraft.quietHours,
-                        { start: '22:00', end: '07:00' },
-                      ])
-                    }
-                  >
-                    Add quiet hours
-                  </Button>
-                </section>
-
-                {settingsError && <Alert message={settingsError} type="error" showIcon />}
-                {settingsSaved && (
-                  <div className="settings-saved-toast" role="status">
-                    Settings saved
-                  </div>
-                )}
-              </Content>
-            ) : (
-              <Content className="popup-content">
-                <Flex className="lesson-summary">
-                  <Space align="start">
-                    {/* <Avatar className="lesson-icon" icon={<BookOutlined />} /> */}
-                    <div className="lesson-summary-copy">
-                      <Flex>
-                        <Title level={4}>{activeLesson?.title ?? 'Your next lesson'}</Title>
-                      </Flex>
-                      <Space className="lesson-counts" size={6} wrap>
-                        <Tag className="lesson-count">
-                          <strong>{activeLesson?.vocab.length ?? 0}</strong>
-                          <span>vocab</span>
-                        </Tag>
-                        <Tag className="lesson-count">
-                          <strong>{activeLesson?.concepts.length ?? 0}</strong>
-                          <span>concepts</span>
-                        </Tag>
-                      </Space>
-                    </div>
-                  </Space>
-                  {upcomingLesson && (
-                    <Tag
-                      className="upcoming-lesson"
-                      color="green"
-                      aria-label={`Up next: ${upcomingLesson.title}`}
-                      tabIndex={0}
-                    >
-                      <ThunderboltOutlined />
-                      <span>Up next: {upcomingLesson.title}</span>
-                    </Tag>
-                  )}
-                </Flex>
-                <div className="lesson-progress" aria-label="Current block completion">
-                  <Progress
-                    percent={completedPercentage}
-                    showInfo={false}
-                    strokeColor={{
-                      '0%': '#108ee9',
-                      '100%': '#87d068',
-                    }}
-                  />
-                </div>
-
-                <section className="quick-actions" aria-label="Quick actions">
-                  <Button
-                    className="quick-action show-card-btn"
-                    type="primary"
-                    onClick={forceCard}
-                    disabled={busy}
-                  >
-                    Show card
-                  </Button>
-
-                  <Tooltip title="Open sidepanel">
-                    <Button
-                      className="quick-action sidepanel-btn"
-                      type="text"
-                      icon={<MenuUnfoldOutlined />}
-                      onClick={openLearningPanel}
-                      disabled={busy}
-                      aria-label="Open sidepanel"
-                    />
-                  </Tooltip>
-                  <Tooltip title="Support the project">
-                    <Button
-                      className="quick-action sidepanel-btn"
-                      type="text"
-                      icon={<HeartFilled style={{ color: 'pink' }} />}
-                      onClick={supportProject}
-                      disabled={busy}
-                      aria-label="Support the project"
-                    />
-                  </Tooltip>
-                </section>
-
-                {statusMsg && (
-                  <Alert className="force-card-status" message={statusMsg} type="info" showIcon />
-                )}
-
-                <Flex
-                  className="poster-container"
-                  justify="center"
-                  align="center"
-                  ref={loggedInPosterRef}
-                >
-                  <div className="poster-underlay">
-                    <Text className="underlay-text poster-anim">
-                      {loggedinStats[loggedInStatIndex % loggedinStats.length].underlay}
-                    </Text>
-                  </div>
-                  <Card className="poster-card" bordered={false}>
-                    <Flex className="poster-header" align="center" gap={6}>
-                      <img className="poster-logo" src={logo} alt="" />
-                      <Text className="poster-brand">tango</Text>
-                    </Flex>
-                    <Title level={4} className="poster-title poster-anim">
-                      {loggedinStats[loggedInStatIndex % loggedinStats.length].title}
-                    </Title>
-                    <Text className="poster-subtitle poster-anim">
-                      {loggedinStats[loggedInStatIndex % loggedinStats.length].stat}
-                    </Text>
-                    <Flex className="poster-pills poster-anim" gap={4} wrap="wrap">
-                      {loggedinStats[loggedInStatIndex % loggedinStats.length].tags.map((tag) => (
-                        <Tag key={tag} className="poster-pill">
-                          {tag}
-                        </Tag>
-                      ))}
-                    </Flex>
-                  </Card>
-                </Flex>
-              </Content>
-            )}
-
-            <span className="creator-pill">
-              Created by{' '}
-              <a href="https://github.com/himanshu" target="_blank" rel="noreferrer">
-                Himanshu
-              </a>
-            </span>
-          </Layout>
+          <LoggedIn
+            state={state}
+            isBusy={status === STATUS.PROGRESS}
+            statusMsg={statusMsg}
+            showSettings={showSettings}
+            setShowSettings={setShowSettings}
+            settingsDraft={settingsDraft}
+            settingsError={settingsError}
+            settingsSaved={settingsSaved}
+            loggedInStatIndex={loggedInStatIndex}
+            loggedInPosterRef={loggedInPosterRef}
+            settingsIconRef={settingsIconRef}
+            loggedinStats={loggedinStats}
+            togglePause={togglePause}
+            forceCard={forceCard}
+            openLearningPanel={openLearningPanel}
+            logout={logout}
+            openSettings={openSettings}
+            saveSettings={saveSettings}
+            updateSetting={updateSetting}
+            updateQuietHour={updateQuietHour}
+            twistSettingsIconIn={twistSettingsIconIn}
+            twistSettingsIconOut={twistSettingsIconOut}
+            supportProject={supportProject}
+          />
         )
       default:
         return <div>Pooping in code</div>
