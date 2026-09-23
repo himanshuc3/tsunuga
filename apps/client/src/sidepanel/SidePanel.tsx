@@ -363,16 +363,7 @@ export const SidePanel = () => {
                         format={(percent) => ``}
                         size={[20, 10]}
                       />
-                      {/* <Progress
-                        percent={(progress.mastered / progress.total) * 100}
-                        percentPosition={{ align: 'center', type: 'inner' }}
-                        format={(percent) => `${progress.mastered}/${progress.total} completed`}
-                        size={['100%', 20]}
-                        strokeColor={{
-                          '0%': '#108ee9',
-                          '100%': '#87d068',
-                        }}
-                      /> */}
+                      \
                     </div>
                   ),
                   children: current ? (

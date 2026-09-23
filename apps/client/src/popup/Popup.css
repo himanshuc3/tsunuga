@@ -272,9 +272,7 @@ body {
   width: 40px;
   height: 100%;
 }
-.pause-switch {
-  margin-right: 4px;
-}
+
 .settings-icon-twist {
   display: inline-flex;
   transform-origin: 50% 50%;

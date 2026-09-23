@@ -8,13 +8,13 @@ import {
   Space,
   Spin,
   Slider,
-  Switch,
   Progress,
   Tag,
   Flex,
   Tooltip,
   Typography,
 } from 'antd'
+import Switch from '../common/components/ResumeSwitch/index'
 import browser from 'webextension-polyfill'
 import {
   ArrowDownOutlined,
@@ -22,11 +22,9 @@ import {
   MenuUnfoldOutlined,
   PoweroffOutlined,
   SaveOutlined,
-  SendOutlined,
   SettingOutlined,
   ThunderboltOutlined,
   HeartFilled,
-  IdcardFilled,
 } from '@ant-design/icons'
 import { gsap } from 'gsap'
 import { DrawSVGPlugin } from 'gsap/DrawSVGPlugin'
@@ -98,11 +96,6 @@ const loggedOutStats = [
   },
 ]
 
-async function fetchState(): Promise<AppState> {
-  const res = (await sendMessage({ type: 'GET_STATE' })) as { state: AppState }
-  return res.state as AppState
-}
-
 function forceResultMessage(result: { status: string } | undefined): string | null {
   switch (result?.status) {
     case 'shown':
@@ -130,6 +123,7 @@ const keysForChange = new Set([
 ])
 export const Popup = () => {
   const [state, setState] = useState<AppState | null>(null)
+  const [stateHydrated, setStateHydrated] = useState(false)
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
   const [busy, setBusy] = useState(false)
   const [statusMsg, setStatusMsg] = useState<string | null>(null)
@@ -155,7 +149,8 @@ export const Popup = () => {
     async function getData() {
       const data = await browser.storage.local.get([...keysForChange])
 
-      setState(data)
+      setState(data as AppState)
+      setStateHydrated(true)
     }
     getData()
 
@@ -314,8 +309,6 @@ export const Popup = () => {
         return
       }
 
-      // const s = await fetchState()
-      // setState(s)
     } catch (error) {
       console.error('Unable to read authentication state', error)
       setIsAuthenticated(false)
@@ -443,7 +436,7 @@ export const Popup = () => {
     setBusy(false)
   }
 
-  if (isAuthenticated === null || (isAuthenticated && !state)) {
+  if (isAuthenticated === null || !stateHydrated) {
     return (
       <ConfigProvider theme={{ token: { colorPrimary: '#b7f36b' } }}>
         <Layout className="popup loading-popup">
@@ -579,15 +572,15 @@ export const Popup = () => {
               {/* <Badge status={state.settings.paused ? 'default' : 'success'} /> */}
             </Space>
             <Flex className="popup-right" align="center">
-              <Tooltip title={state.settings.paused ? 'Resume' : 'Pause'}>
-                <Switch
-                  aria-label="Pause extension"
-                  className="pause-switch"
-                  checked={!state.settings.paused}
-                  onChange={() => void togglePause()}
-                  disabled={busy}
-                />
-              </Tooltip>
+              <Switch
+                tooltip={state.settings.paused ? 'Resume' : 'Pause'}
+                switchProps={{
+                  checked: !state.settings.paused,
+                  onChange: () => void togglePause(),
+                  disabled: busy,
+                }}
+              />
+
               {showSettings && (
                 <Button
                   className="settings-save-button"

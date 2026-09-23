@@ -1,4 +1,4 @@
-import { maybeAdvanceLesson, progressKey } from '../../domain/progress'
+import { maybeAdvanceLesson, progressKey, markIntroduced } from '../../domain/progress'
 import { sampleNextCard } from '../../domain/sampler'
 import { isInAnyQuietHour } from '../../domain/scheduler'
 import { getCurrentLessonId } from '../../common/helpers'
