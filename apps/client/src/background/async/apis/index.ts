@@ -1,5 +1,5 @@
 import { axiosClient } from '../index'
-import type { ItemProgress, Settings } from '../../../domain/types'
+import type { ItemProgress, Settings } from '../../../common/types'
 
 export type AuthUser = {
   id?: string

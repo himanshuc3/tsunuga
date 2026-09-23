@@ -1,8 +1,7 @@
 import { useState } from 'react'
 import { Button, Card as AntCard, ConfigProvider, Flex, Space, Tag, Typography } from 'antd'
 import { CloseOutlined } from '@ant-design/icons'
-import type { PendingCard } from '../domain/types'
-import browser from 'webextension-polyfill'
+import type { PendingCard } from '../common/types'
 
 type Props = {
   card: PendingCard
@@ -53,6 +52,39 @@ export function Card({ card, onAnswer, onAck, onDismiss }: Props) {
     )
   }
 
+  function RenderFooterBased() {
+    switch (card.kind) {
+      case 'intro':
+        return (
+          <Flex className="tango-actions">
+            <Button type="default" disabled={isSubmitting} onClick={() => void submit(onAck)}>
+              Review later
+            </Button>
+            <Button type="primary" disabled={isSubmitting} onClick={() => void submit(onAck)}>
+              Next card
+            </Button>
+            <Button
+              type="primary"
+              disabled={isSubmitting}
+              onClick={() => void submit(() => onAnswer(card.romaji, true))}
+            >
+              Got it
+            </Button>
+          </Flex>
+        )
+      case 'concept':
+        return (
+          <Flex className="tango-actions">
+            <Button type="primary" disabled={isSubmitting} onClick={() => void submit(onAck)}>
+              Continue
+            </Button>
+          </Flex>
+        )
+      case 'test':
+        return <></>
+    }
+  }
+
   function RenderBasedOnType() {
     switch (card.kind) {
       case 'intro':
@@ -77,21 +109,6 @@ export function Card({ card, onAnswer, onAck, onDismiss }: Props) {
               </Flex>
             </Flex>
             {card.meta && <Typography.Text className="tango-meta">{card.meta}</Typography.Text>}
-            <Flex className="tango-actions">
-              <Button type="default" disabled={isSubmitting} onClick={() => void submit(onAck)}>
-                Review later
-              </Button>
-              <Button type="primary" disabled={isSubmitting} onClick={() => void submit(onAck)}>
-                Next card
-              </Button>
-              <Button
-                type="primary"
-                disabled={isSubmitting}
-                onClick={() => void submit(() => onAnswer(card.romaji, true))}
-              >
-                Got it
-              </Button>
-            </Flex>
           </>
         )
       case 'concept':
@@ -102,11 +119,6 @@ export function Card({ card, onAnswer, onAck, onDismiss }: Props) {
             </Typography.Title>
             <Typography.Paragraph className="tango-detail">{card.body}</Typography.Paragraph>
             {card.meta && <Typography.Text className="tango-meta">{card.meta}</Typography.Text>}
-            <Flex className="tango-actions">
-              <Button type="primary" disabled={isSubmitting} onClick={() => void submit(onAck)}>
-                Continue
-              </Button>
-            </Flex>
           </>
         )
       case 'test':
@@ -175,37 +187,40 @@ export function Card({ card, onAnswer, onAck, onDismiss }: Props) {
         },
       }}
     >
-      <Flex
-        className="tango-card"
-        data-kind={card.kind}
-        data-feedback={feedback ?? undefined}
-        role="dialog"
-        orientation="vertical"
-        aria-label="Tango lesson card"
-      >
-        <Flex className="tango-header" align="center" justify="space-between">
-          <Tag color={KIND_COLOR[card.kind]} className="tango-kind">
-            {KIND_LABEL[card.kind]}
-          </Tag>
-          {card.kind === 'intro' ? (
-            <Typography.Text className="tango-script">
-              {card.itemType.toUpperCase()}
-            </Typography.Text>
-          ) : (
-            <Typography.Text className="tango-header-spacer" aria-hidden="true" />
-          )}
-          <Button
-            className="tango-close"
-            type="text"
-            icon={<CloseOutlined />}
-            aria-label="Dismiss"
-            disabled={isSubmitting}
-            onClick={onDismiss}
-          />
+      <Flex className="outer-card">
+        <Flex
+          className="tango-card"
+          data-kind={card.kind}
+          data-feedback={feedback ?? undefined}
+          role="dialog"
+          orientation="vertical"
+          aria-label="Tango lesson card"
+        >
+          <Flex className="tango-header" align="center" justify="space-between">
+            <Tag color={KIND_COLOR[card.kind]} className="tango-kind">
+              {KIND_LABEL[card.kind]}
+            </Tag>
+            {card.kind === 'intro' ? (
+              <Typography.Text className="tango-script">
+                {card.itemType.toUpperCase()}
+              </Typography.Text>
+            ) : (
+              <Typography.Text className="tango-header-spacer" aria-hidden="true" />
+            )}
+            <Button
+              className="tango-close"
+              type="text"
+              icon={<CloseOutlined />}
+              aria-label="Dismiss"
+              disabled={isSubmitting}
+              onClick={onDismiss}
+            />
+          </Flex>
+          <Space className="tango-body" direction="vertical" size={12}>
+            {RenderBasedOnType()}
+          </Space>
         </Flex>
-        <Space className="tango-body" direction="vertical" size={12}>
-          {RenderBasedOnType()}
-        </Space>
+        <Flex>{RenderFooterBased()}</Flex>
       </Flex>
     </ConfigProvider>
   )

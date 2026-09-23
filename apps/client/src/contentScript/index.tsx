@@ -1,6 +1,6 @@
 import { createRoot, type Root } from 'react-dom/client'
 import type { ExtensionMessage } from '../common/messaging/messages'
-import type { PendingCard } from '../domain/types'
+import type { PendingCard } from '../common/types'
 import browser from 'webextension-polyfill'
 import { Card } from './Card'
 import cssText from './Card.css?inline'

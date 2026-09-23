@@ -28,6 +28,10 @@
 - [ ] Test card: amber top border, choices; correct/incorrect feedback then closes
 - [ ] Dismiss (×) clears the card without granting mastery streak
 
+## Supplied-card test mode
+
+Send a `SHOW_TEST_CARD` extension message with a complete `PendingCard` (`kind` may be `test`, `intro`, or `concept`). The card is shown on the active injectable tab, but it is never stored, does not update progress, and does not call the backend. Test mode returns `pending_card` rather than replacing a normal pending lesson card.
+
 ## Lesson gating
 
 - [ ] Side panel path shows lesson 1 open; later lessons locked

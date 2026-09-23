@@ -1,4 +1,4 @@
-import type { PendingCard, Settings } from '../../domain/types'
+import type { AppState, PendingCard, Settings } from '../types'
 
 export type ShowCardMessage = {
   type: 'SHOW_CARD'
@@ -43,6 +43,12 @@ export type ForceCardMessage = {
   type: 'FORCE_CARD'
 }
 
+/** Shows a supplied card without saving or recording learning progress. */
+export type ShowTestCardMessage = {
+  type: 'SHOW_TEST_CARD'
+  card: PendingCard
+}
+
 export type AuthTokenMessage = {
   type: 'AUTH_TOKEN'
 }
@@ -72,6 +78,7 @@ export type ExtensionMessage =
   | SetPausedMessage
   | UpdateSettingsMessage
   | ForceCardMessage
+  | ShowTestCardMessage
   | AuthTokenMessage
   | AuthTokenStatusMessage
   | OpenSettingsMessage
@@ -87,6 +94,7 @@ export type BackgroundRequest =
   | SetPausedMessage
   | UpdateSettingsMessage
   | ForceCardMessage
+  | ShowTestCardMessage
   | AuthTokenMessage
   | AuthTokenStatusMessage
   | OpenSettingsMessage
@@ -96,5 +104,5 @@ export type BackgroundRequest =
 export type StateResponse = {
   type: 'STATE'
   ok: true
-  state: import('../../domain/types').AppState
+  state: AppState
 }

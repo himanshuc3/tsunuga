@@ -16,43 +16,28 @@
   right: 16px;
   bottom: 16px;
   z-index: 2147483646;
-  width: min(320px, calc(100vw - 32px));
-  box-sizing: border-box;
+  /* width: min(320px, calc(100vw - 32px)); */
 }
 * {
   box-sizing: border-box;
 }
 
-.tango-card {
+.outer-card {
+  background: red;
+  border-radius: 10px;
+  padding: 5px;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.tango-card {
   color: var(--ts-text);
   background: var(--ts-bg);
   border: 1px solid var(--ts-border);
-  border-radius: 6px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
+  border-radius: 10px;
   animation: tango-in 180ms ease-out;
 }
-
-/* .tango-card[data-kind='intro'] .tango-header {
-  border: 1px solid var(--ts-intro);
-}
-
-.tango-card[data-kind='concept'] .tango-header {
-  border: 1px solid var(--ts-concept);
-}
-
-.tango-card[data-kind='test'] .tango-header {
-  border: 1px solid var(--ts-test);
-}
-
-.tango-card[data-feedback='correct'] .tango-header{
-  outline: 2px solid var(--ts-ok);
-}
-
-.tango-card[data-feedback='incorrect'] .tango-header {
-  outline: 2px solid var(--ts-bad);
-  animation: tango-shake 240ms ease;
-} */
 
 .tango-card .ant-card-head {
   min-height: 0;
@@ -66,7 +51,6 @@
 }
 
 .tango-card .ant-card-body {
-  padding: 12px 14px 14px;
   background: var(--ts-bg);
 }
 
@@ -449,7 +433,7 @@
 .tango-actions {
   display: flex;
   gap: 8px;
-  margin-top: 12px;
+  margin-top: 5px;
 }
 
 .tango-btn {

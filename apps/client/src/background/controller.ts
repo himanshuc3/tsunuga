@@ -30,6 +30,7 @@ import { completedLessonIds, getCurrentLessonId } from '../common/helpers'
 export type ShowResult =
   | { status: 'shown'; tabId: number }
   | { status: 'pending_no_tab' }
+  | { status: 'pending_card' }
   | { status: 'paused' }
   | { status: 'no_card' }
   | { status: 'inject_failed'; tabId: number }
@@ -50,6 +51,8 @@ type RequestHandlerMap = {
 // for easier access to helper modules
 export class BackgroundController {
   private lastShownTabId: number | null = null
+  private testCardId: string | null = null
+  private testCardTabId: number | null = null
   private readonly cards: CardFeature
   private readonly settings: SettingsFeature
   private readonly eventHandlers: EventHandlerMap
@@ -70,6 +73,7 @@ export class BackgroundController {
       SET_PAUSED: (message) => this.createPausedResponse(message.paused),
       UPDATE_SETTINGS: (message) => this.createSettingsResponse(message.settings),
       FORCE_CARD: () => this.forceCardResponse(),
+      SHOW_TEST_CARD: (message) => this.showTestCard(message.card),
       AUTH_TOKEN: () => this.getAuthToken(),
       AUTH_TOKEN_STATUS: () => this.getAuthTokenStatus(),
       OPEN_SETTINGS: () => this.openSettings(),
@@ -186,6 +190,22 @@ export class BackgroundController {
       bypassPause: true,
     })
     return { result, state: await this.storageController.loadState() }
+  }
+
+  private async showTestCard(card: PendingCard): Promise<{ ok: true; result: ShowResult }> {
+    const state = await this.storageController.loadState()
+    if (state.pendingCard) return { ok: true, result: { status: 'pending_card' } }
+
+    const tab = await getActiveInjectableTab()
+    if (!tab?.id) return { ok: true, result: { status: 'pending_no_tab' } }
+
+    if (!(await this.sendShowWithInject(tab.id, card))) {
+      return { ok: true, result: { status: 'inject_failed', tabId: tab.id } }
+    }
+
+    this.testCardId = card.id
+    this.testCardTabId = tab.id
+    return { ok: true, result: { status: 'shown', tabId: tab.id } }
   }
 
   /**
@@ -323,6 +343,11 @@ export class BackgroundController {
   }
 
   private async answerCard(input: AnswerInput): Promise<{ ok: true }> {
+    if (input.cardId === this.testCardId) {
+      await this.finishTestCard()
+      return { ok: true }
+    }
+
     const state = await this.storageController.loadState()
     const card = state.pendingCard
     if (!card || card.id !== input.cardId) return { ok: true }
@@ -346,6 +371,11 @@ export class BackgroundController {
   }
 
   private async dismissCard(cardId: string): Promise<void> {
+    if (cardId === this.testCardId) {
+      await this.finishTestCard()
+      return
+    }
+
     const state = await this.cards.dismissCard(cardId)
     if (state) await this.finishCard(state)
   }
@@ -401,6 +431,13 @@ export class BackgroundController {
     await hideOnTab(this.lastShownTabId)
     this.lastShownTabId = null
     await this.ensureAlarm(state)
+  }
+
+  private async finishTestCard(): Promise<void> {
+    const state = await this.storageController.loadState()
+    if (!state.pendingCard) await hideOnTab(this.testCardTabId)
+    this.testCardId = null
+    this.testCardTabId = null
   }
 
   private async showPendingOnActiveTab(card: PendingCard): Promise<ShowResult> {

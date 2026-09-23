@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useState } from 'react'
-import type { QuietHour, Settings } from '../domain/types'
-import { DEFAULT_SETTINGS } from '../domain/types'
+import type { QuietHour, Settings } from '../common/types'
+import { DEFAULT_SETTINGS } from '../common/constants'
 import './Options.css'
+import { sendMessage } from '../common/helpers'
 
 async function fetchSettings(): Promise<Settings> {
-  const res = await chrome.runtime.sendMessage({ type: 'GET_STATE' })
+  const res = await sendMessage({ type: 'GET_STATE' })
   return (res.state.settings as Settings) ?? { ...DEFAULT_SETTINGS }
 }
 
@@ -28,16 +29,11 @@ export const Options = () => {
   }
 
   const addQuietHour = () => {
-    update('quietHours', [
-      ...settings.quietHours,
-      { start: '22:00', end: '07:00' },
-    ])
+    update('quietHours', [...settings.quietHours, { start: '22:00', end: '07:00' }])
   }
 
   const updateQuietHour = (index: number, patch: Partial<QuietHour>) => {
-    const next = settings.quietHours.map((q, i) =>
-      i === index ? { ...q, ...patch } : q,
-    )
+    const next = settings.quietHours.map((q, i) => (i === index ? { ...q, ...patch } : q))
     update('quietHours', next)
   }
 
@@ -76,8 +72,7 @@ export const Options = () => {
       <section className="card">
         <h2>Sampling interval</h2>
         <p className="help">
-          Cards appear at a random time between these minutes (after the last
-          card).
+          Cards appear at a random time between these minutes (after the last card).
         </p>
         <div className="grid">
           <label>
@@ -86,9 +81,7 @@ export const Options = () => {
               type="number"
               min={1}
               value={settings.minIntervalMin}
-              onChange={(e) =>
-                update('minIntervalMin', Number(e.target.value) || 1)
-              }
+              onChange={(e) => update('minIntervalMin', Number(e.target.value) || 1)}
             />
           </label>
           <label>
@@ -97,9 +90,7 @@ export const Options = () => {
               type="number"
               min={1}
               value={settings.maxIntervalMin}
-              onChange={(e) =>
-                update('maxIntervalMin', Number(e.target.value) || 1)
-              }
+              onChange={(e) => update('maxIntervalMin', Number(e.target.value) || 1)}
             />
           </label>
         </div>
@@ -108,12 +99,9 @@ export const Options = () => {
       <section className="card">
         <h2>Quiet hours</h2>
         <p className="help">
-          No new cards during these local-time windows. Ranges may wrap midnight
-          (e.g. 22:00–07:00).
+          No new cards during these local-time windows. Ranges may wrap midnight (e.g. 22:00–07:00).
         </p>
-        {settings.quietHours.length === 0 && (
-          <p className="empty">No quiet hours set.</p>
-        )}
+        {settings.quietHours.length === 0 && <p className="empty">No quiet hours set.</p>}
         <ul className="quiet-list">
           {settings.quietHours.map((q, i) => (
             <li key={i}>

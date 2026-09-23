@@ -1,4 +1,4 @@
-import type { AppState, Settings } from '../../domain/types'
+import type { AppState, Settings } from '../../common/types'
 import type { BackgroundDeps } from '../deps'
 
 export class SettingsFeature {
