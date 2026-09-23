@@ -221,18 +221,17 @@ export const Popup = () => {
     setShowSettings(true)
   }
 
-  // TODO: Consume settings similar to lesson data
-  // useEffect(() => {
-  //   if (!state) return
-  //   void (async () => {
-  //     const response = (await sendMessage({ type: 'CONSUME_OPEN_SETTINGS' })) as {
-  //       open: boolean
-  //     }
-  //     if (!response.open) return
-  //     openSettings()
-  //   })()
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [state])
+  useEffect(() => {
+    if (!state || showSettings) return
+    void (async () => {
+      const response = (await sendMessage({ type: 'CONSUME_OPEN_SETTINGS' })) as {
+        open: boolean
+      }
+      if (response?.open) openSettings()
+    })()
+    // Only consume the navigation flag when initial state hydration completes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state])
 
   const updateSetting = <K extends keyof Settings>(key: K, value: Settings[K]) => {
     setSettingsDraft((previous) => (previous ? { ...previous, [key]: value } : previous))
