@@ -49,7 +49,6 @@ export const Popup = () => {
   const [status, setStatus] = useState<keyof [typeof STATUS]>(STATUS.IDLE)
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
 
-  const [statusMsg, setStatusMsg] = useState<string | null>(null)
   const [showSettings, setShowSettings] = useState(false)
   const [settingsDraft, setSettingsDraft] = useState<Settings | null>(null)
   const [settingsError, setSettingsError] = useState<string | null>(null)
@@ -170,7 +169,6 @@ export const Popup = () => {
   const togglePause = async () => {
     if (!state) return
     // setBusy(true)
-    setStatusMsg(null)
     const res = await sendMessage({
       type: 'SET_PAUSED',
       paused: !state.settings.paused,
@@ -185,7 +183,6 @@ export const Popup = () => {
 
   const forceCard = async () => {
     // setBusy(true)
-    setStatusMsg(null)
     try {
       const res = (await sendMessage({ type: 'FORCE_CARD' })) as {
         state?: AppState
@@ -193,10 +190,7 @@ export const Popup = () => {
       }
       if (res?.state) setState(res.state)
       // else await refresh()
-      setStatusMsg(forceResultMessage(res.result))
-    } catch {
-      setStatusMsg('Extension background failed to respond. Reload the extension.')
-    }
+    } catch {}
     // setBusy(false)
   }
 
@@ -315,7 +309,6 @@ export const Popup = () => {
           <LoggedIn
             state={state}
             isBusy={status === STATUS.PROGRESS}
-            statusMsg={statusMsg}
             showSettings={showSettings}
             setShowSettings={setShowSettings}
             settingsDraft={settingsDraft}

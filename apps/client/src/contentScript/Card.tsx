@@ -9,7 +9,7 @@ import {
   Typography,
   Tooltip,
 } from 'antd'
-import { CheckOutlined, CloseOutlined } from '@ant-design/icons'
+import { CheckOutlined, CloseOutlined, ReadOutlined } from '@ant-design/icons'
 import type { PendingCard } from '../common/types'
 
 type Props = {
@@ -96,9 +96,15 @@ export function Card({ card, onAnswer, onAck, onDismiss }: Props) {
       case 'concept':
         return (
           <Flex className="tango-actions">
-            <Button type="primary" disabled={isSubmitting} onClick={() => void submit(onAck)}>
-              Continue
-            </Button>
+            <Tooltip title="accept">
+              <Button
+                type="default"
+                shape="circle"
+                icon={<CheckOutlined />}
+                disabled={isSubmitting}
+                onClick={() => void submit(onAck)}
+              />
+            </Tooltip>
           </Flex>
         )
       case 'test':
@@ -129,36 +135,31 @@ export function Card({ card, onAnswer, onAck, onDismiss }: Props) {
                 </Flex>
               </Flex>
             </Flex>
-            {card.meta && <Typography.Text className="tango-meta">{card.meta}</Typography.Text>}
+            {card.meta && (
+              <Typography.Text className="tango-meta">Note: {card.meta}</Typography.Text>
+            )}
           </>
         )
       case 'concept':
         return (
-          <>
-            <Typography.Title level={2} className="tango-title">
+          <Flex vertical className="concept-body">
+            <Typography.Title level={5} className="tango-title">
+              <ReadOutlined />
               {card.title}
             </Typography.Title>
             <Typography.Paragraph className="tango-detail">{card.body}</Typography.Paragraph>
-            {card.meta && <Typography.Text className="tango-meta">{card.meta}</Typography.Text>}
-          </>
+            {card.meta && (
+              <Typography.Text className="tango-meta">Note: {card.meta}</Typography.Text>
+            )}
+          </Flex>
         )
       case 'test':
         return (
           <>
-            <Flex className="tango-pair" gap={12}>
-              <Flex className="tango-half" vertical align="center" justify="center" gap={4}>
-                <Typography.Text className="tango-half-label">Romaji</Typography.Text>
-                <Typography.Text className="tango-half-text">{card.romaji}</Typography.Text>
-              </Flex>
-              <Flex className="tango-half" vertical align="center" justify="center" gap={4}>
-                <Typography.Text className="tango-half-label">English</Typography.Text>
-                <Typography.Text className="tango-half-text">{card.en}</Typography.Text>
-              </Flex>
-            </Flex>
             <Typography.Paragraph className="tango-prompt small">
               {card.prompt}
             </Typography.Paragraph>
-            {card.meta && <Typography.Text className="tango-meta">{card.meta}</Typography.Text>}
+            {/* {card.meta && <Typography.Text className="tango-meta">{card.meta}</Typography.Text>} */}
             <Space className="tango-choices" direction="vertical" size={8}>
               {card.choices.map((choice) => {
                 let state: 'correct' | 'wrong' | undefined

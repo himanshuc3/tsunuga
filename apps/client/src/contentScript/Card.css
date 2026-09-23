@@ -27,6 +27,7 @@
   padding: 5px;
   overflow: hidden;
   display: flex;
+  width: 290px;
   flex-direction: column;
 }
 
@@ -102,10 +103,13 @@
 }
 
 .tango-prompt,
-.tango-detail,
 .tango-title {
   margin: 0 !important;
   color: var(--ts-text) !important;
+}
+
+.tango-detail {
+  color: rgba(25, 25, 25, 1) !important;
 }
 
 .tango-prompt {
@@ -121,18 +125,12 @@
   line-height: 1.45;
 }
 
-.tango-title {
-  font-size: 20px !important;
-}
-
 .tango-meta {
   display: block;
   margin: 0 !important;
   color: var(--ts-muted) !important;
   font-size: 12px;
   font-style: italic;
-  line-height: 1.4;
-  text-align: center;
 }
 
 .tango-actions,
@@ -355,19 +353,23 @@
   margin-top: 12px;
 }
 .tango-title {
+  display: flex;
+  align-items: center;
+  gap: 5px;
   margin: 0 0 6px;
   height: auto;
   min-height: 36px;
   color: var(--ts-text);
   border-color: var(--ts-border);
-  background: var(--ts-panel);
-  font-size: 14px;
+  border-top: 2px solid var(--ts-panel);
+  border-bottom: 2px solid var(--ts-panel);
   margin-top: 12px;
 }
 
 .tango-actions {
   display: flex;
   gap: 8px;
+  justify-content: flex-end;
   margin-top: 5px;
 }
 

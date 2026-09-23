@@ -42,7 +42,6 @@ type LoggedInStat = {
 type LoggedInProps = {
   state: AppState
   isBusy: boolean
-  statusMsg: string | null
   showSettings: boolean
   setShowSettings: (show: boolean) => void
   settingsDraft: TSettings | null
@@ -68,7 +67,6 @@ type LoggedInProps = {
 export default function LoggedIn({
   state,
   isBusy,
-  statusMsg,
   showSettings,
   setShowSettings,
   settingsDraft,
@@ -304,10 +302,6 @@ export default function LoggedIn({
               />
             </Tooltip>
           </section>
-
-          {statusMsg && (
-            <Alert className="force-card-status" message={statusMsg} type="info" showIcon />
-          )}
 
           <Flex
             className="poster-container"
