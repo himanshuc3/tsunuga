@@ -234,7 +234,7 @@ export class BackgroundController {
         await this.syncLessonsFromApi(token)
         await this.syncProgressFromApi(token)
         await this.syncSettingsFromApi(token)
-        this.storageController.updateState((prev) => {
+        await this.storageController.updateState((prev) => {
           const completedIds = completedLessonIds(prev)
           const currentLessonId = getCurrentLessonId(prev, completedIds)
           console.log(completedIds, currentLessonId)

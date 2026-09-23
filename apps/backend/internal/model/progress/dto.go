@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
+	"github.com/labstack/echo/v4"
 )
 
 // ItemProgress mirrors a row of user_item_progress.
@@ -22,6 +23,14 @@ type ItemProgress struct {
 type RecordAttemptPayload struct {
 	ItemID  string `param:"item_id" json:"-" validate:"required"`
 	Correct bool   `json:"correct"`
+}
+
+func (p *RecordAttemptPayload) Bind(c echo.Context) error {
+	if err := c.Bind(p); err != nil {
+		return err
+	}
+	p.ItemID = c.Param("item_id")
+	return nil
 }
 
 func (p *RecordAttemptPayload) Validate() error {

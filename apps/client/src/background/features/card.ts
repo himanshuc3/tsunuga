@@ -7,7 +7,8 @@ import {
 } from '../../domain/progress'
 import { sampleNextCard } from '../../domain/sampler'
 import { isInAnyQuietHour } from '../../domain/scheduler'
-import type { AppState, PendingCard } from '../../domain/types'
+import { getCurrentLessonId } from '../../common/helpers'
+import type { AppState, PendingCard } from '../../common/types'
 import type { BackgroundDeps } from '../deps'
 
 export type AnswerInput = {
@@ -29,7 +30,7 @@ export class CardFeature {
     bypassQuietHours?: boolean
     bypassPause?: boolean
   }): Promise<CreateCardResult> {
-    const state = await this.deps.loadState()
+    let state = await this.deps.getState()
     if (state.settings.paused && !options?.bypassPause) return { status: 'paused', state }
 
     if (state.pendingCard) {
@@ -38,6 +39,12 @@ export class CardFeature {
 
     if (!options?.bypassQuietHours && isInAnyQuietHour(new Date(), state.settings.quietHours)) {
       return { status: 'no_card', state }
+    }
+
+    if (!state.lessons.some((lesson) => lesson.id === state.currentLessonId)) {
+      const currentLessonId = getCurrentLessonId(state, state.completedLessonIds)
+      if (!currentLessonId) return { status: 'no_card', state }
+      state = await this.deps.updateState((previous) => ({ ...previous, currentLessonId }))
     }
 
     const card = sampleNextCard(state)

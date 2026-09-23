@@ -33,7 +33,7 @@ tasks:
     desc: Start infrastructure and Go server with hot reload
     deps:
       - infra
-      - migrations:up
+      - migrations:up:auto
     cmds:
       - air
 
@@ -79,6 +79,11 @@ tasks:
     deps: [confirm]
     cmds:
       - echo 'Running up migrations...'
+      - tern migrate -m ./internal/database/migrations --conn-string {{.TANGO_DB_DSN}}
+
+  migrations:up:auto:
+    internal: true
+    cmds:
       - tern migrate -m ./internal/database/migrations --conn-string {{.TANGO_DB_DSN}}
 
   tidy:

@@ -52,12 +52,12 @@ export function completedLessonIds(state: AppState) {
     .map((lesson) => lesson.id)
 }
 
-export function getCurrentLessonId(state: AppState, completedIds: string[]): string {
+export function getCurrentLessonId(state: AppState, completedIds: string[]): string | null {
   const completedSet = new Set(completedIds)
-  console.log('helper', completedSet, state.lessons)
   return (
     state.lessons.find((lesson) => !completedSet.has(lesson.id))?.id ??
-    state.lessons[state.lessons.length - 1].id
+    state.lessons[state.lessons.length - 1]?.id ??
+    null
   )
 }
 

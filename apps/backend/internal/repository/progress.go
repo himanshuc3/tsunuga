@@ -75,7 +75,6 @@ func (r *ProgressRepository) RecordAttempt(ctx context.Context, userID uuid.UUID
 			introduced_at = COALESCE(user_item_progress.introduced_at, CURRENT_TIMESTAMP),
 			correct_streak = CASE WHEN @correct THEN user_item_progress.correct_streak + 1 ELSE 0 END,
 			last_seen_at = CURRENT_TIMESTAMP,
-			concept_shown = TRUE,
 			completed_at = CASE
 				WHEN user_item_progress.completed_at IS NOT NULL THEN user_item_progress.completed_at
 				WHEN @correct AND user_item_progress.correct_streak + 1 >= @completion_streak THEN CURRENT_TIMESTAMP
@@ -91,12 +90,12 @@ func (r *ProgressRepository) RecordAttempt(ctx context.Context, userID uuid.UUID
 		"completion_streak": completionStreak,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("failed to execute record attempt query user_id=%s item_id=%s", userID, itemID)
+		return nil, fmt.Errorf("failed to execute record attempt query user_id=%s item_id=%s: %w", userID, itemID, err)
 	}
 
 	updated, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[progress.ItemProgress])
 	if err != nil {
-		return nil, fmt.Errorf("failed to collect row from table:user_item_progress user_id=%s item_id=%s", userID, itemID)
+		return nil, fmt.Errorf("failed to collect row from table:user_item_progress user_id=%s item_id=%s: %w", userID, itemID, err)
 	}
 	return &updated, nil
 }

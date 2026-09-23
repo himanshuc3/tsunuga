@@ -388,17 +388,18 @@ export const Popup = () => {
     setShowSettings(true)
   }
 
-  useEffect(() => {
-    if (!state) return
-    void (async () => {
-      const response = (await sendMessage({ type: 'CONSUME_OPEN_SETTINGS' })) as {
-        open: boolean
-      }
-      if (!response.open) return
-      openSettings()
-    })()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state])
+  // TODO: Consume settings similar to lesson data
+  // useEffect(() => {
+  //   if (!state) return
+  //   void (async () => {
+  //     const response = (await sendMessage({ type: 'CONSUME_OPEN_SETTINGS' })) as {
+  //       open: boolean
+  //     }
+  //     if (!response.open) return
+  //     openSettings()
+  //   })()
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [state])
 
   const updateSetting = <K extends keyof Settings>(key: K, value: Settings[K]) => {
     setSettingsDraft((previous) => (previous ? { ...previous, [key]: value } : previous))
@@ -781,6 +782,10 @@ export const Popup = () => {
                   />
                 </Tooltip>
               </section>
+
+              {statusMsg && (
+                <Alert className="force-card-status" message={statusMsg} type="info" showIcon />
+              )}
 
               <Flex
                 className="poster-container"

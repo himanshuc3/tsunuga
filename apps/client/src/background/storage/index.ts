@@ -9,6 +9,10 @@ export class StorageController {
     this._state = state
   }
 
+  getState() {
+    return this._state
+  }
+
   static getInstance(): StorageController {
     if (!StorageController._instance) {
       StorageController._instance = new StorageController()
@@ -105,7 +109,8 @@ export class StorageController {
   }
 
   async saveState(state: AppState): Promise<void> {
-    console.log(state)
+    this._state = state
+
     await browser.storage.local.set({
       [STORAGE_KEYS.currentLessonId]: state.currentLessonId,
       [STORAGE_KEYS.completedLessonIds]: state.completedLessonIds,

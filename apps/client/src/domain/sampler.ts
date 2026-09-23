@@ -146,8 +146,8 @@ export function sampleNextCard(state: AppState): PendingCard | null {
 
   const currentEn = current.vocab.map((v) => v.en)
   const currentRomaji = current.vocab.map((v) => v.romaji)
-  const globalEn = lessons.flatMap((l) => l.vocab.map((v) => v.en))
-  const globalRomaji = lessons.flatMap((l) => l.vocab.map((v) => v.romaji))
+  const globalEn = state.lessons.flatMap((l) => l.vocab.map((v) => v.en))
+  const globalRomaji = state.lessons.flatMap((l) => l.vocab.map((v) => v.romaji))
 
   // Weak (introduced but not mastered) tests — current lesson
   for (const v of current.vocab) {
@@ -171,7 +171,7 @@ export function sampleNextCard(state: AppState): PendingCard | null {
   }
 
   // Light review from completed lessons
-  for (const lesson of lessons) {
+  for (const lesson of state.lessons) {
     if (!state.completedLessonIds.includes(lesson.id) && lesson.id !== current.id) {
       continue
     }
