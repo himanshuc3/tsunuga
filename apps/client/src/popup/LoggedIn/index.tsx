@@ -27,7 +27,7 @@ import { getNextLesson } from '../../common/helpers'
 import { getOrCreateProgress, progressKey } from '../../domain/progress'
 import logo from '../../assets/logo.svg'
 import Settings from '../../common/components/Settings'
-import './index.css'
+import './index.scss'
 
 const { Content } = Layout
 const { Title, Text } = Typography
@@ -125,6 +125,7 @@ export default function LoggedIn({
               checked: !state.settings.paused,
               onChange: () => void togglePause(),
               disabled: isBusy,
+              className: 'switch',
             }}
           />
           {showSettings && (

@@ -353,19 +353,6 @@ body {
   font-size: 11px;
 }
 
-.lesson-progress {
-  position: relative;
-  width: 100%;
-  margin: 0px auto;
-  padding-top: 20px;
-  background: rgb(32, 32, 36);
-}
-
-.lesson-progress .ant-progress-rail {
-  background: rgba(50, 50, 50, 0.9);
-  border-radius: 0px;
-}
-
 .overall-percentage {
   display: flex;
   justify-content: space-around;

@@ -131,64 +131,41 @@ export const Popup = () => {
     },
   ]
 
-  // useEffect(() => {
-  //   if (!loggedInPosterRef.current || !isAuthenticated) return
+  useEffect(() => {
+    if (!loggedInPosterRef.current || !isAuthenticated) return
 
-  //   const context = gsap.context(() => {
-  //     const card = loggedInPosterRef.current
-  //     if (!card) return
+    const context = gsap.context(() => {
+      const card = loggedInPosterRef.current
+      if (!card) return
 
-  //     gsap.fromTo(
-  //       card.querySelectorAll('.poster-anim'),
-  //       { autoAlpha: 0, y: 10 },
-  //       {
-  //         autoAlpha: 1,
-  //         y: 0,
-  //         duration: 0.42,
-  //         stagger: 0.07,
-  //         ease: 'power3.out',
-  //       },
-  //     )
+      gsap.fromTo(
+        card.querySelectorAll('.poster-anim'),
+        { autoAlpha: 0, y: 10 },
+        {
+          autoAlpha: 1,
+          y: 0,
+          duration: 0.42,
+          stagger: 0.07,
+          ease: 'power3.out',
+        },
+      )
 
-  //     gsap.delayedCall(3.5, () => {
-  //       gsap.to(card.querySelectorAll('.poster-anim'), {
-  //         autoAlpha: 0,
-  //         y: -10,
-  //         duration: 0.32,
-  //         stagger: 0.04,
-  //         ease: 'power2.in',
-  //         onComplete: () => {
-  //           setLoggedInStatIndex((index) => (index + 1) % loggedinStats.length)
-  //         },
-  //       })
-  //     })
-  //   }, loggedInPosterRef)
+      gsap.delayedCall(3.5, () => {
+        gsap.to(card.querySelectorAll('.poster-anim'), {
+          autoAlpha: 0,
+          y: -10,
+          duration: 0.32,
+          stagger: 0.04,
+          ease: 'power2.in',
+          onComplete: () => {
+            setLoggedInStatIndex((index) => (index + 1) % loggedinStats.length)
+          },
+        })
+      })
+    }, loggedInPosterRef)
 
-  //   return () => context.revert()
-  // }, [isAuthenticated, loggedInStatIndex, loggedinStats.length])
-
-  // const refresh = useCallback(async () => {
-  //   try {
-  //     const data = await browser.storage.local.get('authToken')
-  //     const authenticated = !!data.authToken.length
-  //     setIsAuthenticated(authenticated)
-
-  //     if (!authenticated) {
-  //       setState(null)
-  //       return
-  //     } else {
-  //       setState(data as AppState)
-  //     }
-  //   } catch (error) {
-  //     console.error('Unable to read authentication state', error)
-  //     setIsAuthenticated(false)
-  //     setState(null)
-  //   }
-  // }, [])
-
-  // useEffect(() => {
-  //   void refresh()
-  // }, [refresh])
+    return () => context.revert()
+  }, [isAuthenticated, loggedInStatIndex, loggedinStats.length])
 
   const togglePause = async () => {
     if (!state) return

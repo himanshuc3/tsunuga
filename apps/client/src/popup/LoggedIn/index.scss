@@ -1,0 +1,25 @@
+.popup-right .ant-btn {
+  width: 40px;
+  height: 100%;
+}
+
+.popup-right {
+  gap: 0px;
+}
+
+.switch {
+  margin-right: 6px;
+}
+
+.lesson-progress {
+  position: relative;
+  width: 100%;
+  margin: 0px auto;
+  padding-top: 20px;
+  background: rgb(32, 32, 36);
+  
+  & .ant-progress-rail {
+    background: rgba(50, 50, 50, 0.9);
+    border-radius: 0px;
+  }
+}
