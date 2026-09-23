@@ -7,15 +7,10 @@ import type {
   TestCard,
   TestDirection,
 } from '../common/types'
+import { getLessonById } from '../common/helpers'
 
 function uid(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
-}
-
-const lessons: any[] = []
-
-function getLessonById(lessons: any[], id: string) {
-  return lessons.find((lesson) => lesson.id === id)
 }
 
 function shuffle<T>(arr: T[]): T[] {

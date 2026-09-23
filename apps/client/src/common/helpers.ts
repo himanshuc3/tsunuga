@@ -61,4 +61,8 @@ export function getCurrentLessonId(state: AppState, completedIds: string[]): str
   )
 }
 
+export function getLessonById(lessons: any[], id: string) {
+  return lessons.find((lesson) => lesson.id === id)
+}
+
 export const sendMessage = browser.runtime.sendMessage

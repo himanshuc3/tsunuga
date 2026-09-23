@@ -1,4 +1,4 @@
-import type { AppState } from '../domain/types'
+import type { AppState } from '../common/types'
 
 export type BackgroundDeps = {
   loadState: () => Promise<AppState>

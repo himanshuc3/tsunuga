@@ -5,6 +5,7 @@ import browser from 'webextension-polyfill'
 import { Card } from './Card'
 import cssText from './Card.css?inline'
 import { StyleProvider } from '@ant-design/cssinjs'
+import { sendMessage } from '../common/helpers'
 
 const HOST_ID = 'tango-extension-host'
 
@@ -43,7 +44,7 @@ class Controller {
   }
 
   public sendAnswer(cardId: string, choice: string, correct: boolean): void {
-    browser.runtime.sendMessage({
+    sendMessage({
       type: 'ANSWER',
       cardId,
       choice,
@@ -52,7 +53,7 @@ class Controller {
   }
 
   public sendDismiss(cardId: string): void {
-    browser.runtime.sendMessage({ type: 'DISMISS', cardId })
+    sendMessage({ type: 'DISMISS', cardId })
   }
 
   public hideCard(): void {

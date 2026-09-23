@@ -1,9 +1,6 @@
 import { MASTERY_STREAK } from '../common/constants'
+import { getLessonById } from '../common/helpers'
 import type { AppState, ItemProgress, Lesson } from '../common/types'
-
-function getLessonById(lessons: any[], id: string) {
-  return lessons.find((lesson) => lesson.id === id)
-}
 
 function getNextLesson(state: AppState) {
   return state.lessons.findIndex((lesson) => lesson.id === state.currentLessonId) + 1
@@ -82,7 +79,7 @@ export function isLessonUnlocked(state: AppState, lesson: Lesson): boolean {
 /** Apply mastery unlock: mark current complete and advance if ready. */
 export function maybeAdvanceLesson(state: AppState): AppState {
   if (!state.currentLessonId) return state
-  const current = getLessonById(state, state.currentLessonId)
+  const current = getLessonById(state.lessons, state.currentLessonId)
   if (!current) return state
 
   if (!isLessonComplete(state, current)) return state
