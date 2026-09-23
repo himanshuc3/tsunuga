@@ -139,14 +139,19 @@ export function apiProgressToClientProgress(
 ): Record<string, ItemProgress> {
   const result: Record<string, ItemProgress> = {}
   for (const item of items) {
-    result[item.item_id] = {
-      introducedAt: item.introduced_at ? Date.parse(item.introduced_at) : null,
-      correctStreak: item.correct_streak,
-      lastSeenAt: item.last_seen_at ? Date.parse(item.last_seen_at) : null,
-      conceptShown: item.concept_shown,
-    }
+    result[item.item_id] = apiProgressItemToClientProgress(item)
   }
   return result
+}
+
+export function apiProgressItemToClientProgress(item: UserProgressItem): ItemProgress {
+  return {
+    introducedAt: item.introduced_at ? Date.parse(item.introduced_at) : null,
+    correctStreak: item.correct_streak,
+    lastSeenAt: item.last_seen_at ? Date.parse(item.last_seen_at) : null,
+    conceptShown: item.concept_shown,
+    completedAt: item.completed_at ? Date.parse(item.completed_at) : null,
+  }
 }
 
 export async function recordItemAttempt(

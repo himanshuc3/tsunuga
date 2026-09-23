@@ -79,9 +79,10 @@ export type ExtensionMessage =
   | OpenSidePanel
   | LogoutMessage
 
-export type BackgroundEvent = AnswerMessage | DismissMessage | OpenSidePanel
+export type BackgroundEvent = DismissMessage | OpenSidePanel
 
 export type BackgroundRequest =
+  | AnswerMessage
   | GetStateMessage
   | SetPausedMessage
   | UpdateSettingsMessage

@@ -6,8 +6,8 @@ import browser from 'webextension-polyfill'
 
 type Props = {
   card: PendingCard
-  onAnswer: (choice: string, correct: boolean) => void
-  onAck: () => void
+  onAnswer: (choice: string, correct: boolean) => Promise<void>
+  onAck: () => Promise<void>
   onDismiss: () => void
 }
 
@@ -27,14 +27,27 @@ const KIND_COLOR: Record<PendingCard['kind'], string> = {
 export function Card({ card, onAnswer, onAck, onDismiss }: Props) {
   const [feedback, setFeedback] = useState<'correct' | 'incorrect' | null>(null)
   const [picked, setPicked] = useState<string | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const submit = async (action: () => Promise<void>) => {
+    if (isSubmitting) return
+    setIsSubmitting(true)
+    try {
+      await action()
+    } catch (error) {
+      console.error('Unable to record card progress', error)
+      setIsSubmitting(false)
+    }
+  }
+
   const handleChoice = (choice: string) => {
-    if (card.kind !== 'test' || feedback) return
+    if (card.kind !== 'test' || feedback || isSubmitting) return
     const correct = choice === card.answer
     setPicked(choice)
     setFeedback(correct ? 'correct' : 'incorrect')
     window.setTimeout(
       () => {
-        onAnswer(choice, correct)
+        void submit(() => onAnswer(choice, correct))
       },
       correct ? 650 : 1100,
     )
@@ -65,13 +78,17 @@ export function Card({ card, onAnswer, onAck, onDismiss }: Props) {
             </Flex>
             {card.meta && <Typography.Text className="tango-meta">{card.meta}</Typography.Text>}
             <Flex className="tango-actions">
-              <Button type="default" onClick={onAck}>
+              <Button type="default" disabled={isSubmitting} onClick={() => void submit(onAck)}>
                 Review later
               </Button>
-              <Button type="primary" onClick={onAck}>
+              <Button type="primary" disabled={isSubmitting} onClick={() => void submit(onAck)}>
                 Next card
               </Button>
-              <Button type="primary" onClick={() => onAnswer(card.romaji, true)}>
+              <Button
+                type="primary"
+                disabled={isSubmitting}
+                onClick={() => void submit(() => onAnswer(card.romaji, true))}
+              >
                 Got it
               </Button>
             </Flex>
@@ -86,7 +103,7 @@ export function Card({ card, onAnswer, onAck, onDismiss }: Props) {
             <Typography.Paragraph className="tango-detail">{card.body}</Typography.Paragraph>
             {card.meta && <Typography.Text className="tango-meta">{card.meta}</Typography.Text>}
             <Flex className="tango-actions">
-              <Button type="primary" onClick={onAck}>
+              <Button type="primary" disabled={isSubmitting} onClick={() => void submit(onAck)}>
                 Continue
               </Button>
             </Flex>
@@ -123,7 +140,7 @@ export function Card({ card, onAnswer, onAck, onDismiss }: Props) {
                     type="default"
                     block
                     data-state={state}
-                    disabled={Boolean(feedback)}
+                    disabled={Boolean(feedback) || isSubmitting}
                     onClick={() => handleChoice(choice)}
                   >
                     {choice}
@@ -182,6 +199,7 @@ export function Card({ card, onAnswer, onAck, onDismiss }: Props) {
             type="text"
             icon={<CloseOutlined />}
             aria-label="Dismiss"
+            disabled={isSubmitting}
             onClick={onDismiss}
           />
         </Flex>

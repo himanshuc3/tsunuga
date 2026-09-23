@@ -13,6 +13,7 @@ import { CardFeature, type AnswerInput } from './features/card'
 import { SettingsFeature } from './features/settings'
 import { hideOnTab, sendToTab, setBadge } from './helpers'
 import {
+  apiProgressItemToClientProgress,
   apiProgressToClientProgress,
   apiSettingsToClientSettings,
   clientSettingsToApiSettings,
@@ -20,6 +21,7 @@ import {
   listLessons,
   listUserProgress,
   loginWithGoogle,
+  recordItemAttempt,
   updateUserSettings,
 } from './async/apis'
 import { StorageController } from './storage'
@@ -59,11 +61,11 @@ export class BackgroundController {
     this.cards = new CardFeature(this.storageController)
     this.settings = new SettingsFeature(this.storageController)
     this.eventHandlers = {
-      ANSWER: (message) => this.answerCard(message),
       DISMISS: (message) => this.dismissCard(message.cardId),
       OPEN_SIDEPANEL: (message) => this._openSidePanel(),
     }
     this.requestHandlers = {
+      ANSWER: (message) => this.answerCard(message),
       GET_STATE: () => this.getState(),
       SET_PAUSED: (message) => this.createPausedResponse(message.paused),
       UPDATE_SETTINGS: (message) => this.createSettingsResponse(message.settings),
@@ -320,9 +322,27 @@ export class BackgroundController {
     return { type: 'STATE', ok: true, state: await this.storageController.loadState() }
   }
 
-  private async answerCard(input: AnswerInput): Promise<void> {
-    const state = await this.cards.answerCard(input)
-    if (state) await this.finishCard(state)
+  private async answerCard(input: AnswerInput): Promise<{ ok: true }> {
+    const state = await this.storageController.loadState()
+    const card = state.pendingCard
+    if (!card || card.id !== input.cardId) return { ok: true }
+
+    const stored = await browser.storage.local.get('authToken')
+    if (typeof stored.authToken !== 'string' || !stored.authToken) {
+      throw new Error('Cannot record progress without an authenticated session.')
+    }
+
+    const correct =
+      typeof input.correct === 'boolean'
+        ? input.correct
+        : input.choice !== undefined && card.kind === 'test' && input.choice === card.answer
+    const itemId = card.kind === 'concept' ? card.conceptId : card.itemKey
+    const progress = apiProgressItemToClientProgress(
+      await recordItemAttempt(stored.authToken, itemId, correct),
+    )
+    const next = await this.cards.answerCard(input, progress)
+    if (next) await this.finishCard(next)
+    return { ok: true }
   }
 
   private async dismissCard(cardId: string): Promise<void> {

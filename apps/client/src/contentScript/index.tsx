@@ -43,8 +43,8 @@ class Controller {
     })
   }
 
-  public sendAnswer(cardId: string, choice: string, correct: boolean): void {
-    sendMessage({
+  public async sendAnswer(cardId: string, choice: string, correct: boolean): Promise<void> {
+    await sendMessage({
       type: 'ANSWER',
       cardId,
       choice,

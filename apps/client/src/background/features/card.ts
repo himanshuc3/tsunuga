@@ -1,14 +1,8 @@
-import {
-  markConceptShown,
-  markIntroduced,
-  markTestResult,
-  maybeAdvanceLesson,
-  progressKey,
-} from '../../domain/progress'
+import { maybeAdvanceLesson, progressKey } from '../../domain/progress'
 import { sampleNextCard } from '../../domain/sampler'
 import { isInAnyQuietHour } from '../../domain/scheduler'
 import { getCurrentLessonId } from '../../common/helpers'
-import type { AppState, PendingCard } from '../../common/types'
+import type { AppState, ItemProgress, PendingCard } from '../../common/types'
 import type { BackgroundDeps } from '../deps'
 
 export type AnswerInput = {
@@ -74,35 +68,20 @@ export class CardFeature {
     }))
   }
 
-  async answerCard(input: AnswerInput): Promise<AppState | null> {
-    const state = await this.deps.loadState()
+  async answerCard(input: AnswerInput, progress: ItemProgress): Promise<AppState | null> {
+    const state = await this.deps.getState()
     const card = state.pendingCard
     if (!card || card.id !== input.cardId) return null
 
-    let next = state
-    if (card.kind === 'test') {
-      const correct =
-        typeof input.correct === 'boolean'
-          ? input.correct
-          : input.choice !== undefined && input.choice === card.answer
-      const key = progressKey(card.lessonId, card.itemType, card.itemKey)
-      next = maybeAdvanceLesson(markTestResult(state, key, correct))
-    } else {
-      next = this.applyCardAck(state, card)
-    }
+    const key =
+      card.kind === 'concept'
+        ? progressKey(card.lessonId, 'concept', card.conceptId)
+        : progressKey(card.lessonId, card.itemType, card.itemKey)
+    const next = maybeAdvanceLesson({
+      ...state,
+      itemProgress: { ...state.itemProgress, [key]: progress },
+    })
 
     return this.deps.updateState(() => ({ ...next, pendingCard: null }))
-  }
-
-  private applyCardAck(state: AppState, card: PendingCard): AppState {
-    if (card.kind === 'intro') {
-      return maybeAdvanceLesson(
-        markIntroduced(state, progressKey(card.lessonId, card.itemType, card.itemKey)),
-      )
-    }
-    if (card.kind === 'concept') {
-      return maybeAdvanceLesson(markConceptShown(state, card.lessonId, card.conceptId))
-    }
-    return state
   }
 }
