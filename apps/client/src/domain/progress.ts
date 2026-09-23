@@ -1,10 +1,6 @@
 import { MASTERY_STREAK } from '../common/constants'
-import { getLessonById } from '../common/helpers'
+import { getLessonById, getNextLesson } from '../common/helpers'
 import type { AppState, ItemProgress, Lesson } from '../common/types'
-
-function getNextLesson(state: AppState) {
-  return state.lessons.findIndex((lesson) => lesson.id === state.currentLessonId) + 1
-}
 
 export function progressKey(lessonId: string, kind: 'vocab' | 'concept', itemKey: string): string {
   return `${lessonId}:${kind}:${itemKey}`
@@ -16,6 +12,7 @@ export function emptyProgress(): ItemProgress {
     correctStreak: 0,
     lastSeenAt: null,
     conceptShown: false,
+    completedAt: null,
   }
 }
 
@@ -137,6 +134,7 @@ export function markConceptShown(
         conceptShown: true,
         introducedAt: prev.introducedAt ?? now,
         lastSeenAt: now,
+        completedAt: null,
       },
     },
   }

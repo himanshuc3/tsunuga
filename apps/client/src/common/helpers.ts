@@ -18,15 +18,6 @@ export async function openPopupWithSettings(): Promise<void> {
   }
 }
 
-export function getNextLesson(state: AppState) {
-  const completedIds = new Set(state.completedLessonIds)
-  const indexCurrent = state.lessons.findIndex((lesson) => lesson.id === state.currentLessonId)
-  return (
-    state.lessons.find((lesson, index) => index > indexCurrent && !completedIds.has(lesson.id)) ??
-    state.lessons[state.lessons.length - 1]
-  )
-}
-
 function isLessonComplete(
   lesson: Lesson,
   itemProgressSet: Set<string>,
@@ -58,6 +49,15 @@ export function getCurrentLessonId(state: AppState, completedIds: string[]): str
     state.lessons.find((lesson) => !completedSet.has(lesson.id))?.id ??
     state.lessons[state.lessons.length - 1]?.id ??
     null
+  )
+}
+
+export function getNextLesson(state: AppState): Lesson {
+  const completedIds = new Set([...state.completedLessonIds])
+
+  return (
+    state.lessons[state.lessons.findIndex((lesson) => !completedIds.has(lesson.id))] ??
+    state.lessons[state.lessons.length - 1]
   )
 }
 

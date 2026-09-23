@@ -1,7 +1,13 @@
 import { Tooltip, Switch } from 'antd'
 import './index.css'
 
-export default function CustomSwitch({ switchProps, tooltip }) {
+export default function CustomSwitch({
+  switchProps,
+  tooltip,
+}: {
+  switchProps: object
+  tooltip: 'string'
+}) {
   return (
     <Tooltip title={tooltip}>
       <Switch

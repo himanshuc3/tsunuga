@@ -1,4 +1,4 @@
-import type { QuietHour, Settings } from './types'
+import type { QuietHour, Settings } from '../common/types'
 
 /** Parse "HH:mm" into minutes from midnight. */
 export function parseHm(hm: string): number {
