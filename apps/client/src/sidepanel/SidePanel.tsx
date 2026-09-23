@@ -26,7 +26,7 @@ import {
   progressKey,
 } from '../domain/progress'
 import type { AppState, Lesson } from '../common/types'
-import { MASTERY_STREAK } from '../common/constants'
+import { MASTERY_STREAK, STORAGE_KEYS } from '../common/constants'
 import './SidePanel.css'
 import { openPopupWithSettings, sendMessage } from '../common/helpers'
 import browser from 'webextension-polyfill'
@@ -113,6 +113,8 @@ function LessonDetails({ state, lesson }: { state: AppState; lesson: Lesson }) {
   )
 }
 
+const keysForChange = new Set([...Object.values(STORAGE_KEYS), 'authToken'])
+
 export const SidePanel = () => {
   const [state, setState] = useState<AppState | null>(null)
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
@@ -121,21 +123,42 @@ export const SidePanel = () => {
   const [currentLessonExpanded, setCurrentLessonExpanded] = useState(false)
 
   const refresh = useCallback(async () => {
-    const stored = await browser.storage.local.get('authToken')
-    const authenticated = Boolean(stored.authToken)
-    setIsAuthenticated(authenticated)
+    try {
+      const response = (await sendMessage({ type: 'AUTH_TOKEN_STATUS' })) as {
+        authenticated?: boolean
+      } | null
+      const authenticated = Boolean(response?.authenticated)
+      setIsAuthenticated(authenticated)
 
-    if (!authenticated) {
+      if (!authenticated) {
+        setState(null)
+        return
+      }
+
+      setState(await fetchState())
+    } catch (error) {
+      console.error('Unable to refresh side panel state', error)
+      setIsAuthenticated(false)
       setState(null)
-      return
     }
-
-    const s = await fetchState()
-    setState(s)
   }, [])
 
   useEffect(() => {
     void refresh()
+
+    const handleStorageChange = (
+      changes: Record<string, browser.Storage.StorageChange>,
+      areaName: string,
+    ) => {
+      if (areaName !== 'local') return
+
+      if (Object.keys(changes).find((key) => keysForChange.has(key))) {
+        void refresh()
+      }
+    }
+
+    browser.storage.onChanged.addListener(handleStorageChange)
+    return () => browser.storage.onChanged.removeListener(handleStorageChange)
   }, [refresh])
 
   const togglePause = async () => {
@@ -257,8 +280,8 @@ export const SidePanel = () => {
       </ConfigProvider>
     )
   }
-  const lessons: any[] = []
-  const current = lessons.find((l) => l.id === state.currentLessonId)
+  const lessons = state.lessons
+  const current = state.lessons.find((l) => l.id === state.currentLessonId)
   const progress = current ? countMasteredInLesson(state, current) : { mastered: 0, total: 0 }
 
   return (

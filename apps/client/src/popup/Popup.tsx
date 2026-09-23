@@ -168,7 +168,6 @@ export const Popup = () => {
       }
     })
   }, [])
-  console.log('state', state)
 
   useEffect(() => {
     if (!posterRef.current || isAuthenticated !== false) return

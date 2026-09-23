@@ -73,7 +73,12 @@ export function countMasteredInLesson(
 }
 
 export function isLessonUnlocked(state: AppState, lesson: Lesson): boolean {
-  return state.completedLessonIds.includes(lesson.id)
+  if (state.completedLessonIds.includes(lesson.id) || state.currentLessonId === lesson.id) {
+    return true
+  }
+
+  // A newly initialized path has no current pointer until the catalog is hydrated.
+  return state.currentLessonId === null && state.lessons[0]?.id === lesson.id
 }
 
 /** Apply mastery unlock: mark current complete and advance if ready. */
