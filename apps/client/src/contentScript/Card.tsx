@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useLayoutEffect, useRef, useState } from 'react'
 import {
   Button,
   Card as AntCard,
@@ -10,6 +10,7 @@ import {
   Tooltip,
 } from 'antd'
 import { CheckOutlined, CloseOutlined, ReadOutlined } from '@ant-design/icons'
+import { gsap } from 'gsap'
 import type { PendingCard } from '../common/types'
 
 type Props = {
@@ -33,9 +34,33 @@ const KIND_COLOR: Record<PendingCard['kind'], string> = {
 // TODO[development]: Resolve every tab reloading on content-script updates
 // TODO[Styles]: Add animations for smoother inpage transitions and grabbing attention
 export function Card({ card, onAnswer, onAck, onDismiss }: Props) {
+  const cardRef = useRef<HTMLDivElement>(null)
   const [feedback, setFeedback] = useState<'correct' | 'incorrect' | null>(null)
   const [picked, setPicked] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  useLayoutEffect(() => {
+    const cardElement = cardRef.current
+    if (!cardElement) return
+
+    const context = gsap.context(() => {
+      gsap
+        .timeline()
+        .fromTo(
+          cardElement,
+          { autoAlpha: 0, x: 28, y: 14, scale: 0.96 },
+          { autoAlpha: 1, x: 0, y: 0, scale: 1, duration: 0.38, ease: 'power3.out' },
+        )
+        .fromTo(
+          cardElement.querySelectorAll('.tango-header, .tango-body, .tango-actions'),
+          { autoAlpha: 0, y: 8 },
+          { autoAlpha: 1, y: 0, duration: 0.26, stagger: 0.05, ease: 'power2.out' },
+          '-=0.18',
+        )
+    }, cardElement)
+
+    return () => context.revert()
+  }, [card.id])
 
   const submit = async (action: () => Promise<void>) => {
     if (isSubmitting) return
@@ -214,7 +239,7 @@ export function Card({ card, onAnswer, onAck, onDismiss }: Props) {
         },
       }}
     >
-      <Flex className="outer-card" data-kind={card.kind}>
+      <Flex ref={cardRef} className="outer-card" data-kind={card.kind}>
         <Flex
           className="tango-card"
           data-kind={card.kind}

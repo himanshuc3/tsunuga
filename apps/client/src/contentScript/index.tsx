@@ -13,6 +13,7 @@ import semiBoldFontUrl from '../assets/fonts/BricolageGrotesque_24pt-SemiBold.tt
 import boldFontUrl from '../assets/fonts/BricolageGrotesque_24pt-Bold.ttf?url'
 import extraBoldFontUrl from '../assets/fonts/BricolageGrotesque_24pt-ExtraBold.ttf?url'
 import { StyleProvider } from '@ant-design/cssinjs'
+import { gsap } from 'gsap'
 import { sendMessage } from '../common/helpers'
 
 const HOST_ID = 'tango-extension-host'
@@ -30,6 +31,7 @@ class Controller {
   private _root: null | Root = null
   private _shadow: ShadowRoot | null = null
   private _currentCardId: string | null = null
+  private _hideTween: gsap.core.Tween | null = null
 
   static getInstance() {
     if (!Controller._instance) {
@@ -73,10 +75,31 @@ class Controller {
   }
 
   public hideCard(): void {
-    this._destroyMount()
+    const card = this._shadow?.querySelector<HTMLElement>('.outer-card')
+    if (!card || !this._root) {
+      this._destroyMount()
+      return
+    }
+
+    this._hideTween?.kill()
+    card.style.pointerEvents = 'none'
+    this._hideTween = gsap.to(card, {
+      autoAlpha: 0,
+      x: 20,
+      y: 12,
+      scale: 0.96,
+      duration: 0.22,
+      ease: 'power2.in',
+      onComplete: () => {
+        this._hideTween = null
+        this._destroyMount()
+      },
+    })
   }
 
   private _destroyMount(): void {
+    this._hideTween?.kill()
+    this._hideTween = null
     const host = document.getElementById(HOST_ID)
     if (this._root) {
       this._root.unmount()
@@ -88,6 +111,9 @@ class Controller {
   }
 
   public showCard(card: PendingCard): void {
+    if (this._hideTween) {
+      this._destroyMount()
+    }
     this._ensureMount()
     this._currentCardId = card.id
     this._root?.render(
