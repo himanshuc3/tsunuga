@@ -26,7 +26,7 @@ import {
   progressKey,
 } from '../domain/progress'
 import type { AppState, Lesson } from '../common/types'
-import { MASTERY_STREAK, STORAGE_KEYS } from '../common/constants'
+import { ALARM_NAME, MASTERY_STREAK, STORAGE_KEYS } from '../common/constants'
 import './SidePanel.css'
 import { openPopupWithSettings, sendMessage } from '../common/helpers'
 import browser from 'webextension-polyfill'
@@ -54,6 +54,19 @@ function forceResultMessage(result: { status: string } | undefined): string | nu
     default:
       return null
   }
+}
+
+function formatNextCardDue(nextCardAt: number | null, state: AppState): string {
+  if (state.settings.paused) return 'Paused'
+  if (state.pendingCard) return 'Ready now'
+  if (!nextCardAt) return 'Scheduling'
+
+  const minutesUntil = Math.ceil((nextCardAt - Date.now()) / 60_000)
+  if (minutesUntil <= 0) return 'Due now'
+  if (minutesUntil < 60) return `In ${minutesUntil} min`
+
+  const hoursUntil = Math.ceil(minutesUntil / 60)
+  return `In ${hoursUntil} hr`
 }
 
 function LessonDetails({ state, lesson }: { state: AppState; lesson: Lesson }) {
@@ -117,6 +130,7 @@ const keysForChange = new Set([...Object.values(STORAGE_KEYS), 'authToken'])
 
 export const SidePanel = () => {
   const [state, setState] = useState<AppState | null>(null)
+  const [nextCardAt, setNextCardAt] = useState<number | null>(null)
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
   const [busy, setBusy] = useState(false)
   const [statusMsg, setStatusMsg] = useState<string | null>(null)
@@ -132,14 +146,21 @@ export const SidePanel = () => {
 
       if (!authenticated) {
         setState(null)
+        setNextCardAt(null)
         return
       }
 
-      setState(await fetchState())
+      const [nextState, nextAlarm] = await Promise.all([
+        fetchState(),
+        browser.alarms.get(ALARM_NAME),
+      ])
+      setState(nextState)
+      setNextCardAt(nextAlarm?.scheduledTime ?? null)
     } catch (error) {
       console.error('Unable to refresh side panel state', error)
       setIsAuthenticated(false)
       setState(null)
+      setNextCardAt(null)
     }
   }, [])
 
@@ -283,6 +304,29 @@ export const SidePanel = () => {
   const lessons = state.lessons
   const current = state.lessons.find((l) => l.id === state.currentLessonId)
   const progress = current ? countMasteredInLesson(state, current) : { mastered: 0, total: 0 }
+  const vocabularySeen = state.lessons.reduce(
+    (total, lesson) =>
+      total +
+      lesson.vocab.filter(
+        (item) => getOrCreateProgress(state, progressKey(lesson.id, 'vocab', item.id)).introducedAt,
+      ).length,
+    0,
+  )
+  const conceptsSeen = state.lessons.reduce(
+    (total, lesson) =>
+      total +
+      lesson.concepts.filter(
+        (concept) =>
+          getOrCreateProgress(state, progressKey(lesson.id, 'concept', concept.id)).conceptShown,
+      ).length,
+    0,
+  )
+  const stats = [
+    { label: 'Next card due', value: formatNextCardDue(nextCardAt, state) },
+    { label: 'Vocab cards seen', value: vocabularySeen.toString() },
+    { label: 'Concepts seen', value: conceptsSeen.toString() },
+    { label: 'Lessons complete', value: state.completedLessonIds.length.toString() },
+  ]
 
   return (
     <ConfigProvider theme={theme}>
@@ -346,6 +390,15 @@ export const SidePanel = () => {
             </Flex>
           </section>
           <hr className="divider" />
+
+          <section className="learning-stats row" aria-label="Learning stats">
+            {stats.map((stat) => (
+              <div className="learning-stat-card" key={stat.label}>
+                <Text className="learning-stat-label">{stat.label}</Text>
+                <Text className="learning-stat-value">{stat.value}</Text>
+              </div>
+            ))}
+          </section>
 
           <section className="path-panel row">
             <Text className="panel-title">Path</Text>

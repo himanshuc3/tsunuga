@@ -342,6 +342,39 @@ body {
   margin-bottom: 12px;
 }
 
+.learning-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 14px 0 18px;
+}
+
+.learning-stat-card {
+  min-height: 78px;
+  padding: 12px;
+  border: 1px solid var(--sp-line);
+  border-radius: 8px;
+  background: var(--sp-card);
+}
+
+.learning-stat-label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--sp-muted);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.learning-stat-value {
+  display: block;
+  color: #f7f7f8;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
 .lesson-collapse.ant-collapse {
   color: #f7f7f8;
   background: transparent;
