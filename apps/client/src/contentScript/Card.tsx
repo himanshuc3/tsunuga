@@ -91,7 +91,7 @@ export function Card({ card, onAnswer, onAck, onDismiss }: Props) {
         return (
           <>
             <Flex className="tango-pair">
-              <Flex className="tango-half left" vertical align="center" gap={4}>
+              <Flex className="tango-half" vertical align="center">
                 <Flex justify="center" className="label-container">
                   <Typography.Text className="tango-half-label">Romaji</Typography.Text>
                 </Flex>
@@ -99,7 +99,7 @@ export function Card({ card, onAnswer, onAck, onDismiss }: Props) {
                   <Typography.Text className="tango-half-text">{card.romaji}</Typography.Text>
                 </Flex>
               </Flex>
-              <Flex className="tango-half right" vertical align="center" gap={4}>
+              <Flex className="tango-half" vertical align="center">
                 <Flex justify="center" className="label-container">
                   <Typography.Text className="tango-half-label">English</Typography.Text>
                 </Flex>
@@ -177,7 +177,6 @@ export function Card({ card, onAnswer, onAck, onDismiss }: Props) {
     <ConfigProvider
       theme={{
         token: {
-          colorPrimary: KIND_COLOR[card.kind],
           colorText: '#f7f7f8',
           colorTextSecondary: '#9a99a5',
           colorBgContainer: '#202024',
