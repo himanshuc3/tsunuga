@@ -1,9 +1,14 @@
-import { SaveOutlined, SettingOutlined } from '@ant-design/icons'
+import { SettingOutlined } from '@ant-design/icons'
 import { Button, Tooltip } from 'antd'
+import { gsap } from 'gsap'
+import { useRef, type MouseEventHandler } from 'react'
 import './index.css'
-import { useRef } from 'react'
 
-export default function Settings({ onClick }) {
+type SettingsProps = {
+  onClick: MouseEventHandler<HTMLElement>
+}
+
+export default function Settings({ onClick }: SettingsProps) {
   const settingsIconRef = useRef<HTMLSpanElement>(null)
 
   const twistSettingsIconIn = () => {
