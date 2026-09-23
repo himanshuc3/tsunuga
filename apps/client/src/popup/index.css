@@ -6,3 +6,11 @@ body {
   font-optical-sizing: auto;
   font-style: normal;
 }
+
+.logout-button.ant-btn {
+  color: #e05d5d;
+}
+.logout-button.ant-btn:hover,
+.logout-button.ant-btn:focus-visible {
+  color: #ff7a7a;
+}

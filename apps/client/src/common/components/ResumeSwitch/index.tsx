@@ -6,7 +6,6 @@ export default function CustomSwitch({ switchProps, tooltip }) {
     <Tooltip title={tooltip}>
       <Switch
         // aria-label="Pause extension"
-        className="switch"
         {...switchProps}
       />
     </Tooltip>

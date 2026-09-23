@@ -56,15 +56,6 @@ export const Popup = () => {
   const [settingsSaved, setSettingsSaved] = useState(false)
   const [loggedInStatIndex, setLoggedInStatIndex] = useState(0)
   const loggedInPosterRef = useRef<HTMLDivElement>(null)
-  const settingsIconRef = useRef<HTMLSpanElement>(null)
-
-  const twistSettingsIconIn = () => {
-    gsap.to(settingsIconRef.current, { rotate: 90, duration: 0.35, ease: 'back.out(2)' })
-  }
-
-  const twistSettingsIconOut = () => {
-    gsap.to(settingsIconRef.current, { rotate: 0, duration: 0.3, ease: 'power2.out' })
-  }
 
   useEffect(() => {
     async function getData() {
@@ -355,7 +346,6 @@ export const Popup = () => {
             settingsSaved={settingsSaved}
             loggedInStatIndex={loggedInStatIndex}
             loggedInPosterRef={loggedInPosterRef}
-            settingsIconRef={settingsIconRef}
             loggedinStats={loggedinStats}
             togglePause={togglePause}
             forceCard={forceCard}
@@ -365,8 +355,6 @@ export const Popup = () => {
             saveSettings={saveSettings}
             updateSetting={updateSetting}
             updateQuietHour={updateQuietHour}
-            twistSettingsIconIn={twistSettingsIconIn}
-            twistSettingsIconOut={twistSettingsIconOut}
             supportProject={supportProject}
           />
         )

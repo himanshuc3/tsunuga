@@ -22,10 +22,12 @@ import {
 } from 'antd'
 import type { RefObject } from 'react'
 import Switch from '../../common/components/ResumeSwitch/index'
-import type { AppState, QuietHour, Settings } from '../../common/types'
+import type { AppState, QuietHour, Settings as TSettings } from '../../common/types'
 import { getNextLesson } from '../../common/helpers'
 import { getOrCreateProgress, progressKey } from '../../domain/progress'
 import logo from '../../assets/logo.svg'
+import Settings from '../../common/components/Settings'
+import './index.css'
 
 const { Content } = Layout
 const { Title, Text } = Typography
@@ -43,7 +45,7 @@ type LoggedInProps = {
   statusMsg: string | null
   showSettings: boolean
   setShowSettings: (show: boolean) => void
-  settingsDraft: Settings | null
+  settingsDraft: TSettings | null
   settingsError: string | null
   settingsSaved: boolean
   loggedInStatIndex: number
@@ -56,7 +58,7 @@ type LoggedInProps = {
   logout: () => Promise<void>
   openSettings: () => void
   saveSettings: () => Promise<void>
-  updateSetting: <K extends keyof Settings>(key: K, value: Settings[K]) => void
+  updateSetting: <K extends keyof TSettings>(key: K, value: TSettings[K]) => void
   updateQuietHour: (index: number, patch: Partial<QuietHour>) => void
   twistSettingsIconIn: () => void
   twistSettingsIconOut: () => void
@@ -74,7 +76,6 @@ export default function LoggedIn({
   settingsSaved,
   loggedInStatIndex,
   loggedInPosterRef,
-  settingsIconRef,
   loggedinStats,
   togglePause,
   forceCard,
@@ -84,8 +85,6 @@ export default function LoggedIn({
   saveSettings,
   updateSetting,
   updateQuietHour,
-  twistSettingsIconIn,
-  twistSettingsIconOut,
   supportProject,
 }: LoggedInProps) {
   const activeLesson = state.lessons.find(
@@ -128,40 +127,26 @@ export default function LoggedIn({
               disabled: isBusy,
             }}
           />
-
           {showSettings && (
             <Button
               className="settings-save-button"
               aria-label="Save settings"
               type="text"
               icon={<SaveOutlined />}
-              onClick={() => void saveSettings()}
+              onClick={saveSettings}
               disabled={isBusy}
             />
           )}
           {!showSettings && (
             <>
-              <Tooltip title="Settings">
-                <Button
-                  aria-label="Open settings"
-                  type="text"
-                  icon={
-                    <span ref={settingsIconRef} className="settings-icon-twist">
-                      <SettingOutlined />
-                    </span>
-                  }
-                  onClick={openSettings}
-                  onMouseEnter={twistSettingsIconIn}
-                  onMouseLeave={twistSettingsIconOut}
-                />
-              </Tooltip>
+              <Settings onClick={openSettings} />
               <Tooltip title="Log out">
                 <Button
                   className="logout-button"
                   aria-label="Log out"
                   type="text"
                   icon={<PoweroffOutlined />}
-                  onClick={() => void logout()}
+                  onClick={logout}
                   disabled={isBusy}
                 />
               </Tooltip>

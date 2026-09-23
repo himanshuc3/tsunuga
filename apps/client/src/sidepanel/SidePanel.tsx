@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
 import {
-  Alert,
   Button,
   Collapse,
   ConfigProvider,
@@ -31,6 +30,7 @@ import { ALARM_NAME, MASTERY_STREAK, STORAGE_KEYS } from '../common/constants'
 import './SidePanel.css'
 import { openPopupWithSettings, sendMessage } from '../common/helpers'
 import browser from 'webextension-polyfill'
+import Switch from '../common/components/ResumeSwitch'
 
 const { Content } = Layout
 const { Text, Title } = Typography
@@ -363,7 +363,6 @@ export const SidePanel = () => {
                         format={(percent) => ``}
                         size={[20, 10]}
                       />
-                      \
                     </div>
                   ),
                   children: current ? (
@@ -382,12 +381,13 @@ export const SidePanel = () => {
                 Show card now
               </Button>
               <Space size={4}>
-                <Button
-                  aria-label={state.settings.paused ? 'Resume' : 'Pause'}
-                  type="text"
-                  icon={state.settings.paused ? <PlayCircleOutlined /> : <PauseOutlined />}
-                  onClick={togglePause}
-                  disabled={busy}
+                <Switch
+                  tooltip={state.settings.paused ? 'Resume' : 'Pause'}
+                  switchProps={{
+                    checked: !state.settings.paused,
+                    onChange: togglePause,
+                    disabled: busy,
+                  }}
                 />
                 <Button
                   aria-label="Open settings"
