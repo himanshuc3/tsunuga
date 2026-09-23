@@ -1,6 +1,15 @@
 import { useState } from 'react'
-import { Button, Card as AntCard, ConfigProvider, Flex, Space, Tag, Typography } from 'antd'
-import { CloseOutlined } from '@ant-design/icons'
+import {
+  Button,
+  Card as AntCard,
+  ConfigProvider,
+  Flex,
+  Space,
+  Tag,
+  Typography,
+  Tooltip,
+} from 'antd'
+import { CheckOutlined, CloseOutlined } from '@ant-design/icons'
 import type { PendingCard } from '../common/types'
 
 type Props = {
@@ -57,19 +66,31 @@ export function Card({ card, onAnswer, onAck, onDismiss }: Props) {
       case 'intro':
         return (
           <Flex className="tango-actions">
-            <Button type="default" disabled={isSubmitting} onClick={() => void submit(onAck)}>
+            <Button
+              className="tango-action-button"
+              type="text"
+              disabled={isSubmitting}
+              onClick={() => void submit(onAck)}
+            >
               Review later
             </Button>
-            <Button type="primary" disabled={isSubmitting} onClick={() => void submit(onAck)}>
+            <Button
+              className="tango-action-button"
+              type="text"
+              disabled={isSubmitting}
+              onClick={() => void submit(onAck)}
+            >
               Next card
             </Button>
-            <Button
-              type="primary"
-              disabled={isSubmitting}
-              onClick={() => void submit(() => onAnswer(card.romaji, true))}
-            >
-              Got it
-            </Button>
+            <Tooltip title="accept">
+              <Button
+                type="default"
+                shape="circle"
+                icon={<CheckOutlined />}
+                disabled={isSubmitting}
+                onClick={() => void submit(() => onAnswer(card.romaji, true))}
+              />
+            </Tooltip>
           </Flex>
         )
       case 'concept':
@@ -95,7 +116,7 @@ export function Card({ card, onAnswer, onAck, onDismiss }: Props) {
                 <Flex justify="center" className="label-container">
                   <Typography.Text className="tango-half-label">Romaji</Typography.Text>
                 </Flex>
-                <Flex flex="1" justify="center" align="center">
+                <Flex className="word" flex="1" justify="center" align="center">
                   <Typography.Text className="tango-half-text">{card.romaji}</Typography.Text>
                 </Flex>
               </Flex>
@@ -103,7 +124,7 @@ export function Card({ card, onAnswer, onAck, onDismiss }: Props) {
                 <Flex justify="center" className="label-container">
                   <Typography.Text className="tango-half-label">English</Typography.Text>
                 </Flex>
-                <Flex flex="1" justify="center" align="center">
+                <Flex className="word" flex="1" justify="center" align="center">
                   <Typography.Text className="tango-half-text">{card.en}</Typography.Text>
                 </Flex>
               </Flex>
@@ -177,16 +198,22 @@ export function Card({ card, onAnswer, onAck, onDismiss }: Props) {
     <ConfigProvider
       theme={{
         token: {
-          colorText: '#f7f7f8',
-          colorTextSecondary: '#9a99a5',
-          colorBgContainer: '#202024',
-          colorBorder: '#323238',
+          colorText: '#1f2933',
+          colorTextSecondary: '#667085',
+          colorBgContainer: '#ffffff',
+          colorBorder: '#d9dee5',
           borderRadius: 10,
           fontFamily: "'Avenir Next', 'Segoe UI', sans-serif",
         },
+        components: {
+          Button: {
+            defaultShadow: 'none',
+            primaryShadow: 'none',
+          },
+        },
       }}
     >
-      <Flex className="outer-card">
+      <Flex className="outer-card" data-kind={card.kind}>
         <Flex
           className="tango-card"
           data-kind={card.kind}
@@ -200,9 +227,7 @@ export function Card({ card, onAnswer, onAck, onDismiss }: Props) {
               {KIND_LABEL[card.kind]}
             </Tag>
             {card.kind === 'intro' ? (
-              <Typography.Text className="tango-script">
-                {card.itemType.toUpperCase()}
-              </Typography.Text>
+              <Typography.Text className="tango-script primary">{card.itemType}</Typography.Text>
             ) : (
               <Typography.Text className="tango-header-spacer" aria-hidden="true" />
             )}

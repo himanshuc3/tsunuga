@@ -4,10 +4,26 @@ import type { PendingCard } from '../common/types'
 import browser from 'webextension-polyfill'
 import { Card } from './Card'
 import cssText from './Card.css?inline'
+import fontCssText from '../assets/fonts/fonts.css?inline'
+import extraLightFontUrl from '../assets/fonts/BricolageGrotesque_24pt-ExtraLight.ttf?url'
+import lightFontUrl from '../assets/fonts/BricolageGrotesque_24pt-Light.ttf?url'
+import regularFontUrl from '../assets/fonts/BricolageGrotesque_24pt-Regular.ttf?url'
+import mediumFontUrl from '../assets/fonts/BricolageGrotesque_24pt-Medium.ttf?url'
+import semiBoldFontUrl from '../assets/fonts/BricolageGrotesque_24pt-SemiBold.ttf?url'
+import boldFontUrl from '../assets/fonts/BricolageGrotesque_24pt-Bold.ttf?url'
+import extraBoldFontUrl from '../assets/fonts/BricolageGrotesque_24pt-ExtraBold.ttf?url'
 import { StyleProvider } from '@ant-design/cssinjs'
 import { sendMessage } from '../common/helpers'
 
 const HOST_ID = 'tango-extension-host'
+const fontStyleText = fontCssText
+  .replaceAll('__BRICOLAGE_EXTRA_LIGHT__', extraLightFontUrl)
+  .replaceAll('__BRICOLAGE_LIGHT__', lightFontUrl)
+  .replaceAll('__BRICOLAGE_REGULAR__', regularFontUrl)
+  .replaceAll('__BRICOLAGE_MEDIUM__', mediumFontUrl)
+  .replaceAll('__BRICOLAGE_SEMIBOLD__', semiBoldFontUrl)
+  .replaceAll('__BRICOLAGE_BOLD__', boldFontUrl)
+  .replaceAll('__BRICOLAGE_EXTRA_BOLD__', extraBoldFontUrl)
 
 class Controller {
   private static _instance: Controller
@@ -95,7 +111,7 @@ class Controller {
       document.documentElement.appendChild(host)
       this._shadow = host.attachShadow({ mode: 'open' })
       const style = document.createElement('style')
-      style.textContent = cssText
+      style.textContent = `${fontStyleText}\n${cssText}`
       this._shadow.appendChild(style)
       const mount = document.createElement('div')
       mount.className = 'tango-root'
