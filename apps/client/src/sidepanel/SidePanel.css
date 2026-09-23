@@ -261,10 +261,6 @@ body {
   margin-top: 8px;
 }
 
-.actions {
-  margin-top: 10px;
-}
-
 .lesson-title {
   margin: 0 !important;
   color: #f7f7f8 !important;
@@ -338,6 +334,12 @@ body {
 }
 
 .actions-row .actions {
+  margin-top: 10px;
+  border-top: 2px solid rgba(50, 50, 50, 0.5);
+  border-bottom: 2px solid rgba(50, 50, 50, 0.5);
+  padding: 10px;
+  display: flex-end;
+  gap: 4px;
   align-items: center;
   margin-top: 0;
 }
@@ -510,4 +512,29 @@ body {
   color: var(--sp-muted);
   font-size: 13px;
   white-space: nowrap;
+}
+
+.quick-action.ant-btn {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border-radius: 6px;
+  font-size: 13px;
+}
+.show-card-btn.ant-btn {
+  width: auto;
+  padding: 4px;
+  font-weight: 600;
+  border: 1px solid transparent !important;
+  outline: none !important;
+  box-shadow: none !important;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+}
+
+.switch {
+  margin-right: 5px;
 }

@@ -9,16 +9,10 @@ import {
   Space,
   Spin,
   Tag,
+  Tooltip,
   Typography,
 } from 'antd'
-import {
-  CheckCircleFilled,
-  LockOutlined,
-  PauseOutlined,
-  PlayCircleOutlined,
-  SendOutlined,
-  SettingOutlined,
-} from '@ant-design/icons'
+import { CheckCircleFilled, HeartFilled, LockOutlined, SettingOutlined } from '@ant-design/icons'
 import {
   countMasteredInLesson,
   getOrCreateProgress,
@@ -329,6 +323,8 @@ export const SidePanel = () => {
     { label: 'Lessons complete', value: state.completedLessonIds.length.toString() },
   ]
 
+  function supportProject() {}
+
   return (
     <ConfigProvider theme={theme}>
       <Layout className="sidepanel">
@@ -357,8 +353,7 @@ export const SidePanel = () => {
                           : 'Concepts in progress'}
                       </Text>
                       <Progress
-                        percent={30}
-                        // percent={(progress.mastered / progress.total) * 100}
+                        percent={(progress.mastered / progress.total) * 100}
                         steps={progress.total}
                         format={(percent) => ``}
                         size={[20, 10]}
@@ -377,8 +372,13 @@ export const SidePanel = () => {
 
           <section className="actions-row row">
             <Flex className="actions" align="center" justify="space-between">
-              <Button type="primary" icon={<SendOutlined />} onClick={forceCard} disabled={busy}>
-                Show card now
+              <Button
+                className="quick-action show-card-btn"
+                type="primary"
+                onClick={forceCard}
+                disabled={busy}
+              >
+                Show card
               </Button>
               <Space size={4}>
                 <Switch
@@ -387,6 +387,7 @@ export const SidePanel = () => {
                     checked: !state.settings.paused,
                     onChange: togglePause,
                     disabled: busy,
+                    className: 'switch',
                   }}
                 />
                 <Button
@@ -395,6 +396,15 @@ export const SidePanel = () => {
                   icon={<SettingOutlined />}
                   onClick={openSettings}
                 />
+                <Tooltip title="Support the project">
+                  <Button
+                    className="quick-action sidepanel-btn"
+                    type="text"
+                    icon={<HeartFilled style={{ color: 'pink' }} />}
+                    onClick={supportProject}
+                    aria-label="Support the project"
+                  />
+                </Tooltip>
               </Space>
             </Flex>
           </section>
