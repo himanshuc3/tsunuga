@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   Alert,
   Button,
+  Card,
   ConfigProvider,
   Layout,
   Space,
@@ -32,7 +33,7 @@ import { DrawSVGPlugin } from 'gsap/DrawSVGPlugin'
 import type { AppState, QuietHour, Settings } from '../common/types'
 import './Popup.css'
 import { getNextLesson, openSidePanel, sendMessage } from '../common/helpers'
-import { getOrCreateProgress, progressKey } from '../domain/progress'
+import { countMasteredInLesson, getOrCreateProgress, progressKey } from '../domain/progress'
 import logoTree from '../assets/logo_tree.svg?raw'
 import logo from '../assets/logo.svg'
 
@@ -80,7 +81,7 @@ function AnimatedLogoTree() {
 }
 
 const { Content } = Layout
-const { Title } = Typography
+const { Title, Text, Paragraph } = Typography
 
 const loggedOutStats = [
   {
@@ -137,7 +138,9 @@ export const Popup = () => {
   const [settingsError, setSettingsError] = useState<string | null>(null)
   const [settingsSaved, setSettingsSaved] = useState(false)
   const [loggedOutStatIndex, setLoggedOutStatIndex] = useState(0)
+  const [loggedInStatIndex, setLoggedInStatIndex] = useState(0)
   const posterRef = useRef<HTMLDivElement>(null)
+  const loggedInPosterRef = useRef<HTMLDivElement>(null)
   const settingsIconRef = useRef<HTMLSpanElement>(null)
 
   const twistSettingsIconIn = () => {
@@ -213,6 +216,91 @@ export const Popup = () => {
 
     return () => context.revert()
   }, [isAuthenticated, loggedOutStatIndex])
+
+  const masteredVocabCount = state
+    ? state.lessons.reduce((acc, lesson) => acc + countMasteredInLesson(state, lesson).mastered, 0)
+    : 10
+  const totalVocabCount = state
+    ? state.lessons.reduce((acc, lesson) => acc + lesson.vocab.length, 0)
+    : 230
+  const completedLessonCount = state?.completedLessonIds?.length ?? 0
+  const totalLessonCount = state?.lessons?.length ?? 12
+  const totalConcepts =
+    state?.lessons?.reduce((acc, lesson) => acc + lesson.concepts.length, 0) ?? 15
+  const masteredConcepts =
+    state?.lessons?.reduce(
+      (acc, lesson) =>
+        acc +
+        lesson.concepts.filter(
+          (c) => getOrCreateProgress(state, progressKey(lesson.id, 'concept', c.id)).conceptShown,
+        ).length,
+      0,
+    ) ?? 6
+  const conceptPercent =
+    totalConcepts > 0 ? Math.round((masteredConcepts / totalConcepts) * 100) : 40
+
+  const loggedinStats = [
+    {
+      underlay: 'JLPT N5 • VOCABULARY',
+      title: 'Vocab Mastery',
+      stat: `${masteredVocabCount} / ${totalVocabCount} words mastered`,
+      tags: ['JLPT N5', 'VOCAB', 'IN PROGRESS'],
+    },
+    {
+      underlay: 'GRAMMAR • FOUNDATIONS',
+      title: 'Concept Retention',
+      stat: `${conceptPercent}% core rules understood`,
+      tags: ['GRAMMAR', 'N5', `${totalConcepts - masteredConcepts} REMAINING`],
+    },
+    {
+      underlay: 'LEARNING RHYTHM • CADENCE',
+      title: 'Review Intervals',
+      stat: `${state?.settings?.minIntervalMin ?? 15}–${state?.settings?.maxIntervalMin ?? 30}m spaced repetitions`,
+      tags: ['SPACED REPETITION', 'HABIT', state?.settings?.paused ? 'PAUSED' : 'ACTIVE'],
+    },
+    {
+      underlay: 'MILESTONES • PROGRESSION',
+      title: 'Lesson Progress',
+      stat: `${completedLessonCount} of ${totalLessonCount} lessons completed`,
+      tags: ['CURRICULUM', 'MILESTONE', `STAGE ${completedLessonCount + 1}`],
+    },
+  ]
+
+  useEffect(() => {
+    if (!loggedInPosterRef.current || !isAuthenticated) return
+
+    const context = gsap.context(() => {
+      const card = loggedInPosterRef.current
+      if (!card) return
+
+      gsap.fromTo(
+        card.querySelectorAll('.poster-anim'),
+        { autoAlpha: 0, y: 10 },
+        {
+          autoAlpha: 1,
+          y: 0,
+          duration: 0.42,
+          stagger: 0.07,
+          ease: 'power3.out',
+        },
+      )
+
+      gsap.delayedCall(3.5, () => {
+        gsap.to(card.querySelectorAll('.poster-anim'), {
+          autoAlpha: 0,
+          y: -10,
+          duration: 0.32,
+          stagger: 0.04,
+          ease: 'power2.in',
+          onComplete: () => {
+            setLoggedInStatIndex((index) => (index + 1) % loggedinStats.length)
+          },
+        })
+      })
+    }, loggedInPosterRef)
+
+    return () => context.revert()
+  }, [isAuthenticated, loggedInStatIndex, loggedinStats.length])
 
   const refresh = useCallback(async () => {
     try {
@@ -694,12 +782,37 @@ export const Popup = () => {
                 </Tooltip>
               </section>
 
-              <section className="overall-percentage">
-                <Progress type="dashboard" percent={50} />
-                <Progress type="dashboard" percent={50} />
-              </section>
-
-              <section className=""></section>
+              <Flex
+                className="poster-container"
+                justify="center"
+                align="center"
+                ref={loggedInPosterRef}
+              >
+                <div className="poster-underlay">
+                  <Text className="underlay-text poster-anim">
+                    {loggedinStats[loggedInStatIndex % loggedinStats.length].underlay}
+                  </Text>
+                </div>
+                <Card className="poster-card" bordered={false}>
+                  <Flex className="poster-header" align="center" gap={6}>
+                    <img className="poster-logo" src={logo} alt="" />
+                    <Text className="poster-brand">tango</Text>
+                  </Flex>
+                  <Title level={4} className="poster-title poster-anim">
+                    {loggedinStats[loggedInStatIndex % loggedinStats.length].title}
+                  </Title>
+                  <Text className="poster-subtitle poster-anim">
+                    {loggedinStats[loggedInStatIndex % loggedinStats.length].stat}
+                  </Text>
+                  <Flex className="poster-pills poster-anim" gap={4} wrap="wrap">
+                    {loggedinStats[loggedInStatIndex % loggedinStats.length].tags.map((tag) => (
+                      <Tag key={tag} className="poster-pill">
+                        {tag}
+                      </Tag>
+                    ))}
+                  </Flex>
+                </Card>
+              </Flex>
             </Content>
           )}
 
