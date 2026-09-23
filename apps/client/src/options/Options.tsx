@@ -5,8 +5,10 @@ import './Options.css'
 import { sendMessage } from '../common/helpers'
 
 async function fetchSettings(): Promise<Settings> {
-  const res = await sendMessage({ type: 'GET_STATE' })
-  return (res.state.settings as Settings) ?? { ...DEFAULT_SETTINGS }
+  const response = (await sendMessage({ type: 'GET_STATE' })) as {
+    state?: { settings?: Settings }
+  } | null
+  return response?.state?.settings ?? { ...DEFAULT_SETTINGS }
 }
 
 export const Options = () => {

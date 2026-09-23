@@ -63,7 +63,12 @@ const loggedOutStats = [
   },
 ]
 
-export default function LoggedOut({ login, disabled }) {
+type LoggedOutProps = {
+  login: () => Promise<void>
+  disabled: boolean
+}
+
+export default function LoggedOut({ login, disabled }: LoggedOutProps) {
   const [loggedOutStatIndex, setLoggedOutStatIndex] = useState(0)
   const posterRef = useRef<HTMLDivElement>(null)
   const activeStat = loggedOutStats[loggedOutStatIndex]

@@ -49,7 +49,6 @@ type LoggedInProps = {
   settingsSaved: boolean
   loggedInStatIndex: number
   loggedInPosterRef: RefObject<HTMLDivElement>
-  settingsIconRef: RefObject<HTMLSpanElement>
   loggedinStats: LoggedInStat[]
   togglePause: () => Promise<void>
   forceCard: () => Promise<void>
@@ -59,8 +58,6 @@ type LoggedInProps = {
   saveSettings: () => Promise<void>
   updateSetting: <K extends keyof TSettings>(key: K, value: TSettings[K]) => void
   updateQuietHour: (index: number, patch: Partial<QuietHour>) => void
-  twistSettingsIconIn: () => void
-  twistSettingsIconOut: () => void
   supportProject: () => void
 }
 

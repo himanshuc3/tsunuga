@@ -61,7 +61,7 @@ export function getNextLesson(state: AppState): Lesson {
   )
 }
 
-export function getLessonById(lessons: any[], id: string) {
+export function getLessonById(lessons: Lesson[], id: string): Lesson | undefined {
   return lessons.find((lesson) => lesson.id === id)
 }
 

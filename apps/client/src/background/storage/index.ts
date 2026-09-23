@@ -1,5 +1,5 @@
 import browser from 'webextension-polyfill'
-import { AppState, ItemProgress, PendingCard, Settings } from '../../common/types'
+import { AppState, ItemProgress, Lesson, PendingCard, Settings } from '../../common/types'
 import { DEFAULT_SETTINGS, STORAGE_KEYS } from '../../common/constants'
 
 const OPEN_SETTINGS_ON_LOAD_KEY = 'openSettingsOnLoad'
@@ -106,7 +106,7 @@ export class StorageController {
           : defaults.itemProgress,
       settings: this.mergeSettings(result.settings),
       pendingCard: this.migratePendingCard(result.pendingCard),
-      lessons: result.lessons ?? [],
+      lessons: Array.isArray(result.lessons) ? (result.lessons as Lesson[]) : defaults.lessons,
     }
   }
 
@@ -135,9 +135,8 @@ export class StorageController {
   }
 
   async consumeOpenSettingsOnLoad(): Promise<boolean> {
-    const { [OPEN_SETTINGS_ON_LOAD_KEY]: open } = await browser.storage.local.get(
-      OPEN_SETTINGS_ON_LOAD_KEY,
-    )
+    const { [OPEN_SETTINGS_ON_LOAD_KEY]: open } =
+      await browser.storage.local.get(OPEN_SETTINGS_ON_LOAD_KEY)
     await browser.storage.local.remove(OPEN_SETTINGS_ON_LOAD_KEY)
     return open === true
   }
