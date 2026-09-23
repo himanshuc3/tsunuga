@@ -6,6 +6,7 @@ import {
   ConfigProvider,
   Flex,
   Layout,
+  Progress,
   Space,
   Spin,
   Tag,
@@ -355,6 +356,23 @@ export const SidePanel = () => {
                           ? `${progress.mastered}/${progress.total} mastered`
                           : 'Concepts in progress'}
                       </Text>
+                      <Progress
+                        percent={30}
+                        // percent={(progress.mastered / progress.total) * 100}
+                        steps={progress.total}
+                        format={(percent) => ``}
+                        size={[20, 10]}
+                      />
+                      {/* <Progress
+                        percent={(progress.mastered / progress.total) * 100}
+                        percentPosition={{ align: 'center', type: 'inner' }}
+                        format={(percent) => `${progress.mastered}/${progress.total} completed`}
+                        size={['100%', 20]}
+                        strokeColor={{
+                          '0%': '#108ee9',
+                          '100%': '#87d068',
+                        }}
+                      /> */}
                     </div>
                   ),
                   children: current ? (
@@ -389,7 +407,6 @@ export const SidePanel = () => {
               </Space>
             </Flex>
           </section>
-          <hr className="divider" />
 
           <section className="learning-stats row" aria-label="Learning stats">
             {stats.map((stat) => (

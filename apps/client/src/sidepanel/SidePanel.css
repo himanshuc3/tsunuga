@@ -324,6 +324,10 @@ body {
   margin-bottom: 4px;
 }
 
+.ant-progress-steps-item:not(.ant-progress-steps-item-active) {
+  background: rgba(100, 100, 100, 0.6) !important;
+}
+
 .current-lesson-summary .lesson-title {
   font-size: 20px !important;
 }
