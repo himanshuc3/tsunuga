@@ -15,20 +15,26 @@ function AnimatedLogoTree() {
     if (!logoRef.current) return
 
     const context = gsap.context(() => {
-      gsap.from('.branch', {
+      const drawTimeline = gsap.timeline({
+        repeat: -1,
+        yoyo: true,
+      })
+
+      drawTimeline.from('.branch', {
         duration: 1,
         drawSVG: '50% 50%',
         ease: 'power2.out',
-        repeat: 1,
       })
 
-      gsap.from('.outward-path', {
-        duration: 1,
-        delay: 0.9,
-        drawSVG: '0% 0%',
-        ease: 'power2.out',
-        repeat: 0,
-      })
+      drawTimeline.from(
+        '.outward-path',
+        {
+          duration: 1,
+          drawSVG: '0% 0%',
+          ease: 'power2.out',
+        },
+        0.9,
+      )
 
       gsap.to('.shape', {
         duration: 1.4,
