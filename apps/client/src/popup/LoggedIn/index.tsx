@@ -82,11 +82,9 @@ export default function LoggedIn({
   updateQuietHour,
   supportProject,
 }: LoggedInProps) {
-  const activeLesson =
-    null &&
-    state.lessons.find(
-      (lesson) => lesson.id === (state.pendingCard?.lessonId ?? state.currentLessonId),
-    )
+  const activeLesson = state.lessons.find(
+    (lesson) => lesson.id === (state.pendingCard?.lessonId ?? state.currentLessonId),
+  )
   const currentLesson = state.lessons.find((lesson) => lesson.id === state.currentLessonId)
   const upcomingLesson = currentLesson && state ? getNextLesson(state) : undefined
   const completedConcepts =
@@ -97,7 +95,7 @@ export default function LoggedIn({
   const conceptCount = activeLesson?.concepts.length ?? 0
   const totalLessonItems = (activeLesson?.vocab.length ?? 0) + conceptCount
   const completedPercentage = (completedConcepts / totalLessonItems) * 100
-  console.log(activeLesson.hello)
+
   return (
     <Layout className="popup">
       <header className="popup-header">

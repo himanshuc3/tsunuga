@@ -38,10 +38,8 @@ export class ErrorBoundary extends Component<Props, State> {
     // reportError(error, errorInfo);
   }
 
-  handleReload = () => {
-    // Remove all the chrome local storage state
-    // That ends up unauthorizing the user
-    sendMessage({ type: 'CLEAR_STATE' })
+  handleReload = async () => {
+    await sendMessage({ type: 'CLEAR_STATE' })
     this.setState({
       hasError: false,
       error: null,
