@@ -26,11 +26,11 @@ Technical tasks:
 Features:
 
 - Authentication flows:
-  - Login works
-  - Logout works
+  - Login works [DONE]
+  - Logout works [DONE]
   - Token expires logs out the user along with clearing localstorage
 - Settings:
-  - Update pause/resume
+  - Update pause/resume [DONE]
   - Update quiet hours
   - Update time range
 - Card showing and idempotency:
