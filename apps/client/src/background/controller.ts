@@ -387,23 +387,29 @@ export class BackgroundController {
    */
 
   private async setPaused(paused: boolean): Promise<AppState> {
-    const state = await this.settings.setPaused(paused)
-    await this.syncAfterSettingsChange(state)
+    const state = await this.updateSettings({ paused })
     return state
   }
 
   private async updateSettings(settings: Partial<AppState['settings']>): Promise<AppState> {
-    const state = await this.settings.updateSettings(settings)
-    await this.syncAfterSettingsChange(state)
-    void this.pushSettingsToApi(state.settings).catch((error) =>
-      console.error('Failed to sync settings to API', error),
-    )
-    return state
+    const nextSettingsState = this.settings.getUpdatedSettings(settings)
+
+    try {
+      await this.pushSettingsToApi(nextSettingsState)
+      const state = await this.storageController.updateState((prev) => ({
+        ...prev,
+        settings: nextSettingsState,
+      }))
+      await this.syncAfterSettingsChange(state)
+      return state
+    } catch (err) {
+      console.error('Failed to sync settings to API', err)
+      return this.storageController.getState()
+    }
   }
 
   private async pushSettingsToApi(settings: AppState['settings']): Promise<void> {
-    const stored = await browser.storage.local.get('authToken')
-    const token = stored.authToken
+    const token = this.storageController.getState().authToken
     if (typeof token !== 'string' || !token) return
     await updateUserSettings(token, clientSettingsToApiSettings(settings))
   }

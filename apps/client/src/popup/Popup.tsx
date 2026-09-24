@@ -9,33 +9,9 @@ import { openSidePanel, sendMessage } from '../common/helpers'
 import { countMasteredInLesson, getOrCreateProgress, progressKey } from '../domain/progress'
 import LoggedOut from './LoggedOut'
 import LoggedIn from './LoggedIn'
+import { STORAGE_KEYS } from '../common/constants'
 
-function forceResultMessage(result: { status: string } | undefined): string | null {
-  switch (result?.status) {
-    case 'shown':
-      return 'Card shown on your active tab — look bottom-right.'
-    case 'pending_no_tab':
-      return 'Open a normal website tab (http/https), then try again.'
-    case 'inject_failed':
-      return 'Could not inject into this page. Refresh the tab and try again.'
-    case 'paused':
-      return 'Lessons are paused. Resume first, or try again.'
-    case 'no_card':
-      return 'No card available right now.'
-    default:
-      return null
-  }
-}
-
-const keysForChange = new Set([
-  'currentLessonId',
-  'completedLessonIds',
-  'itemProgress',
-  'settings',
-  'pendingCard',
-  'lessons',
-  'authToken',
-])
+const keysForChange = new Set([...Object.keys(STORAGE_KEYS)])
 
 const STATUS = {
   IDLE: 0,
@@ -168,17 +144,18 @@ export const Popup = () => {
 
   const togglePause = async () => {
     if (!state) return
-    // setBusy(true)
+    console.log('called1')
+
     const res = await sendMessage({
       type: 'SET_PAUSED',
       paused: !state.settings.paused,
     })
     const nextState = res as { state: AppState }
+
     setState(nextState.state)
     setSettingsDraft((previous) =>
       previous ? { ...previous, paused: nextState.state.settings.paused } : previous,
     )
-    // setBusy(false)
   }
 
   const forceCard = async () => {

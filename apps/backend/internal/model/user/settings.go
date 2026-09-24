@@ -16,6 +16,7 @@ var DefaultSettings = Settings{
 	RandomIntervalMaxMinutes: 120,
 	QuietTimeStart:           "22:00",
 	QuietTimeEnd:             "07:00",
+	Paused:                   false,
 }
 
 // Settings is persisted as a single JSONB column on user_settings.
@@ -24,6 +25,7 @@ type Settings struct {
 	RandomIntervalMaxMinutes int    `json:"random_interval_max_minutes" validate:"required,gtefield=RandomIntervalMinMinutes"`
 	QuietTimeStart           string `json:"quiet_time_start" validate:"required,quiettime"`
 	QuietTimeEnd             string `json:"quiet_time_end" validate:"required,quiettime"`
+	Paused                   bool   `json:"paused" validate:"required"`
 }
 
 // Scan implements sql.Scanner so pgx can populate this field from the settings JSONB column.

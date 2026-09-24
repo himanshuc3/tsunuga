@@ -115,10 +115,12 @@ export default function LoggedIn({
         </Space>
         <Flex className="popup-right" align="center">
           <Switch
-            tooltip={state.settings.paused ? 'Resume' : 'Pause'}
+            tooltip={
+              state.settings.paused ? 'Resume' : 'Pause any automated cards shown at intervals'
+            }
             switchProps={{
               checked: !state.settings.paused,
-              onChange: () => void togglePause(),
+              onChange: togglePause,
               disabled: isBusy,
               className: 'switch',
             }}

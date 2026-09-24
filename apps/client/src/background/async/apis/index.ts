@@ -19,6 +19,7 @@ export type UserSettingsApi = {
   random_interval_max_minutes: number
   quiet_time_start: string
   quiet_time_end: string
+  paused: boolean
 }
 
 export type UserSettingsResponse = {
@@ -126,6 +127,7 @@ export function clientSettingsToApiSettings(settings: Settings): Partial<UserSet
     ...(firstQuietHour
       ? { quiet_time_start: firstQuietHour.start, quiet_time_end: firstQuietHour.end }
       : {}),
+    paused: settings.paused,
   }
 }
 

@@ -20,4 +20,8 @@ export class SettingsFeature {
       return { ...prev, settings: nextSettings }
     })
   }
+
+  getUpdatedSettings(settings: Partial<Settings>): Settings {
+    return { ...this.deps.getState().settings, ...settings }
+  }
 }
