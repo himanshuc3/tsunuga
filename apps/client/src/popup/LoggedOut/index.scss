@@ -1,0 +1,12 @@
+.google-login-button.ant-btn {
+  display: flex;
+  width: min(100%, 180px);
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  border: none !important;
+  outline: none !important;
+}

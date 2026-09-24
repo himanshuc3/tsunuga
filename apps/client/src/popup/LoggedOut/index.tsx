@@ -4,6 +4,7 @@ import { gsap } from 'gsap'
 import { DrawSVGPlugin } from 'gsap/DrawSVGPlugin'
 import { GoogleOutlined } from '@ant-design/icons'
 import logoTree from '../../assets/logo_tree.svg?raw'
+import './index.scss'
 
 gsap.registerPlugin(DrawSVGPlugin)
 
@@ -18,7 +19,7 @@ function AnimatedLogoTree() {
         duration: 1,
         drawSVG: '50% 50%',
         ease: 'power2.out',
-        repeat: 0,
+        repeat: 1,
       })
 
       gsap.from('.outward-path', {
