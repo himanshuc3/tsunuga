@@ -1,46 +1,63 @@
-id: lesson-02-greetings
-title: "Vocab: Greetings"
+id: lesson-02-people-professions
+title: "People and professions"
 position: 200
 
 concepts:
-  - id: c-greetings
+  - id: c-ja-arimasen
     position: 100
-    title: "Everyday greetings"
-    body: "Use these expressions in common conversations throughout the day."
-    meta: "Focus on the English meaning first, then reinforce the romaji reading."
+    title: "Ja arimasen: the negative of desu"
+    body: "Use N1 wa N2 ja arimasen to politely say that N1 is not N2. Ja arimasen is the negative form of desu."
+    meta: "Example: Watashi wa gakusei ja arimasen. = I am not a student."
+
+  - id: c-ka
+    position: 200
+    title: "The particle ka"
+    body: "Put ka at the end of a sentence to turn it into a question."
+    meta: "Example: Anata wa isha desu ka. = Are you a doctor?"
+
+  - id: c-mo
+    position: 300
+    title: "The particle mo"
+    body: "Use mo after a noun to mean also or too. It is similar to bhi in Hindi."
+    meta: "Example: Watashi mo kaishain desu. = I am also a company employee."
 
 vocab:
-  - id: v-ohayou
+  - id: v-sensei
     position: 100
-    romaji: "ohayou"
-    en: "good morning (casual)"
+    romaji: "sensei"
+    en: "teacher / instructor"
 
-  - id: v-konnichiwa
+  - id: v-gakusei
     position: 200
-    romaji: "konnichiwa"
-    en: "hello / good afternoon"
+    romaji: "gakusei"
+    en: "student"
 
-  - id: v-konbanwa
+  - id: v-kyooshi
     position: 300
-    romaji: "konbanwa"
-    en: "good evening"
+    romaji: "kyooshi"
+    en: "teacher"
 
-  - id: v-arigatou
+  - id: v-kaishain
     position: 400
-    romaji: "arigatou"
-    en: "thank you"
+    romaji: "kaishain"
+    en: "company employee"
 
-  - id: v-sumimasen
+  - id: v-shain
     position: 500
-    romaji: "sumimasen"
-    en: "excuse me / sorry"
+    romaji: "shain"
+    en: "employee / staff member"
 
-  - id: v-hai
+  - id: v-ginkooin
     position: 600
-    romaji: "hai"
-    en: "yes"
+    romaji: "ginkooin"
+    en: "bank employee"
 
-  - id: v-iie
+  - id: v-isha
     position: 700
-    romaji: "iie"
-    en: "no"
+    romaji: "isha"
+    en: "doctor"
+
+  - id: v-kenkyuusha
+    position: 800
+    romaji: "kenkyusha"
+    en: "researcher"

@@ -1,0 +1,57 @@
+id: lesson-04-objects
+title: "Objects and nouns"
+position: 400
+
+concepts:
+  - id: c-kore-sore-are
+    position: 100
+    title: "Kore, sore, and are"
+    body: "Use kore for this thing near you, sore for that thing near the listener, and are for that thing away from both speakers. These words can stand alone."
+    meta: "Example: Kore wa hon desu. = This is a book."
+
+  - id: c-kono-sono-ano
+    position: 200
+    title: "Kono, sono, and ano"
+    body: "Use kono, sono, and ano before a noun: kono for this, sono for that near the listener, and ano for that away from both speakers."
+    meta: "Example: Kono jisho wa watashi no desu. = This dictionary is mine."
+
+vocab:
+  - id: v-hon
+    position: 100
+    romaji: "hon"
+    en: "book"
+
+  - id: v-jisho
+    position: 200
+    romaji: "jisho"
+    en: "dictionary"
+
+  - id: v-zasshi
+    position: 300
+    romaji: "zasshi"
+    en: "magazine"
+
+  - id: v-shinbun
+    position: 400
+    romaji: "shinbun"
+    en: "newspaper"
+
+  - id: v-noto
+    position: 500
+    romaji: "noto"
+    en: "notebook"
+
+  - id: v-techo
+    position: 600
+    romaji: "techo"
+    en: "pocket notebook"
+
+  - id: v-meishi
+    position: 700
+    romaji: "meishi"
+    en: "business card"
+
+  - id: v-kado
+    position: 800
+    romaji: "kado"
+    en: "card"

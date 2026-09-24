@@ -1,48 +1,61 @@
-id: lesson-01
-title: "Vocab: Introductions"
+id: lesson-01-people
+title: "People"
 position: 100
 
 concepts:
-  - id: c-introductions
+  - id: c-sentence-structure
     position: 100
-    title: "Words for people"
-    body: "Use these everyday words to introduce yourself and talk about people around you."
-    meta: "Each word includes its Japanese, romaji, and English forms."
+    title: "Sentence structure"
+    body: "Japanese usually puts the verb at the end of a sentence: subject - object - verb."
+    meta: "This is similar to how Hindi is spoken."
+
+  - id: c-particles
+    position: 200
+    title: "What are particles?"
+    body: "Particles are short helper words placed after a word to show its role in a sentence."
+    meta: "Example: In watashi wa gakusei desu, wa shows that watashi is the topic."
+
+  - id: c-wa
+    position: 300
+    title: "The particle wa"
+    body: "Use N1 wa N2 desu to say that N1 is N2. Wa marks the topic, and desu makes the sentence polite."
+    meta: "Example: Watashi wa gakusei desu. = I am a student."
 
 vocab:
-  - id: v-ai
+  - id: v-watashi
     position: 100
-    romaji: "ai"
-    en: "love"
+    romaji: "watashi"
+    en: "I / me"
 
-  - id: v-ie
+  - id: v-anata
     position: 200
-    romaji: "ie"
-    en: "house"
+    romaji: "anata"
+    en: "you"
 
-  - id: v-ue
+  - id: v-ano-hito
     position: 300
-    romaji: "ue"
-    en: "up; above"
+    romaji: "ano hito / ano kata"
+    en: "that person / he / she"
+    meta: "Ano kata is the more polite form."
 
-  - id: v-ao
+  - id: v-san-chan
     position: 400
-    romaji: "ao"
-    en: "blue"
-    meta: "a color"
+    romaji: "san / chan"
+    en: " Mr / Ms / title"
+    meta: "Add these after a name: Tanaka-san, Hana-chan."
 
-  - id: v-au
+  - id: v-jin
     position: 500
-    romaji: "au"
-    en: "to meet"
+    romaji: "jin"
+    en: "person of / nationality suffix"
+    meta: "Example: Nihon-jin means Japanese person."
 
-  - id: v-iu
+  - id: v-hai
     position: 600
-    romaji: "iu"
-    en: "to say"
+    romaji: "hai"
+    en: "yes"
 
-  - id: v-oi
+  - id: v-iie
     position: 700
-    romaji: "oi"
-    en: "nephew"
-    meta: "a family member"
+    romaji: "iie"
+    en: "no"

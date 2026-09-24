@@ -1,51 +1,63 @@
-id: lesson-03-nouns
-title: "Vocab: Everyday nouns"
+id: lesson-03-establishments
+title: "Civilization"
 position: 300
 
 concepts:
-  - id: c-nouns
+  - id: c-no
     position: 100
-    title: "Building blocks"
-    body: "Simple nouns help you form real phrases and understand everyday Japanese."
-    meta: "Read the romaji aloud after checking the English meaning."
+    title: "The particle no"
+    body: "Use no between two nouns to show that the first noun belongs to, describes, or is related to the second noun. It is similar to ka or ki in Hindi."
+    meta: "Example: Daigaku no sensei = a university teacher."
+
+  - id: c-sou-desu
+    position: 200
+    title: "Sou desu: an affirmative reply"
+    body: "Use sou desu to politely agree with or confirm a statement. It means that is correct or yes, that is so."
+    meta: "Example: A: Ano kata wa isha desu ka. B: Hai, sou desu. = A: Is that person a doctor? B: Yes, that is correct."
+
+  - id: c-ka-choices
+    position: 300
+    title: "The particle ka for choices"
+    body: "Put ka between two choices when asking which one someone means or prefers."
+    meta: "Example: Daigaku desu ka, byouin desu ka. = Is it a university or a hospital?"
 
 vocab:
-  - id: v-mizu
+  - id: v-daigaku
     position: 100
-    romaji: "mizu"
-    en: "water"
+    romaji: "daigaku"
+    en: "university"
 
-  - id: v-neko
+  - id: v-byooin
     position: 200
-    romaji: "neko"
-    en: "cat"
+    romaji: "byooin"
+    en: "hospital"
 
-  - id: v-inu
+  - id: v-ginkoo
     position: 300
-    romaji: "inu"
-    en: "dog"
+    romaji: "ginkoo"
+    en: "bank"
 
-  - id: v-hon
+  - id: v-kaisha
     position: 400
-    romaji: "hon"
-    en: "book"
+    romaji: "kaisha"
+    en: "company"
 
-  - id: v-hito
+  - id: v-gakkou
     position: 500
-    romaji: "hito"
-    en: "person"
+    romaji: "gakkou"
+    en: "school"
 
-  - id: v-asa
+  - id: v-toshokan
     position: 600
-    romaji: "asa"
-    en: "morning"
+    romaji: "toshokan"
+    en: "library"
 
-  - id: v-yoru
+  - id: v-yuubinkyoku
     position: 700
-    romaji: "yoru"
-    en: "night"
+    romaji: "yuubinkyoku"
+    en: "post office"
 
-  - id: v-sakana
+  - id: v-depaato
     position: 800
-    romaji: "sakana"
-    en: "fish"
+    romaji: "depaato"
+    en: "department store"
