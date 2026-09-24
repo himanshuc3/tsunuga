@@ -31,6 +31,7 @@ export class StorageController {
       settings: { ...DEFAULT_SETTINGS },
       pendingCard: null,
       lessons: [],
+      authToken: null,
     }
   }
 
@@ -90,6 +91,7 @@ export class StorageController {
       STORAGE_KEYS.settings,
       STORAGE_KEYS.pendingCard,
       STORAGE_KEYS.lessons,
+      STORAGE_KEYS.authToken,
     ])
 
     return {
@@ -107,6 +109,7 @@ export class StorageController {
       settings: this.mergeSettings(result.settings),
       pendingCard: this.migratePendingCard(result.pendingCard),
       lessons: Array.isArray(result.lessons) ? (result.lessons as Lesson[]) : defaults.lessons,
+      authToken: (result.authToken as string) || null,
     }
   }
 
@@ -120,6 +123,7 @@ export class StorageController {
       [STORAGE_KEYS.settings]: state.settings,
       [STORAGE_KEYS.pendingCard]: state.pendingCard,
       [STORAGE_KEYS.lessons]: state.lessons,
+      [STORAGE_KEYS.authToken]: state.authToken,
     })
   }
 

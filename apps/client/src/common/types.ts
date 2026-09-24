@@ -90,4 +90,5 @@ export type AppState = {
   settings: Settings
   pendingCard: PendingCard | null
   lessons: Lesson[]
+  authToken: null | string
 }

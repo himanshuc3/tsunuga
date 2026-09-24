@@ -290,7 +290,7 @@ export class BackgroundController {
   }
 
   private async logout(): Promise<{ ok: true }> {
-    this.storageController.updateState((prev) => ({
+    await this.storageController.updateState((prev) => ({
       ...prev,
       authToken: null,
     }))

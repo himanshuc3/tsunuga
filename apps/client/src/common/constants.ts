@@ -18,4 +18,5 @@ export const STORAGE_KEYS = {
   settings: 'settings',
   pendingCard: 'pendingCard',
   lessons: 'lessons',
+  authToken: 'authToken',
 } as const
