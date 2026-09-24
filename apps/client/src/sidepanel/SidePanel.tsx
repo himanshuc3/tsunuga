@@ -20,7 +20,7 @@ import {
   progressKey,
 } from '../domain/progress'
 import type { AppState, Lesson } from '../common/types'
-import { ALARM_NAME, MASTERY_STREAK, STORAGE_KEYS } from '../common/constants'
+import { ALARM_NAME, STORAGE_KEYS } from '../common/constants'
 import './SidePanel.css'
 import { openPopupWithSettings, sendMessage } from '../common/helpers'
 import browser from 'webextension-polyfill'
@@ -73,7 +73,7 @@ function LessonDetails({ state, lesson }: { state: AppState; lesson: Lesson }) {
           <div className="detail-items">
             {lesson.vocab.map((item) => {
               const progress = getOrCreateProgress(state, progressKey(lesson.id, 'vocab', item.id))
-              const mastered = progress.correctStreak >= MASTERY_STREAK
+              const mastered = !!progress.completedAt
               return (
                 <Flex key={item.id} className="detail-item" align="center" justify="space-between">
                   <div className="detail-item-copy">
@@ -82,7 +82,7 @@ function LessonDetails({ state, lesson }: { state: AppState; lesson: Lesson }) {
                   </div>
                   <Tag className="streak-tag" color={mastered ? 'success' : undefined}>
                     {mastered && <CheckCircleFilled />}
-                    {progress.correctStreak}/{MASTERY_STREAK} streak
+                    {progress.correctStreak} streak
                   </Tag>
                 </Flex>
               )

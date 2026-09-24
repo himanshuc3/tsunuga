@@ -31,6 +31,7 @@ export function lessonItemKeys(lesson: Lesson): {
 
 export function isItemMastered(progress: ItemProgress): boolean {
   return !!progress.completedAt
+}
 
 export function isLessonComplete(state: AppState, lesson: Lesson): boolean {
   const keys = lessonItemKeys(lesson)
