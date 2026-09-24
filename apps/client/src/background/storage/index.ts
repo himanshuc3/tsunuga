@@ -128,10 +128,16 @@ export class StorageController {
   }
 
   async updateState(updater: (prev: AppState) => AppState): Promise<AppState> {
-    const prev = await this.loadState()
+    const prev = await this.getState()
     const next = updater(prev)
     await this.saveState(next)
     return next
+  }
+
+  async clearState() {
+    await browser.storage.local.clear()
+    const state = await this.loadState()
+    await this.saveState(state)
   }
 
   async setOpenSettingsOnLoad(): Promise<void> {

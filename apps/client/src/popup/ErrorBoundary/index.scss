@@ -1,0 +1,39 @@
+
+.error-boundary {
+    background: rgb(32, 32, 36);
+    height: 100%;
+
+    & > .popup-header{
+        border:none;
+        justify-content: center;
+        margin-top: 50px;
+    }
+
+    & > .brand-logo{
+        width: 70px;
+    }
+
+    & > .popup-left {align-items: center;}
+    & > .popup-header > .ant-space {
+        padding-left: 0px;
+    }
+
+    & > .error-boundary-body {
+        width: 80%;
+        margin: 10px auto;
+        align-items: center;
+        gap: 16px;
+
+        .ant-typography {
+            color: rgba(255, 255, 255, 0.65);
+            text-align: center;
+            font-weight: 500;
+            font-size: 12px;
+        }
+
+        img {
+            width: 120px;
+            max-width: 100%;
+        }
+    }
+}

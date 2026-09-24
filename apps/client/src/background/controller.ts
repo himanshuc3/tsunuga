@@ -79,6 +79,7 @@ export class BackgroundController {
       OPEN_SETTINGS: () => this.openSettings(),
       CONSUME_OPEN_SETTINGS: () => this.consumeOpenSettings(),
       LOGOUT: () => this.logout(),
+      CLEAR_STATE: () => this.clearState(),
     }
   }
 
@@ -236,25 +237,21 @@ export class BackgroundController {
     // 1. Application -> client ID to google -> identifies a verifiable
     // app for issuing tokens to -> access resources using oauth token
     try {
-      const identity = (
-        chrome as unknown as {
-          identity: {
-            getAuthToken(options: { interactive: boolean }): Promise<{ token: string }>
-          }
-        }
-      ).identity
-      const result = await identity.getAuthToken({
+      const result = await chrome.identity.getAuthToken({
         interactive: true,
       })
+      console.log('result', result)
 
       const authTokenResult = await loginWithGoogle(result.token)
 
       const token = authTokenResult.token
 
       // TODO: Save token and user details, route them via storage controller
-      await browser.storage.local.set({ authToken: token })
-      await browser.storage.local.set({ user: authTokenResult.user || {} })
-
+      await this.storageController.updateState((prev) => ({
+        ...prev,
+        authToken: token,
+        user: authTokenResult.user || {},
+      }))
       // Lazily hydrate the rest of the lesson catalog, progress and settings in the background.
       try {
         await this.syncLessonsFromApi(token)
@@ -299,6 +296,11 @@ export class BackgroundController {
       authToken: null,
     }))
     await browser.alarms.clear(ALARM_NAME)
+    return { ok: true }
+  }
+
+  private async clearState(): Promise<{ ok: true }> {
+    await this.storageController.clearState()
     return { ok: true }
   }
 

@@ -50,7 +50,7 @@ type LoggedInProps = {
   loggedInStatIndex: number
   loggedInPosterRef: RefObject<HTMLDivElement>
   loggedinStats: LoggedInStat[]
-  togglePause: () => Promise<void>
+  togglePause: (checked: boolean) => Promise<void>
   forceCard: () => Promise<void>
   openLearningPanel: () => void
   logout: () => Promise<void>
@@ -82,9 +82,11 @@ export default function LoggedIn({
   updateQuietHour,
   supportProject,
 }: LoggedInProps) {
-  const activeLesson = state.lessons.find(
-    (lesson) => lesson.id === (state.pendingCard?.lessonId ?? state.currentLessonId),
-  )
+  const activeLesson =
+    null &&
+    state.lessons.find(
+      (lesson) => lesson.id === (state.pendingCard?.lessonId ?? state.currentLessonId),
+    )
   const currentLesson = state.lessons.find((lesson) => lesson.id === state.currentLessonId)
   const upcomingLesson = currentLesson && state ? getNextLesson(state) : undefined
   const completedConcepts =
@@ -95,7 +97,7 @@ export default function LoggedIn({
   const conceptCount = activeLesson?.concepts.length ?? 0
   const totalLessonItems = (activeLesson?.vocab.length ?? 0) + conceptCount
   const completedPercentage = (completedConcepts / totalLessonItems) * 100
-
+  console.log(activeLesson.hello)
   return (
     <Layout className="popup">
       <header className="popup-header">

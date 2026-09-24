@@ -35,9 +35,9 @@ export const Popup = () => {
   useEffect(() => {
     async function getData() {
       const data = await browser.storage.local.get([...keysForChange])
-      if (data.authToken) {
-        setIsAuthenticated(true)
-      }
+
+      setIsAuthenticated(!!data.authToken)
+
       setState(data as AppState)
     }
     getData()
@@ -142,7 +142,7 @@ export const Popup = () => {
     return () => context.revert()
   }, [isAuthenticated, loggedInStatIndex, loggedinStats.length])
 
-  const togglePause = async (checked: boolean) => {
+  const togglePause = async (checked: boolean): Promise<void> => {
     if (!state) return
 
     const res = await sendMessage({
@@ -307,41 +307,7 @@ export const Popup = () => {
     }
   }
 
-  return (
-    <ConfigProvider
-      theme={{
-        algorithm: undefined,
-        token: {
-          colorPrimary: '#b7f36b',
-          colorTextLightSolid: '#ffffff',
-          colorText: '#f7f7f8',
-          colorTextSecondary: '#9a99a5',
-          colorBgContainer: '#202024',
-          borderRadius: 12,
-          fontFamily: "'Avenir Next', 'Segoe UI', sans-serif",
-        },
-        components: {
-          Button: {
-            primaryColor: '#1a3804',
-            colorPrimaryHover: '#c9ff85',
-            colorPrimaryActive: '#a6e25a',
-            boxShadow: 'none',
-            primaryShadow: 'none',
-            defaultShadow: 'none',
-            dangerShadow: 'none',
-            fontWeight: 600,
-          },
-          Tooltip: {
-            colorBgSpotlight: '#2a2a30',
-            colorTextLightSolid: '#f7f7f8',
-          },
-          Tabs: { itemColor: '#777681', itemSelectedColor: '#f7f7f8', inkBarColor: '#b7f36b' },
-        },
-      }}
-    >
-      {renderRoutes()}
-    </ConfigProvider>
-  )
+  return <>{renderRoutes()}</>
 }
 
 export default Popup

@@ -27,3 +27,30 @@
 .quiet-hours{
   align-items: flex-start;
 }
+
+
+
+.popup-header {
+  position: sticky;
+  z-index: 10;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  height: 50px;
+  background: rgb(32, 32, 36);
+  border-bottom: 1px solid var(--popup-line);
+}
+
+.popup-left {
+  padding-left: 10px;
+}
+
+.popup-header .ant-typography {
+  margin: 0;
+  color: #f7f7f8;
+}
+.popup-header .ant-btn {
+  font-size: 17px;
+}

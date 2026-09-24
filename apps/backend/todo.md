@@ -39,3 +39,17 @@ Features:
   - Sampling algorithm for showing the next card:
     - Showing concepts and vocab only once?
     - Showing test cards until a streak threshold is hit? Should we instead give an option to review the vocab tested if the answer is incorrect?
+
+### Before deployment
+
+Migratable versions of application:
+
+- Data compatibility:
+  - All fields added to entities in database must be optional unless a mandatory upgrade of extension required by the user.
+  - Error boundary as a catch all with reset (rehydrate local storage)
+  - Local storage compatibility: Having explicit schema versioning? And use oninstalled for schema migrations
+  - Reading local storage should always be after normalizing it with default State
+  - User can delete local storage and in that case the application can crash?
+
+- Deployment:
+  - Using neon + railway/render

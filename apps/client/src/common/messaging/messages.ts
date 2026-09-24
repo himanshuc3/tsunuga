@@ -61,6 +61,10 @@ export type LogoutMessage = {
   type: 'LOGOUT'
 }
 
+export type ClearStateMessage = {
+  type: 'CLEAR_STATE'
+}
+
 export type OpenSettingsMessage = {
   type: 'OPEN_SETTINGS'
 }
@@ -85,6 +89,7 @@ export type ExtensionMessage =
   | ConsumeOpenSettingsMessage
   | OpenSidePanel
   | LogoutMessage
+  | ClearStateMessage
 
 export type BackgroundEvent = DismissMessage | OpenSidePanel
 
@@ -100,6 +105,7 @@ export type BackgroundRequest =
   | OpenSettingsMessage
   | ConsumeOpenSettingsMessage
   | LogoutMessage
+  | ClearStateMessage
 
 export type StateResponse = {
   type: 'STATE'
