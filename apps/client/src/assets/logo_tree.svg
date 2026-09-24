@@ -11,8 +11,8 @@
 <rect class="shape" x="75.1364" y="92" width="9" height="9" rx="1" fill="url(#paint9_linear_33_58)"/>
 <rect class="shape" x="319.136" y="23" width="9" height="9" rx="4.5" fill="url(#paint10_linear_33_58)"/>
 <rect class="shape" x="122.136" y="145" width="9" height="9" rx="4.5" fill="url(#paint11_linear_33_58)"/>
-<path class="outward-path" d="M136.904 20C137.674 18.6667 139.599 18.6667 140.368 20L143.399 25.25C144.169 26.5834 143.207 28.25 141.667 28.25H135.605C134.066 28.25 133.103 26.5834 133.873 25.25L136.904 20Z" fill="url(#paint12_linear_33_58)"/>
-<path class="outward-path" d="M324.904 157C325.674 155.667 327.599 155.667 328.368 157L331.399 162.25C332.169 163.583 331.207 165.25 329.667 165.25H323.605C322.066 165.25 321.103 163.583 321.873 162.25L324.904 157Z" fill="url(#paint13_linear_33_58)"/>
+<path class="shape" d="M136.904 20C137.674 18.6667 139.599 18.6667 140.368 20L143.399 25.25C144.169 26.5834 143.207 28.25 141.667 28.25H135.605C134.066 28.25 133.103 26.5834 133.873 25.25L136.904 20Z" fill="url(#paint12_linear_33_58)"/>
+<path class="shape" d="M324.904 157C325.674 155.667 327.599 155.667 328.368 157L331.399 162.25C332.169 163.583 331.207 165.25 329.667 165.25H323.605C322.066 165.25 321.103 163.583 321.873 162.25L324.904 157Z" fill="url(#paint13_linear_33_58)"/>
 <path class="outward-path" d="M237.136 28.2005C246.136 3.87042 339.136 0.370402 361.636 6.87041" stroke="url(#paint14_linear_33_58)" stroke-width="8"/>
 <mask id="mask0_33_58" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="157" y="26" width="137" height="137">
 <circle cx="225.041" cy="94.3704" r="68" fill="#D9D9D9"/>

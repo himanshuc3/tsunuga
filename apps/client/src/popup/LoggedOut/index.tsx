@@ -5,6 +5,7 @@ import { DrawSVGPlugin } from 'gsap/DrawSVGPlugin'
 import { GoogleOutlined } from '@ant-design/icons'
 import logoTree from '../../assets/logo_tree.svg?raw'
 import './index.scss'
+import MadeBy from '../../common/components/MadeBy'
 
 gsap.registerPlugin(DrawSVGPlugin)
 
@@ -38,8 +39,8 @@ function AnimatedLogoTree() {
 
       gsap.to('.shape', {
         duration: 1.4,
-        x: 4,
-        y: -4,
+        x: () => gsap.utils.random(-12, 12),
+        y: () => gsap.utils.random(-12, 12),
         rotation: 8,
         transformOrigin: '50% 50%',
         ease: 'sine.inOut',
@@ -57,7 +58,7 @@ function AnimatedLogoTree() {
 
 const loggedOutStats = [
   {
-    stat: '200',
+    stat: '50',
     desc: 'categorized vocab cards',
   },
   {
@@ -66,7 +67,7 @@ const loggedOutStats = [
   },
   {
     stat: '5',
-    desc: 'settings to tweak for learning',
+    desc: 'settings to tweak your environment',
   },
 ]
 
@@ -151,12 +152,7 @@ export default function LoggedOut({ login, disabled }: LoggedOutProps) {
         </Button>
       </div>
 
-      <span className="creator-pill">
-        Created by{' '}
-        <a href="https://github.com/himanshu" target="_blank" rel="noreferrer">
-          Himanshu
-        </a>
-      </span>
+      <MadeBy />
     </Layout>
   )
 }
