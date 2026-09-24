@@ -12,6 +12,7 @@ import { getActiveInjectableTab, isInjectableUrl } from './utils'
 import { CardFeature, type AnswerInput } from './features/card'
 import { SettingsFeature } from './features/settings'
 import { hideOnTab, sendToTab, setBadge } from './helpers'
+import { setUnauthorizedHandler } from './async'
 import {
   apiProgressItemToClientProgress,
   apiProgressToClientProgress,
@@ -63,6 +64,7 @@ export class BackgroundController {
     this.storageController = StorageController.getInstance()
     this.cards = new CardFeature(this.storageController)
     this.settings = new SettingsFeature(this.storageController)
+    setUnauthorizedHandler(() => this.logout())
     this.eventHandlers = {
       DISMISS: (message) => this.dismissCard(message.cardId),
       OPEN_SIDEPANEL: (message) => this._openSidePanel(),
