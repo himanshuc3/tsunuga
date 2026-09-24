@@ -45,11 +45,11 @@ Features:
 Migratable versions of application:
 
 - Data compatibility:
-  - All fields added to entities in database must be optional unless a mandatory upgrade of extension required by the user.
-  - Error boundary as a catch all with reset (rehydrate local storage)
-  - Local storage compatibility: Having explicit schema versioning? And use oninstalled for schema migrations
+  - [Enforced] All fields added to entities in database must be optional unless a mandatory upgrade of extension required by the user. [For updates to extension]
+  - [Important] Error boundary as a catch all with reset (rehydrate local storage)
+  - [Defer] Local storage compatibility: Having explicit schema versioning? And use oninstalled for schema migrations
   - Reading local storage should always be after normalizing it with default State
-  - User can delete local storage and in that case the application can crash?
+  - [Handled-Error boundary] User can delete local storage and in that case the application can crash?
 
 - Deployment:
   - Using neon + railway/render

@@ -1,4 +1,3 @@
-import { MASTERY_STREAK } from '../common/constants'
 import { getLessonById, getNextLesson } from '../common/helpers'
 import type { AppState, ItemProgress, Lesson } from '../common/types'
 
@@ -31,8 +30,7 @@ export function lessonItemKeys(lesson: Lesson): {
 }
 
 export function isItemMastered(progress: ItemProgress): boolean {
-  return progress.correctStreak >= MASTERY_STREAK
-}
+  return !!progress.completedAt
 
 export function isLessonComplete(state: AppState, lesson: Lesson): boolean {
   const keys = lessonItemKeys(lesson)
