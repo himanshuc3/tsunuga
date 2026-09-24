@@ -68,6 +68,7 @@ CREATE TABLE user_item_progress (
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE, 
     item_id TEXT NOT NULL REFERENCES lesson_items(id),
     introduced_at TIMESTAMPTZ,
+    needs_review BOOLEAN NOT NULL DEFAULT FALSE,
     correct_streak INTEGER NOT NULL DEFAULT 0 CHECK (correct_streak >= 0),
     last_seen_at TIMESTAMPTZ,
     concept_shown BOOLEAN NOT NULL DEFAULT FALSE,

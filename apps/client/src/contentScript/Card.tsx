@@ -17,7 +17,7 @@ type Props = {
   card: PendingCard
   onAnswer: (choice: string, correct: boolean) => Promise<void>
   onAck: () => Promise<void>
-  onDismiss: () => void
+  onDismiss: () => Promise<void>
 }
 
 const KIND_LABEL: Record<PendingCard['kind'], string> = {
@@ -95,7 +95,7 @@ export function Card({ card, onAnswer, onAck, onDismiss }: Props) {
               className="tango-action-button"
               type="text"
               disabled={isSubmitting}
-              onClick={() => void submit(onAck)}
+              onClick={() => void submit(onDismiss)}
             >
               Review later
             </Button>
@@ -263,7 +263,7 @@ export function Card({ card, onAnswer, onAck, onDismiss }: Props) {
               icon={<CloseOutlined />}
               aria-label="Dismiss"
               disabled={isSubmitting}
-              onClick={onDismiss}
+              onClick={() => void submit(onDismiss)}
             />
           </Flex>
           <Space className="tango-body" direction="vertical" size={12}>

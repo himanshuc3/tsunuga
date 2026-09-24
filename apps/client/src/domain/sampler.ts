@@ -113,6 +113,7 @@ function buildVocabTest(
 }
 
 /** Pick next card: unseen current lesson first, then weak, then light review. */
+// Current algorithm is localized: concept > vocab > test
 export function sampleNextCard(state: AppState): PendingCard | null {
   if (!state.currentLessonId) return null
   const current = getLessonById(state.lessons, state.currentLessonId)
@@ -171,6 +172,7 @@ export function sampleNextCard(state: AppState): PendingCard | null {
   }
 
   // Light review from completed lessons
+  // global vocab added to list of candidates
   for (const lesson of state.lessons) {
     if (!state.completedLessonIds.includes(lesson.id) && lesson.id !== current.id) {
       continue
@@ -182,7 +184,7 @@ export function sampleNextCard(state: AppState): PendingCard | null {
       const p = getOrCreateProgress(state, key)
       if (p.introducedAt != null) {
         candidates.push({
-          priority: 3,
+          priority: 4,
           build: () =>
             buildVocabTest(lesson.id, v.id, v.romaji, v.en, globalEn, globalRomaji, v.meta),
         })
@@ -190,13 +192,13 @@ export function sampleNextCard(state: AppState): PendingCard | null {
     }
   }
 
-  // Also allow testing already-mastered current items occasionally (priority 3)
+  // Also allow testing already-mastered current items occasionally (priority 4)
   for (const v of current.vocab) {
     const key = progressKey(current.id, 'vocab', v.id)
     const p = getOrCreateProgress(state, key)
     if (isItemMastered(p)) {
       candidates.push({
-        priority: 3,
+        priority: 4,
         build: () =>
           buildVocabTest(
             current.id,

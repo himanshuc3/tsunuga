@@ -70,8 +70,8 @@ class Controller {
     })
   }
 
-  public sendDismiss(cardId: string): void {
-    sendMessage({ type: 'DISMISS', cardId })
+  public async sendDismiss(cardId: string): Promise<void> {
+    await sendMessage({ type: 'DISMISS', cardId })
   }
 
   public hideCard(): void {

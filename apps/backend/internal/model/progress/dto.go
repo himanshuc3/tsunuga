@@ -16,6 +16,7 @@ type ItemProgress struct {
 	CorrectStreak int        `json:"correct_streak" db:"correct_streak"`
 	LastSeenAt    *time.Time `json:"last_seen_at,omitempty" db:"last_seen_at"`
 	ConceptShown  bool       `json:"concept_shown" db:"concept_shown"`
+	NeedsReview   bool       `json:"needs_review" db:"needs_review"`
 	CompletedAt   *time.Time `json:"completed_at,omitempty" db:"completed_at"`
 }
 

@@ -88,7 +88,7 @@ export class BackgroundController {
     if (!onStartup) await this.storageController.saveState(state)
 
     await setBadge(Boolean(state.pendingCard))
-    if (state.pendingCard) {
+    if (state.pendingCard && !(await this.isPendingCardDeferred())) {
       await this.showPendingOnActiveTab(state.pendingCard)
     } else {
       await this.ensureAlarm(state)
@@ -113,7 +113,9 @@ export class BackgroundController {
   async handleTabActivated(tabId: number): Promise<void> {
     // this.lastActiveTabId = tabId
     const state = await this.storageController.loadState()
-    if (state.pendingCard) await this.showPendingOnActiveTab(state.pendingCard)
+    if (state.pendingCard && !(await this.isPendingCardDeferred())) {
+      await this.showPendingOnActiveTab(state.pendingCard)
+    }
   }
 
   async handleTabUpdated(
@@ -124,7 +126,7 @@ export class BackgroundController {
     if (changeInfo.status !== 'complete' || !isInjectableUrl(url)) return
 
     const state = await this.storageController.loadState()
-    if (!state.pendingCard) return
+    if (!state.pendingCard || (await this.isPendingCardDeferred())) return
 
     const [active] = await browser.tabs.query({
       active: true,
@@ -180,7 +182,9 @@ export class BackgroundController {
     }
 
     await setBadge(true)
-    if (result.status === 'created') await browser.alarms.clear(ALARM_NAME)
+    if (result.status === 'created' || result.status === 'existing') {
+      await browser.alarms.clear(ALARM_NAME)
+    }
     return this.showPendingOnActiveTab(result.card)
   }
 
@@ -342,21 +346,21 @@ export class BackgroundController {
   }
 
   async getState(): Promise<{ type: 'STATE'; ok: true; state: AppState }> {
-    return { type: 'STATE', ok: true, state: await this.storageController.loadState() }
+    return { type: 'STATE', ok: true, state: await this.storageController.getState() }
   }
 
   private async answerCard(input: AnswerInput): Promise<{ ok: true }> {
+    // Handling test card
     if (input.cardId === this.testCardId) {
       await this.finishTestCard()
       return { ok: true }
     }
 
-    const state = await this.storageController.loadState()
+    const state = await this.storageController.getState()
     const card = state.pendingCard
     if (!card || card.id !== input.cardId) return { ok: true }
 
-    const stored = await browser.storage.local.get('authToken')
-    if (typeof stored.authToken !== 'string' || !stored.authToken) {
+    if (!state.authToken) {
       throw new Error('Cannot record progress without an authenticated session.')
     }
 
@@ -366,7 +370,7 @@ export class BackgroundController {
         : input.choice !== undefined && card.kind === 'test' && input.choice === card.answer
     const itemId = card.kind === 'concept' ? card.conceptId : card.itemKey
     const progress = apiProgressItemToClientProgress(
-      await recordItemAttempt(stored.authToken, itemId, correct),
+      await recordItemAttempt(state.authToken, itemId, correct),
     )
     const next = await this.cards.answerCard(input, progress)
     if (next) await this.finishCard(next)
@@ -379,7 +383,7 @@ export class BackgroundController {
       return
     }
 
-    const state = await this.cards.dismissCard(cardId)
+    const state = await this.cards.deferCard(cardId)
     if (state) await this.finishCard(state)
   }
   /**
@@ -427,12 +431,16 @@ export class BackgroundController {
   // cron job scheduler
   private async ensureAlarm(state: AppState): Promise<void> {
     await browser.alarms.clear(ALARM_NAME)
-    if (state.settings.paused || state.pendingCard) return
+    if (state.settings.paused) return
 
     const fireAt = computeNextFireAt(state.settings)
     await browser.alarms.create(ALARM_NAME, {
       delayInMinutes: delayMinutesFromNow(fireAt),
     })
+  }
+
+  private async isPendingCardDeferred(): Promise<boolean> {
+    return Boolean(await browser.alarms.get(ALARM_NAME))
   }
 
   private async finishCard(state: AppState): Promise<void> {

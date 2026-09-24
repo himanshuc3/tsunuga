@@ -25,7 +25,14 @@ func NewProgressRepository(s *server.Server) *ProgressRepository {
 func (r *ProgressRepository) ListUserProgress(ctx context.Context, userID uuid.UUID) ([]progress.ItemProgress, error) {
 	stmt := `
 		SELECT
-			*
+			user_id,
+			item_id,
+			introduced_at,
+			correct_streak,
+			last_seen_at,
+			concept_shown,
+			needs_review,
+			completed_at
 		FROM
 			user_item_progress
 		WHERE
@@ -58,6 +65,7 @@ func (r *ProgressRepository) RecordAttempt(ctx context.Context, userID uuid.UUID
 				correct_streak,
 				last_seen_at,
 				concept_shown,
+				needs_review,
 				completed_at
 			)
 		VALUES
@@ -68,6 +76,7 @@ func (r *ProgressRepository) RecordAttempt(ctx context.Context, userID uuid.UUID
 				CASE WHEN @correct THEN 1 ELSE 0 END,
 				CURRENT_TIMESTAMP,
 				TRUE,
+				NOT @correct,
 				CASE WHEN @correct AND 1 >= @completion_streak THEN CURRENT_TIMESTAMP ELSE NULL END
 			)
 		ON CONFLICT (user_id, item_id)
@@ -75,12 +84,21 @@ func (r *ProgressRepository) RecordAttempt(ctx context.Context, userID uuid.UUID
 			introduced_at = COALESCE(user_item_progress.introduced_at, CURRENT_TIMESTAMP),
 			correct_streak = CASE WHEN @correct THEN user_item_progress.correct_streak + 1 ELSE 0 END,
 			last_seen_at = CURRENT_TIMESTAMP,
+			needs_review = NOT @correct,
 			completed_at = CASE
 				WHEN user_item_progress.completed_at IS NOT NULL THEN user_item_progress.completed_at
 				WHEN @correct AND user_item_progress.correct_streak + 1 >= @completion_streak THEN CURRENT_TIMESTAMP
 				ELSE NULL
 			END
-		RETURNING *
+		RETURNING
+			user_id,
+			item_id,
+			introduced_at,
+			correct_streak,
+			last_seen_at,
+			concept_shown,
+			needs_review,
+			completed_at
 	`
 
 	rows, err := r.server.DB.Pool.Query(ctx, stmt, pgx.NamedArgs{
