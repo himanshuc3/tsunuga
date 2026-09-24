@@ -177,47 +177,10 @@ export default function LoggedIn({
           </section>
 
           <section className="settings-section">
-            <Title level={4}>Quiet hours</Title>
-            {settingsDraft.quietHours.map((quietHour, index) => (
-              <div className="quiet-hour-row" key={`${quietHour.start}-${quietHour.end}-${index}`}>
-                <input
-                  type="time"
-                  value={quietHour.start}
-                  onChange={(event) => updateQuietHour(index, { start: event.target.value })}
-                />
-                <span>to</span>
-                <input
-                  type="time"
-                  value={quietHour.end}
-                  onChange={(event) => updateQuietHour(index, { end: event.target.value })}
-                />
-                <Button
-                  type="text"
-                  onClick={() =>
-                    updateSetting(
-                      'quietHours',
-                      settingsDraft.quietHours.filter(
-                        (_, quietHourIndex) => quietHourIndex !== index,
-                      ),
-                    )
-                  }
-                >
-                  Remove
-                </Button>
-              </div>
-            ))}
-            <Button
-              className="settings-secondary-action"
-              type="default"
-              onClick={() =>
-                updateSetting('quietHours', [
-                  ...settingsDraft.quietHours,
-                  { start: '22:00', end: '07:00' },
-                ])
-              }
-            >
-              Add quiet hours
-            </Button>
+            <Space size={8} className="quiet-hours">
+              <Title level={4}>Quiet hours</Title>
+              <Tag color="default">Coming soon</Tag>
+            </Space>
           </section>
 
           {settingsError && <Alert message={settingsError} type="error" showIcon />}
@@ -335,13 +298,6 @@ export default function LoggedIn({
           </Flex>
         </Content>
       )}
-
-      <span className="creator-pill">
-        Created by{' '}
-        <a href="https://github.com/himanshu" target="_blank" rel="noreferrer">
-          Himanshu
-        </a>
-      </span>
     </Layout>
   )
 }

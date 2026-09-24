@@ -263,7 +263,9 @@ export const Popup = () => {
     }
   }
 
-  function supportProject() {}
+  function supportProject() {
+    void browser.tabs.create({ url: 'https://github.com/himanshuc3/tsunuga' })
+  }
 
   function renderRoutes() {
     switch (true) {
