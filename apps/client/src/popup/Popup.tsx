@@ -200,12 +200,9 @@ export const Popup = () => {
   }
 
   const logout = async () => {
-    // setBusy(true)
     try {
       await sendMessage({ type: 'LOGOUT' })
-    } finally {
-      // setBusy(false)
-    }
+    } catch (err) {}
     setIsAuthenticated(false)
     setState(null)
   }

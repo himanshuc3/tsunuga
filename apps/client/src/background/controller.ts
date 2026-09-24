@@ -290,7 +290,10 @@ export class BackgroundController {
   }
 
   private async logout(): Promise<{ ok: true }> {
-    await browser.storage.local.remove(['authToken', 'user'])
+    this.storageController.updateState((prev) => ({
+      ...prev,
+      authToken: null,
+    }))
     await browser.alarms.clear(ALARM_NAME)
     return { ok: true }
   }
