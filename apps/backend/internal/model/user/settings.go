@@ -25,7 +25,7 @@ type Settings struct {
 	RandomIntervalMaxMinutes int    `json:"random_interval_max_minutes" validate:"required,gtefield=RandomIntervalMinMinutes"`
 	QuietTimeStart           string `json:"quiet_time_start" validate:"required,quiettime"`
 	QuietTimeEnd             string `json:"quiet_time_end" validate:"required,quiettime"`
-	Paused                   bool   `json:"paused" validate:"required"`
+	Paused                   bool   `json:"paused"`
 }
 
 // Scan implements sql.Scanner so pgx can populate this field from the settings JSONB column.

@@ -142,13 +142,12 @@ export const Popup = () => {
     return () => context.revert()
   }, [isAuthenticated, loggedInStatIndex, loggedinStats.length])
 
-  const togglePause = async () => {
+  const togglePause = async (checked: boolean) => {
     if (!state) return
-    console.log('called1')
 
     const res = await sendMessage({
       type: 'SET_PAUSED',
-      paused: !state.settings.paused,
+      paused: !checked,
     })
     const nextState = res as { state: AppState }
 
