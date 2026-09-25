@@ -242,7 +242,9 @@ export class BackgroundController {
       const result = await chrome.identity.getAuthToken({
         interactive: true,
       })
-      console.log('result', result)
+      if (!result.token) {
+        throw new Error('Google did not return an access token')
+      }
 
       const authTokenResult = await loginWithGoogle(result.token)
 
@@ -262,7 +264,7 @@ export class BackgroundController {
         await this.storageController.updateState((prev) => {
           const completedIds = completedLessonIds(prev)
           const currentLessonId = getCurrentLessonId(prev, completedIds)
-          console.log(completedIds, currentLessonId)
+
           return {
             ...prev,
             completedLessonIds: completedIds,
@@ -334,7 +336,7 @@ export class BackgroundController {
 
   private async syncLessonsFromApi(token: string): Promise<void> {
     const items = await listLessons(token)
-    console.log('items', items)
+
     await this.storageController.updateState((prev) => ({
       ...prev,
       lessons: items,

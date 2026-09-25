@@ -2,10 +2,10 @@ import axios, { type AxiosInstance } from 'axios'
 
 const defaultBaseURL = import.meta.env.VITE_API_URL ?? 'http://localhost:8080/api/v1'
 
-type UnauthorizedHandler = () => Promise<void>
+type UnauthorizedHandler = () => Promise<unknown>
 
 let unauthorizedHandler: UnauthorizedHandler | undefined
-let unauthorizedHandling: Promise<void> | undefined
+let unauthorizedHandling: Promise<unknown> | undefined
 
 export function setUnauthorizedHandler(handler: UnauthorizedHandler): void {
   unauthorizedHandler = handler
