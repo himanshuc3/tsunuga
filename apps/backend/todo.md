@@ -53,3 +53,9 @@ Migratable versions of application:
 
 - Deployment:
   - Using neon + railway/render
+- Steps:
+  1. Avoid DB DSN build and redundancy over in database.go and migrator.go. Instead just add TANGO_DATABASE.URL.
+  2. Apply the configured pool limits (MaxOpenConns, MadIdleConns, ConnMaxIdleTime). Keeping number of MaxConns modest and use conns pooled by Neon.
+  3. Handle render shutdown (Render sends SIGTERM)
+  4. Move migrations out of normal server setup. Use render's `predeploycommand`/ separate migration job.
+  5. Production dockerfile + render.yaml
