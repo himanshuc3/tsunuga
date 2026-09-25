@@ -11,7 +11,6 @@ import (
 	"github.com/himanshuc3/tango-be/internal/database"
 	"github.com/himanshuc3/tango-be/internal/lib/utils/job"
 	loggerPkg "github.com/himanshuc3/tango-be/internal/logger"
-	"github.com/newrelic/go-agent/v3/integrations/nrredis-v9"
 	"github.com/redis/go-redis/v9"
 	"github.com/rs/zerolog"
 )
@@ -33,21 +32,21 @@ func New(cfg *config.Config, logger *zerolog.Logger, loggerService *loggerPkg.Lo
 	}
 
 	// Redis client with new relic integration
-	redisClient := redis.NewClient(&redis.Options{Addr: cfg.Redis.Address})
+	// redisClient := redis.NewClient(&redis.Options{Addr: cfg.Redis.Address})
 
 	// Add new relic redis hooks if available
-	if loggerService != nil && loggerService.GetApplication() != nil {
-		redisClient.AddHook(nrredis.NewHook(redisClient.Options()))
-	}
+	// if loggerService != nil && loggerService.GetApplication() != nil {
+	// 	redisClient.AddHook(nrredis.NewHook(redisClient.Options()))
+	// }
 
 	// Test Redis Connection
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
+	// ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	// defer cancel()
 
-	if err := redisClient.Ping(ctx).Err(); err != nil {
-		logger.Error().Err(err).Msg("Failed to connect to redis, continuing without redis")
-		// Don't faile startup if redis is unavailable
-	}
+	// if err := redisClient.Ping(ctx).Err(); err != nil {
+	// 	logger.Error().Err(err).Msg("Failed to connect to redis, continuing without redis")
+	// 	// Don't faile startup if redis is unavailable
+	// }
 
 	jobService := job.NewJobService(logger, cfg)
 	jobService.InitHandlers(cfg, logger)
@@ -62,7 +61,7 @@ func New(cfg *config.Config, logger *zerolog.Logger, loggerService *loggerPkg.Lo
 		Logger:        logger,
 		LoggerService: loggerService,
 		DB:            db,
-		Redis:         redisClient,
+		Redis:         nil,
 		Job:           jobService,
 	}
 

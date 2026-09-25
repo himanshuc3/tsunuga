@@ -22,7 +22,11 @@ func NewHealthHandler(s *server.Server) *HealthHandler {
 }
 
 func (h *HealthHandler) CheckHealth(c echo.Context) error {
+	// Logging healthy server
 	start := time.Now()
+
+	// We have multiple instances of logger, one attached to the lifecycle of
+	// a request and other's attached to the application
 	logger := middleware.GetLogger(c).With().
 		Str("operation", "health_check").
 		Logger()
@@ -124,7 +128,9 @@ func (h *HealthHandler) CheckHealth(c echo.Context) error {
 		Dur("total_duration", time.Since(start)).
 		Msg("health check passed")
 
+	// Response to the client
 	err := c.JSON(http.StatusOK, response)
+
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to write JSON response")
 		if h.server.LoggerService != nil && h.server.LoggerService.GetApplication() != nil {
