@@ -2,12 +2,22 @@
 
 Learn Japanese while you browse.
 
+[![Chrome Web Store](https://img.shields.io/badge/Chrome_Web_Store-Install-4285F4?logo=googlechrome&logoColor=white)](https://chromewebstore.google.com/)
+[![Render](https://img.shields.io/badge/Render-46E3B7?logo=render&logoColor=black)](https://render.com/)
+[![Neon](https://img.shields.io/badge/Neon-00E599?logo=neon&logoColor=black)](https://neon.tech/)
+[![New Relic](https://img.shields.io/badge/New_Relic-1CE783?logo=newrelic&logoColor=black)](https://newrelic.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+
 tango is a small learning platform made of two parts:
 
 - a Chrome extension that turns browsing into short, repeated practice sessions;
 - a Go API that provides authentication, progress, settings, and lesson management.
 
 The extension works locally with bundled lessons and local browser storage. The API is the foundation for account-based and server-backed features.
+
+## Production backend
+
+The production API runs on Render, uses Neon-hosted PostgreSQL, and sends application logs and observability data to New Relic.
 
 ## At a glance
 
