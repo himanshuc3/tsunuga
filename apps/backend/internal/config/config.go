@@ -30,6 +30,9 @@ import (
 * is that a lot of boilerplate is generally required for
 * consuming/serialization/deserialization of any outside
 * data via any medium (env files, http payloads etc.)
+* [Pattern] Configs which are optional are kept as pointers because otherwise
+* it would inherit empty values and distinguishing between empty
+* value and missing config is blurred.
 ***************************************
 ***************************************/
 type Config struct {
