@@ -59,3 +59,35 @@ Migratable versions of application:
   3. Handle render shutdown (Render sends SIGTERM)
   4. Move migrations out of normal server setup. Use render's `predeploycommand`/ separate migration job.
   5. Production dockerfile + render.yaml
+
+Set up this Neon project in the current working directory.
+
+1. `npm i -g neon@latest && neon login`
+2. `neon skills -y`
+3. `neon mcp -y`
+4. `neon link --project-id small-frog-23521824 --branch production -y`
+5. `neon config init`
+6. Update `neon.ts`:
+
+```ts
+import { defineConfig } from "@neon/config/v1";
+
+export default defineConfig({});
+```
+
+7. `neon deploy`
+
+### Deploying a DB
+
+1. Create a project and get a DSN
+2. Test the connection after installing pre-requisites:
+
+- `sudo apt update && sudo apt install postgresql-client`
+
+3. Connect to the DB:
+
+```
+  export DB_URL='DSN'
+  psql "$DB_URL"
+  SELECT now(), current_database(), current_user, version();
+```

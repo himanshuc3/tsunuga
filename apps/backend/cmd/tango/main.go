@@ -66,11 +66,11 @@ func main() {
 	// Auto-migrations should be independent of server start/restarts, but then
 	// again, the code depends on DB, so we might require DB and code schema
 	// or models to be the same
-	if cfg.Primary.Env != "local" {
-		if err := database.Migrate(context.Background(), &log, cfg); err != nil {
-			log.Fatal().Err(err).Msg("failed to migrate database")
-		}
+	// if cfg.Primary.Env != "local" {
+	if err := database.Migrate(context.Background(), &log, cfg); err != nil {
+		log.Fatal().Err(err).Msg("failed to migrate database")
 	}
+	// }
 
 	// Sync lessons static content with DB
 	// Needs to be idempotent & use postgres advisory locks

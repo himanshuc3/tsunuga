@@ -3,12 +3,9 @@ package content
 import (
 	"context"
 	"fmt"
-	"net"
-	"net/url"
 	"os"
 	"path/filepath"
 	"sort"
-	"strconv"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/himanshuc3/tango-be/internal/config"
@@ -242,22 +239,9 @@ func syncVocab(
 	return err
 }
 
-func CreateDBURI(cfg *config.Config) string {
-	hostPort := net.JoinHostPort(cfg.Database.Host, strconv.Itoa(cfg.Database.Port))
-	encodedPassword := url.QueryEscape(cfg.Database.Password)
-	dsn := fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=%s",
-		cfg.Database.User,
-		encodedPassword,
-		hostPort,
-		cfg.Database.Name,
-		cfg.Database.SSLMode)
-	return dsn
-
-}
-
 // Reconcile our lessons and lesson items table with static data
 func Sync(ctx context.Context, logger *zerolog.Logger, cfg *config.Config) error {
-	dbURI := CreateDBURI(cfg)
+	dbURI := cfg.Database.DSN
 	conn, err := pgx.Connect(ctx, dbURI)
 	if err != nil {
 		logger.

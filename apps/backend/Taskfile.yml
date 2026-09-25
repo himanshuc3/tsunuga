@@ -27,13 +27,12 @@ tasks:
   infra:
     desc: Start Infrastructure (external deps) required for local dev
     cmds:
-      - docker compose up -d
+      - docker compose up -d --wait --wait-timeout 60
 
   dev:
     desc: Start infrastructure and Go server with hot reload
     deps:
       - infra
-      - migrations:up:auto
     cmds:
       - air
 
