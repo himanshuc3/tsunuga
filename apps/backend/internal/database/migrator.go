@@ -15,7 +15,7 @@ import (
 // Purpose: To automatically apply all the migrations from /migrations
 // folder when the application starts in prod
 
-// go:embed migrations/*.sql
+//go:embed migrations/*.sql
 var migrations embed.FS
 
 func Migrate(ctx context.Context, logger *zerolog.Logger, cfg *config.Config) error {

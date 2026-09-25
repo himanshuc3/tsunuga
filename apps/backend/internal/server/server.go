@@ -48,13 +48,12 @@ func New(cfg *config.Config, logger *zerolog.Logger, loggerService *loggerPkg.Lo
 	// 	// Don't faile startup if redis is unavailable
 	// }
 
-	jobService := job.NewJobService(logger, cfg)
-	jobService.InitHandlers(cfg, logger)
-
-	// Start job server
-	if err := jobService.Start(); err != nil {
-		return nil, err
-	}
+	// Redis-backed background jobs are disabled until the application uses them.
+	// jobService := job.NewJobService(logger, cfg)
+	// jobService.InitHandlers(cfg, logger)
+	// if err := jobService.Start(); err != nil {
+	// 	return nil, err
+	// }
 
 	server := &Server{
 		Config:        cfg,
@@ -62,7 +61,7 @@ func New(cfg *config.Config, logger *zerolog.Logger, loggerService *loggerPkg.Lo
 		LoggerService: loggerService,
 		DB:            db,
 		Redis:         nil,
-		Job:           jobService,
+		Job:           nil,
 	}
 
 	// Start metrics collection
