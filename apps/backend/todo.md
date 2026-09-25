@@ -57,8 +57,9 @@ Migratable versions of application:
   1. Avoid DB DSN build and redundancy over in database.go and migrator.go. Instead just add TANGO_DATABASE.URL.
   2. Apply the configured pool limits (MaxOpenConns, MadIdleConns, ConnMaxIdleTime). Keeping number of MaxConns modest and use conns pooled by Neon.
   3. Handle render shutdown (Render sends SIGTERM)
-  4. Move migrations out of normal server setup. Use render's `predeploycommand`/ separate migration job.
+  4. Move migrations out of normal server setup. Use render's `predeploycommand`/ separate migration job. [currently in the application booting]
   5. Production dockerfile + render.yaml
+  6. advisory lock: SELECT pg_advisory_lock(123456); in case of multiple instances of server to prevent
 
 Set up this Neon project in the current working directory.
 

@@ -246,8 +246,7 @@ func Sync(ctx context.Context, logger *zerolog.Logger, cfg *config.Config) error
 	if err != nil {
 		logger.
 			Info().
-			Str("db", dbURI).
-			Msg("Error connecting to DB")
+			Msg("Error connecting to DB while syncing content")
 		return err
 	}
 	defer conn.Close(ctx)

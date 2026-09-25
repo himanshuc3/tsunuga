@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/himanshuc3/tango-be/cmd/content"
@@ -106,7 +107,7 @@ func main() {
 	// Setup HTTP server
 	srv.SetupHTTPServer(r)
 
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 
 	// Start server
 	go func() {

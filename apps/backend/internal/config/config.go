@@ -37,7 +37,7 @@ type Config struct {
 	Server        ServerConfig         `koanf:"server" validate:"required"`
 	Database      DatabaseConfig       `koanf:"database" validate:"required"`
 	Auth          AuthConfig           `koanf:"auth" validate:"required"`
-	Redis         RedisConfig          `koanf:"redis" validate:"required"`
+	Redis         *RedisConfig         `koanf:"redis"`
 	ContentDir    string               `koanf:"content_dir" validate:"required"`
 	Integration   IntegrationConfig    `koanf:"integration" validate:"required"`
 	Observability *ObservabilityConfig `koanf:"observability"`
@@ -123,6 +123,9 @@ func LoadConfig() (*Config, error) {
 	err = k.Unmarshal("", mainConfig)
 	if err != nil {
 		logger.Fatal().Err(err).Msg("could not unmarshall main config")
+	}
+	if mainConfig.Server.Port == "" {
+		mainConfig.Server.Port = os.Getenv("PORT")
 	}
 
 	validate := validator.New()
