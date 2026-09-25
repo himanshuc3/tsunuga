@@ -5,9 +5,6 @@ import (
 	"embed"
 	"fmt"
 	"io/fs"
-	"net"
-	"net/url"
-	"strconv"
 
 	"github.com/himanshuc3/tango-be/internal/config"
 	"github.com/jackc/pgx/v5"
@@ -22,14 +19,8 @@ import (
 var migrations embed.FS
 
 func Migrate(ctx context.Context, logger *zerolog.Logger, cfg *config.Config) error {
-	hostPort := net.JoinHostPort(cfg.Database.Host, strconv.Itoa(cfg.Database.Port))
-	encodedPassword := url.QueryEscape(cfg.Database.Password)
-	dsn := fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=%s",
-		cfg.Database.User,
-		encodedPassword,
-		hostPort,
-		cfg.Database.Name,
-		cfg.Database.SSLMode)
+
+	dsn := cfg.Database.DSN
 
 	conn, err := pgx.Connect(ctx, dsn)
 	if err != nil {

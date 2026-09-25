@@ -3,9 +3,6 @@ package database
 import (
 	"context"
 	"fmt"
-	"net"
-	"net/url"
-	"strconv"
 	"time"
 
 	"github.com/himanshuc3/tango-be/internal/config"
@@ -58,15 +55,8 @@ func (mt *multiTracer) TraceQueryEnd(ctx context.Context, conn *pgx.Conn, data p
 }
 
 func New(cfg *config.Config, logger *zerolog.Logger, loggerService *loggerConfig.LoggerService) (*Database, error) {
-	hostPort := net.JoinHostPort(cfg.Database.Host, strconv.Itoa(cfg.Database.Port))
 
-	encodedPassword := url.QueryEscape(cfg.Database.Password)
-	dsn := fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=%s",
-		cfg.Database.User,
-		encodedPassword,
-		hostPort,
-		cfg.Database.Name,
-		cfg.Database.SSLMode)
+	dsn := cfg.Database.DSN
 
 	pgxPoolConfig, err := pgxpool.ParseConfig(dsn)
 	if err != nil {

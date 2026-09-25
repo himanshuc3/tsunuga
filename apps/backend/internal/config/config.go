@@ -70,12 +70,7 @@ type ServerConfig struct {
 }
 
 type DatabaseConfig struct {
-	Host            string `koanf:"host" validate:"required"`
-	Port            int    `koanf:"port" validate:"required"`
-	User            string `koanf:"user" validate:"required"`
-	Password        string `koanf:"password"`
-	Name            string `koanf:"name" validate:"required"`
-	SSLMode         string `koanf:"ssl_mode" validate:"required"`
+	DSN             string `koanf:"dsn" validate:"required"`
 	MaxOpenConns    string `koanf:"max_open_conns" validate:"required"`
 	MaxIdleConns    string `koanf:"max_idle_conns" validate:"required"`
 	ConnMaxLifetime string `koanf:"conn_max_lifetime" validate:"required"`
